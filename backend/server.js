@@ -5,43 +5,36 @@ const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
-const db = require('./database');
+const supabase = require('./supabase');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Security Middleware
-app.use(helmet()); 
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+// Middleware
+app.use(helmet({
+    crossOriginResourcePolicy: false,
 }));
+app.use(cors());
+app.use(express.json());
 
-// Traffic Logging Middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${req.ip}`);
-  next();
-});
-
-// Rate Limiting: Max 100 requests per 15 minutes per IP
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: 'Too many requests, please try again later.' }
+    windowMs: 15 * 60 * 1000,
+    max: 100
 });
 app.use('/api/', limiter);
 
-app.use(express.json());
+// Helper function to validate email
+const isValidEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+};
 
-// Public fields for club listings
-const PUBLIC_FIELDS = "id, name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl";
-
-// Auth Middleware
+// --- AUTH MIDDLEWARE ---
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    
+
     if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
@@ -49,13 +42,6 @@ const authenticateToken = (req, res, next) => {
         req.user = user;
         next();
     });
-};
-
-// Validation Helpers
-const isValidEmail = (email) => {
-    return String(email)
-        .toLowerCase()
-        .match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 };
 
 // --- AUTH ROUTES ---
@@ -69,122 +55,121 @@ app.post('/api/auth/register', async (req, res) => {
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const query = `INSERT INTO users (email, password, name) VALUES (?, ?, ?)`;
-        db.run(query, [email, hashedPassword, name || ''], function(err) {
-            if (err) {
-                if (err.message.includes('UNIQUE constraint failed')) {
-                    return res.status(400).json({ error: 'Email already registered.' });
-                }
-                return res.status(500).json({ error: 'Failed to register user.' });
+        
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ email, password: hashedPassword, name: name || '' }])
+            .select();
+
+        if (error) {
+            if (error.code === '23505') { // Unique constraint violation in Postgres
+                return res.status(400).json({ error: 'Email already registered.' });
             }
-            res.status(201).json({ message: 'User registered successfully' });
-        });
+            return res.status(500).json({ error: 'Failed to register user.' });
+        }
+        
+        res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 // Login
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
-    db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
-        if (err) return res.status(500).json({ error: 'Internal server error' });
-        if (!user || !user.password) return res.status(400).json({ error: 'Invalid email or password.' });
+    
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+
+        if (error || !user) return res.status(400).json({ error: 'Invalid email or password.' });
 
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) return res.status(400).json({ error: 'Invalid email or password.' });
 
         const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '24h' });
         res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
-    });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 // --- CLUB ROUTES ---
 
-// Get all clubs (with optional search and category filters)
-app.get('/api/clubs', (req, res) => {
+// Get all clubs
+app.get('/api/clubs', async (req, res) => {
     const { search, category } = req.query;
-    let query = `SELECT ${PUBLIC_FIELDS} FROM clubs WHERE 1=1`;
-    let params = [];
-
-    if (search) {
-        query += " AND (name LIKE ? OR description LIKE ?)";
-        params.push(`%${search}%`, `%${search}%`);
-    }
-
-    if (category && category !== 'All') {
-        query += " AND category = ?";
-        params.push(category);
-    }
-
-    query += " ORDER BY createdAt DESC";
-
-    db.all(query, params, (err, rows) => {
-        if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
-        }
-        res.json(rows);
-    });
-});
-
-// Get club details by ID
-app.get('/api/clubs/:id', (req, res) => {
-    const { id } = req.params;
-    db.get(`SELECT ${PUBLIC_FIELDS} FROM clubs WHERE id = ?`, [id], (err, row) => {
-        if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
-        }
-        if (!row) {
-            res.status(404).json({ error: 'Club not found' });
-            return;
-        }
-        res.json(row);
-    });
-});
-
-// Create a new club (Protected)
-app.post('/api/clubs', authenticateToken, (req, res) => {
-    const { name, category, description, location, contactInfo, imageUrl, establishedYear } = req.body;
     
+    try {
+        let query = supabase.from('clubs').select('*');
+
+        if (search) {
+            query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+        }
+
+        if (category && category !== 'All') {
+            query = query.eq('category', category);
+        }
+
+        const { data: clubs, error } = await query.order('name', { ascending: true });
+
+        if (error) throw error;
+        res.json(clubs);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch clubs' });
+    }
+});
+
+// Get single club
+app.get('/api/clubs/:id', async (req, res) => {
+    try {
+        const { data: club, error } = await supabase
+            .from('clubs')
+            .select('*')
+            .eq('id', req.params.id)
+            .single();
+
+        if (error || !club) return res.status(404).json({ error: 'Club not found' });
+        res.json(club);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch club details' });
+    }
+});
+
+// Add a club (Protected)
+app.post('/api/clubs', authenticateToken, async (req, res) => {
+    const { name, category, description, location, contactInfo, imageUrl, establishedYear } = req.body;
+
     if (!name || !category || !description) {
         return res.status(400).json({ error: 'Name, category, and description are required.' });
     }
 
-    const defaultImage = 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=1000&auto=format&fit=crop';
-    
-    // Generate Google Maps search URL for new clubs
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (location || '') + ' Vijayawada')}`;
+    try {
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (location || '') + ' Vijayawada')}`;
+        
+        const { data, error } = await supabase
+            .from('clubs')
+            .insert([{
+                name, category, description, location, contactInfo, imageUrl, 
+                establishedYear, googleMapsUrl
+            }])
+            .select();
 
-    const query = `
-        INSERT INTO clubs (name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    const params = [
-        name, 
-        category, 
-        description, 
-        location || '', 
-        contactInfo || '', 
-        imageUrl || defaultImage, 
-        establishedYear || null,
-        googleMapsUrl
-    ];
+        if (error) throw error;
+        res.status(201).json({ message: 'Club added successfully', club: data[0] });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to add club' });
+    }
+});
 
-    db.run(query, params, function(err) {
-        if (err) {
-            console.error(err.message);
-            res.status(500).json({ error: 'Failed to create club' });
-            return;
-        }
-        res.status(201).json({ id: this.lastID, message: 'Club created successfully' });
-    });
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
