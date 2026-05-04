@@ -21,12 +21,14 @@
 
 .discovery-wheel-track {
   display: flex;
-  gap: 2rem;
+  gap: 60px; /* Increased from 40px */
+  padding: 40px 10vw;
   transform-style: preserve-3d;
 }
 
 .wheel-card {
-  flex: 0 0 320px;
+  width: 320px; /* Matched to ClubCard */
+  flex-shrink: 0;
   cursor: pointer;
   transform-style: preserve-3d;
 }

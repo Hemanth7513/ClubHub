@@ -1,98 +1,116 @@
 .club-card {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  width: 320px; /* Reduced from ~380px */
+  height: 480px;
   overflow: hidden;
-  height: 100%;
-}
-
-.club-card:hover {
-  transform: translate(-4px, -4px) !important;
-  box-shadow: var(--brutal-shadow-hover) !important;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .club-card-image {
-  height: 180px;
+  height: 200px;
   background-size: cover;
   background-position: center;
   position: relative;
-  border-bottom: 3px solid var(--border-dark);
+  border: 3px solid var(--border-dark);
+  border-radius: 24px 24px 0 0;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.club-card:hover .club-card-image {
+  transform: translateY(-5px) scale(1.02);
 }
 
 .club-category-badge {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 15px;
+  right: 15px;
   background: var(--accent-yellow);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 800;
   color: var(--border-dark);
-  border: 2px solid var(--border-dark);
-  box-shadow: 2px 2px 0px var(--border-dark);
+  padding: 6px 12px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
   text-transform: uppercase;
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0px var(--border-dark);
 }
 
 .club-card-content {
-  padding: 1.5rem;
+  padding: 24px;
+  height: 280px;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  background-color: var(--bg-secondary);
+  border: 3px solid var(--border-dark);
+  border-top: none;
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--brutal-shadow);
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.club-card:hover .club-card-content {
+  box-shadow: var(--brutal-shadow-hover);
+  transform: translateY(-5px);
 }
 
 .club-card-content h3 {
   font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--border-dark);
+  line-height: 1;
+  text-transform: uppercase;
+  font-weight: 900;
 }
 
 .club-description {
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
+  font-size: 0.9rem;
+  color: var(--border-dark);
+  opacity: 0.85;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  font-weight: 500;
 }
 
 .club-meta {
+  margin-top: auto;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  color: var(--border-dark);
-  font-size: 0.9rem;
-  font-weight: 600;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--border-dark);
 }
 
 .club-card-footer {
-  margin-top: auto;
   display: flex;
-  gap: 0.8rem;
-}
-
-.flex-1 {
-  flex: 1;
-}
-
-.w-full {
-  width: 100%;
+  gap: 12px;
+  align-items: center;
 }
 
 .directions-btn {
   width: 50px;
+  flex-shrink: 0;
 }
 
-.directions-btn button {
-  padding-left: 0;
-  padding-right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.club-card-footer button {
+  padding: 10px;
+  font-size: 0.8rem;
 }
