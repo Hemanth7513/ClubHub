@@ -8,6 +8,9 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 
+// Health check
+app.get('/', (req, res) => res.json({ status: 'ok', message: 'ClubHub API is live' }));
+
 // Security Middleware
 app.use(helmet({
     crossOriginResourcePolicy: false,

@@ -63,6 +63,12 @@ const DirectoryPage = () => {
           <p>Waking up the hubs...</p>
         </div>
       )}
+      {error && (
+        <div className="error-overlay">
+          <p>{error}</p>
+          <Button onClick={fetchClubs}>Retry Connection</Button>
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {!selectedCategory ? (
           <motion.div 
