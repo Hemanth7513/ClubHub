@@ -1,0 +1,37 @@
+.painter-container {
+  position: absolute;
+  right: -60px;
+  bottom: -40px;
+  width: 400px;
+  height: 400px;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.9;
+}
+
+.painter-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.painter-eye-sparkle {
+  position: absolute;
+  top: 35%; /* Approximate position of eyes */
+  left: 45%;
+  width: 10px;
+  height: 10px;
+  background: var(--accent-yellow);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+@media (max-width: 1024px) {
+  .painter-container {
+    width: 250px;
+    height: 250px;
+    right: -20px;
+    bottom: -20px;
+    opacity: 0.5;
+  }
+}

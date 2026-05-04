@@ -1,0 +1,117 @@
+.discovery-wheel-outer {
+  position: relative;
+  width: 100%;
+  padding: 4rem 0;
+  overflow: hidden;
+}
+
+.discovery-wheel-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  padding: 2rem 5vw 4rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  perspective: 1500px;
+}
+
+.discovery-wheel-container::-webkit-scrollbar {
+  display: none;
+}
+
+.discovery-wheel-track {
+  display: flex;
+  gap: 2rem;
+  transform-style: preserve-3d;
+}
+
+.wheel-card {
+  flex: 0 0 320px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+.wheel-card-inner {
+  height: 100%;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: var(--bg-secondary);
+  backdrop-filter: var(--glass-blur);
+  border: 3px solid var(--border-dark);
+  border-top: 8px solid var(--accent);
+  border-radius: var(--border-radius);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.wheel-card:hover .wheel-card-inner {
+  transform: translateY(-15px) rotate(1deg);
+  box-shadow: 15px 15px 0px var(--accent);
+}
+
+.wheel-icon-box {
+  width: 60px;
+  height: 60px;
+  background: var(--accent);
+  border: 2px solid var(--border-dark);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 4px 4px 0px var(--border-dark);
+}
+
+.wheel-card h3 {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.wheel-card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  flex-grow: 1;
+}
+
+.wheel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.wheel-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: -1rem;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.scroll-indicator {
+  width: 40px;
+  height: 4px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 2px;
+  position: relative;
+}
+
+.indicator-dot {
+  width: 12px;
+  height: 100%;
+  background: var(--accent-pink);
+  border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  .wheel-card {
+    flex: 0 0 280px;
+  }
+}

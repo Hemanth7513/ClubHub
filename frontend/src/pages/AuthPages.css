@@ -1,0 +1,124 @@
+.auth-page {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-card {
+  background: var(--bg-secondary);
+  border: 4px solid var(--border-dark);
+  border-radius: 24px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 12px 12px 0px var(--border-dark);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.auth-error {
+  background: #fff0f0;
+  color: var(--accent-coral);
+  padding: 1rem;
+  border: 2px solid var(--accent-coral);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.auth-submit {
+  background: var(--border-dark);
+  color: white;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+
+.auth-submit:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0px var(--accent-pink);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 2rem 0;
+  color: var(--text-secondary);
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 2px dashed #ddd;
+}
+
+.auth-divider span {
+  padding: 0 1rem;
+}
+
+#googleSignInDiv {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.auth-footer a {
+  color: var(--accent-pink);
+  text-decoration: underline;
+}

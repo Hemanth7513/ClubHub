@@ -1,0 +1,71 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all var(--transition-speed);
+  gap: 0.5rem;
+  border: 3px solid var(--border-dark);
+  box-shadow: 3px 3px 0px var(--border-dark);
+}
+
+.btn:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0px var(--border-dark);
+}
+
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--border-dark);
+}
+
+/* Variants */
+.btn-primary {
+  background: var(--accent-pink);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-pink);
+  box-shadow: 8px 8px 0px var(--accent-violet);
+}
+
+.btn-secondary {
+  background: var(--accent-yellow);
+  color: var(--border-dark);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-yellow);
+  box-shadow: 8px 8px 0px var(--accent-lime);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  backdrop-filter: var(--glass-blur);
+}
+
+.btn-outline:hover {
+  background: var(--border-dark);
+  color: white;
+}
+
+/* Sizes */
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-medium {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
