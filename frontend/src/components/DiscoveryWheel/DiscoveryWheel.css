@@ -1,80 +1,70 @@
 .discovery-wheel-outer {
-  position: relative;
   width: 100%;
-  padding: 4rem 0;
-  overflow: hidden;
+  position: relative;
+  margin: 60px 0;
+  padding: 0 5vw; /* Match container padding */
 }
 
 .discovery-wheel-container {
+  width: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
-  display: flex;
-  padding: 2rem 5vw 4rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  perspective: 1500px;
+  padding-bottom: 40px;
+  cursor: grab;
+  scrollbar-width: none; /* Hide scrollbar Firefox */
 }
 
 .discovery-wheel-container::-webkit-scrollbar {
-  display: none;
+  display: none; /* Hide scrollbar Chrome/Safari */
 }
 
 .discovery-wheel-track {
   display: flex;
-  gap: 60px; /* Increased from 40px */
-  padding: 40px 10vw;
-  transform-style: preserve-3d;
+  gap: 60px; /* Massive gap for negative space */
+  padding: 20px 0;
 }
 
 .wheel-card {
-  width: 320px; /* Matched to ClubCard */
+  width: 280px; /* Senior Dev: Smaller is cleaner */
   flex-shrink: 0;
   cursor: pointer;
-  transform-style: preserve-3d;
 }
 
 .wheel-card-inner {
-  height: 100%;
-  padding: 2.5rem;
+  padding: 32px;
+  height: 380px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  background: var(--bg-secondary);
-  backdrop-filter: var(--glass-blur);
-  border: 3px solid var(--border-dark);
-  border-top: 8px solid var(--accent);
-  border-radius: var(--border-radius);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.wheel-card:hover .wheel-card-inner {
-  transform: translateY(-15px) rotate(1deg);
-  box-shadow: 15px 15px 0px var(--accent);
+  justify-content: space-between;
+  text-align: left;
 }
 
 .wheel-icon-box {
   width: 60px;
   height: 60px;
   background: var(--accent);
-  border: 2px solid var(--border-dark);
+  border: 3px solid var(--border-dark);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  box-shadow: 4px 4px 0px var(--border-dark);
+  margin-bottom: 24px;
+}
+
+.wheel-icon {
+  font-size: 24px;
 }
 
 .wheel-card h3 {
   font-size: 1.5rem;
-  line-height: 1.1;
-  color: var(--text-primary);
+  margin-bottom: 12px;
+  color: var(--border-dark);
 }
 
 .wheel-card p {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  flex-grow: 1;
+  line-height: 1.5;
+  margin-bottom: 20px;
 }
 
 .wheel-footer {
@@ -84,36 +74,40 @@
   margin-top: auto;
 }
 
+.count-badge {
+  background: var(--border-dark);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
 .wheel-hint {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: -1rem;
+  gap: 12px;
+  margin-top: 40px;
+  color: var(--text-secondary);
   font-family: 'Unbounded', sans-serif;
   font-size: 0.7rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  letter-spacing: 0.1em;
 }
 
 .scroll-indicator {
-  width: 40px;
+  width: 60px;
   height: 4px;
   background: rgba(0,0,0,0.1);
   border-radius: 2px;
   position: relative;
+  overflow: hidden;
 }
 
 .indicator-dot {
-  width: 12px;
+  width: 20px;
   height: 100%;
-  background: var(--accent-pink);
+  background: var(--border-dark);
   border-radius: 2px;
-}
-
-@media (max-width: 768px) {
-  .wheel-card {
-    flex: 0 0 280px;
-  }
 }
