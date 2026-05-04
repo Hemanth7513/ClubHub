@@ -1,8 +1,0 @@
-{
-  "cleanUrls": true,
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/frontend/dist/$1" },
-    { "source": "/(.*)", "destination": "/frontend/dist/index.html" }
-  ]
-}
