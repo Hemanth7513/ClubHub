@@ -51,16 +51,16 @@ const rawClubs = [
 ];
 
 async function seed() {
-    console.log("Seeding Supabase...");
+    console.log("Seeding Supabase with snake_case naming...");
     const clubsToInsert = rawClubs.map(c => ({
         name: c[0],
         category: c[1],
         description: c[2],
         location: c[3],
-        contactInfo: c[4],
-        imageUrl: c[5],
-        establishedYear: c[6],
-        googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[0] + ' ' + (c[3] || '') + ' Vijayawada')}`
+        contact_info: c[4],
+        image_url: c[5],
+        established_year: c[6],
+        google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[0] + ' ' + (c[3] || '') + ' Vijayawada')}`
     }));
 
     const { data, error } = await supabase
@@ -70,7 +70,7 @@ async function seed() {
     if (error) {
         console.error("Error seeding:", error);
     } else {
-        console.log("Successfully seeded 47+ clubs!");
+        console.log("Successfully seeded 47+ clubs with snake_case naming!");
     }
 }
 

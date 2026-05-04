@@ -117,7 +117,22 @@ app.get('/api/clubs', async (req, res) => {
         const { data: clubs, error } = await query.order('name', { ascending: true });
 
         if (error) throw error;
-        res.json(clubs);
+        
+        // Map to camelCase for frontend compatibility
+        const mappedClubs = clubs.map(c => ({
+            id: c.id,
+            name: c.name,
+            category: c.category,
+            description: c.description,
+            location: c.location,
+            contactInfo: c.contact_info,
+            imageUrl: c.image_url,
+            establishedYear: c.established_year,
+            googleMapsUrl: c.google_maps_url,
+            createdAt: c.created_at
+        }));
+        
+        res.json(mappedClubs);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch clubs' });
     }
@@ -133,7 +148,22 @@ app.get('/api/clubs/:id', async (req, res) => {
             .single();
 
         if (error || !club) return res.status(404).json({ error: 'Club not found' });
-        res.json(club);
+        
+        // Map to camelCase for frontend compatibility
+        const mappedClub = {
+            id: club.id,
+            name: club.name,
+            category: club.category,
+            description: club.description,
+            location: club.location,
+            contactInfo: club.contact_info,
+            imageUrl: club.image_url,
+            establishedYear: club.established_year,
+            googleMapsUrl: club.google_maps_url,
+            createdAt: club.created_at
+        };
+        
+        res.json(mappedClub);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch club details' });
     }
@@ -153,8 +183,8 @@ app.post('/api/clubs', authenticateToken, async (req, res) => {
         const { data, error } = await supabase
             .from('clubs')
             .insert([{
-                name, category, description, location, contactInfo, imageUrl, 
-                establishedYear, googleMapsUrl
+                name, category, description, location, contact_info: contactInfo, image_url: imageUrl, 
+                established_year: establishedYear, google_maps_url: googleMapsUrl
             }])
             .select();
 
