@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
 const supabase = require('./supabase');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -24,6 +25,19 @@ const limiter = rateLimit({
     max: 100
 });
 app.use('/api/', limiter);
+
+// Authentication Middleware
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Authentication required' });
+
+    jwt.verify(token, process.env.JWT_SECRET || 'clubhub_secret_vja_2024', (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid or expired token' });
+        req.user = user;
+        next();
+    });
+};
 
 // API Endpoints
 
@@ -91,8 +105,8 @@ app.get('/api/clubs/:id', async (req, res) => {
     }
 });
 
-// 3. Register a new club (requires basic protection)
-app.post('/api/clubs', async (req, res) => {
+// 3. Register a new club (protected)
+app.post('/api/clubs', authenticateToken, async (req, res) => {
     try {
         const { name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl } = req.body;
         
@@ -111,6 +125,79 @@ app.post('/api/clubs', async (req, res) => {
     }
 });
 
+// --- AUTH ENDPOINTS ---
+
+// Register
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { email, password, name } = req.body;
+        
+        // Check if user exists
+        const { data: existingUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+            
+        if (existingUser) return res.status(400).json({ error: 'Email already registered' });
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert user
+        const { data: newUser, error } = await supabase
+            .from('users')
+            .insert([{ email, password: hashedPassword, name }])
+            .select()
+            .single();
+
+        if (error) throw error;
+        
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        console.error("Registration error:", err);
+        res.status(500).json({ error: 'Registration failed' });
+    }
+});
+
+// Login
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+
+        if (error || !user) return res.status(401).json({ error: 'Invalid email or password' });
+
+        // Verify password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(401).json({ error: 'Invalid email or password' });
+
+        // Generate JWT
+        const token = jwt.sign(
+            { id: user.id, email: user.email }, 
+            process.env.JWT_SECRET || 'clubhub_secret_2024', 
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name
+            }
+        });
+    } catch (err) {
+        console.error("Login error:", err);
+        res.status(500).json({ error: 'Login failed' });
+    }
+});
+
 // 4. Search suggestions
 app.get('/api/search/suggestions', async (req, res) => {
     try {
@@ -125,6 +212,39 @@ app.get('/api/search/suggestions', async (req, res) => {
         res.json(data.map(c => c.name));
     } catch (err) {
         res.status(500).json({ error: 'Search failed' });
+    }
+});
+
+// --- Events API ---
+app.get('/api/events', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('events')
+            .select('*, clubs(name)')
+            .order('date', { ascending: true });
+        
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/events', authenticateToken, async (req, res) => {
+    const { clubId, title, description, date, location, imageUrl, category } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('events')
+            .insert([{
+                club_id: clubId, title, description, date, location, 
+                image_url: imageUrl, category
+            }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json(data[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

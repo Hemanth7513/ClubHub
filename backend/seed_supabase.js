@@ -51,7 +51,7 @@ const rawClubs = [
 ];
 
 async function seed() {
-    console.log("Seeding Supabase with snake_case naming...");
+    console.log("Seeding Supabase with snake_case naming (confirmed existing columns)...");
     const clubsToInsert = rawClubs.map(c => ({
         name: c[0],
         category: c[1],
@@ -62,6 +62,9 @@ async function seed() {
         established_year: c[6],
         google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c[0] + ' ' + (c[3] || '') + ' Vijayawada')}`
     }));
+
+    // Delete existing to avoid duplicates
+    await supabase.from('clubs').delete().neq('id', 0);
 
     const { data, error } = await supabase
         .from('clubs')

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/logo.png';
@@ -23,6 +23,12 @@ const Header = () => {
           <div className="nav-links">
             <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               <Users size={18} /> Directory
+            </Link>
+            <Link to="/events" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <Calendar size={18} /> Events
+            </Link>
+            <Link to="/support" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <HelpCircle size={18} /> Support
             </Link>
             {user ? (
               <>

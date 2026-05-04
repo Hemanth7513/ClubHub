@@ -1,6 +1,8 @@
 import React from 'react';
 import './Footer.css';
 
+import { Link } from 'react-router-dom';
+
 const Footer = () => {
   return (
     <footer className="footer glass-panel">
@@ -13,15 +15,15 @@ const Footer = () => {
           <div className="footer-links">
             <div className="footer-group">
               <h4>Platform</h4>
-              <a href="#">Directory</a>
-              <a href="#">Events</a>
-              <a href="#">Categories</a>
+              <Link to="/">Directory</Link>
+              <Link to="/events">Events</Link>
+              <Link to="/">Categories</Link>
             </div>
             <div className="footer-group">
               <h4>Support</h4>
-              <a href="#">Help Center</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">Privacy Policy</a>
+              <Link to="/support">Help Center</Link>
+              <Link to="/support">Terms of Service</Link>
+              <Link to="/support">Privacy Policy</Link>
             </div>
           </div>
         </div>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, TrendingUp, Globe, Plus, Heart, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
 import ClubCard from '../components/ClubCard/ClubCard';
-import SocialPulse from '../components/SocialPulse/SocialPulse';
-import Marquee from '../components/Marquee/Marquee';
 import Button from '../components/Button/Button';
 import MissionPlot from '../components/MissionPlot/MissionPlot';
 import DiscoveryWheel from '../components/DiscoveryWheel/DiscoveryWheel';
@@ -29,10 +27,12 @@ const DirectoryPage = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   
-  const heroRef = useRef(null);
+  const discoveryRef = useRef(null);
   const { scrollYProgress } = useScroll();
-  const yParallax = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
-  const opacityHero = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
+  const scrollToDiscovery = () => {
+    discoveryRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => { fetchClubs(); }, []);
 
@@ -72,13 +72,12 @@ const DirectoryPage = () => {
             exit={{ opacity: 0 }}
             className="landing-view"
           >
-            {/* REFINED HERO SECTION */}
             <section className="hero-refined">
-              <div className="container hero-split">
+              <div className="container">
                 <motion.div 
-                  className="hero-content"
-                  initial={{ x: -100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
+                  className="hero-content-centered"
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8 }}
                 >
                   <div className="badge">VIJAYAWADA CLUB PORTAL</div>
@@ -90,25 +89,15 @@ const DirectoryPage = () => {
                     The heart of community discovery. Connect with social, professional, and cultural circles that pulse with energy.
                   </p>
                   <div className="hero-cta">
-                    <Button variant="primary" size="large">
+                    <Button variant="primary" size="large" onClick={scrollToDiscovery}>
                       Explore Hubs <ArrowRight size={20} />
                     </Button>
                   </div>
                 </motion.div>
-
-                <motion.div 
-                  className="hero-visual"
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.2 }}
-                >
-                  <SocialPulse />
-                </motion.div>
               </div>
             </section>
 
-            {/* REFINED DISCOVERY PULSE */}
-            <section className="discovery-pulse">
+            <section className="discovery-section" ref={discoveryRef}>
               <div className="container" style={{ position: 'relative' }}>
                 <div className="discovery-header">
                   <h2 className="section-title">Explore Hubs</h2>

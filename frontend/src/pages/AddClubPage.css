@@ -1,7 +1,7 @@
 .add-club-page {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 0 4rem;
+  padding: 4rem 1rem 6rem; /* Increased top padding and added horizontal padding */
 }
 
 .page-header {
@@ -104,4 +104,34 @@
   .page-header h1 {
     font-size: 2.5rem;
   }
+}
+
+.input-error {
+  border-color: var(--accent-pink) !important;
+  background-color: rgba(255, 46, 99, 0.05) !important;
+}
+
+.error-text {
+  color: var(--accent-pink);
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-top: 0.25rem;
+}
+
+input, select, textarea {
+  padding: 1.1rem;
+  border: 3px solid var(--border-dark);
+  border-radius: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  background: white;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px var(--border-dark);
+  background: #fff;
 }

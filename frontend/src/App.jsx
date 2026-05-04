@@ -7,6 +7,9 @@ import ClubDetailPage from './pages/ClubDetailPage';
 import AddClubPage from './pages/AddClubPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import EventsPage from './pages/EventsPage';
+import SupportPage from './pages/SupportPage';
+import AddEventPage from './pages/AddEventPage';
 import Cursor from './components/Cursor/Cursor';
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
@@ -40,6 +43,13 @@ function App() {
             } />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/add-event" element={
+              <ProtectedRoute>
+                <AddEventPage />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
         <Footer />
