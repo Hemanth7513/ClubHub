@@ -57,6 +57,12 @@ const DirectoryPage = () => {
 
   return (
     <div className="directory-page">
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+          <p>Waking up the hubs...</p>
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {!selectedCategory ? (
           <motion.div 
