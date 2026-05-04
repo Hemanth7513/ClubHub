@@ -1,30 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://your-backend-url.onrender.com/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1",
-      "continue": true
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/index.html"
-    }
+  "cleanUrls": true,
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/frontend/dist/$1" },
+    { "source": "/(.*)", "destination": "/frontend/dist/index.html" }
   ]
 }
