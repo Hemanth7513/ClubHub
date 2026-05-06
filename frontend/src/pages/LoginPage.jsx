@@ -14,6 +14,8 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  React.useEffect(() => { window.scrollTo(0, 0); }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -39,51 +41,52 @@ const LoginPage = () => {
 
   return (
     <div className="auth-page">
-      <motion.div 
-        className="auth-card"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="auth-header">
-          <h1 className="text-gradient">Welcome Back</h1>
-          <p>Join the elite community of Vijayawada.</p>
-        </div>
-
-        {error && <div className="auth-error">{error}</div>}
-
-        <form onSubmit={handleLogin} className="auth-form">
-          <div className="input-group">
-            <label><Mail size={16} /> Email Address</label>
-            <input 
-              type="email" 
-              placeholder="name@example.com" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
+      <div className="auth-panel">
+        <motion.div 
+          className="auth-card"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="auth-header">
+            <span className="auth-eyebrow">Vijayawada City Voice</span>
+            <h1>Welcome Back</h1>
+            <p>Sign in to register clubs & manage your community.</p>
           </div>
-          <div className="input-group">
-            <label><Lock size={16} /> Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-          </div>
-          <button type="submit" className="auth-submit" disabled={loading}>
-            {loading ? 'Authenticating...' : (
-              <>Login Now <ArrowRight size={20} /></>
-            )}
-          </button>
-        </form>
 
-        <p className="auth-footer">
-          New here? <Link to="/register">Create an account</Link>
-        </p>
-      </motion.div>
+          {error && <div className="auth-error">{error}</div>}
+
+          <form onSubmit={handleLogin} className="auth-form">
+            <div className="input-group">
+              <label><Mail size={14} /> Email Address</label>
+              <input 
+                type="email" 
+                placeholder="name@example.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required 
+              />
+            </div>
+            <div className="input-group">
+              <label><Lock size={14} /> Password</label>
+              <input 
+                type="password" 
+                placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required 
+              />
+            </div>
+            <button type="submit" className="auth-submit" disabled={loading}>
+              {loading ? 'Authenticating...' : (<>Login Now <ArrowRight size={18} /></>)}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+            New here? <Link to="/register">Create an account</Link>
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 };
