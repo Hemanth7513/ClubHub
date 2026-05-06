@@ -112,22 +112,96 @@
   margin-bottom: 32px;
 }
 
-/* Loading Overlay */
-.loading-overlay {
+/* Editorial Splash Screen */
+.splash-screen {
   position: fixed;
   inset: 0;
-  background: white;
-  z-index: 9999;
+  background: var(--bg-primary);
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  text-align: center;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.splash-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.splash-logo .brand {
   font-family: 'Unbounded', sans-serif;
+  font-size: clamp(2rem, 8vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--border-dark);
+  line-height: 1;
+}
+
+.splash-logo .city {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1rem, 4vw, 2rem);
+  font-style: italic;
+  color: var(--accent-pink);
+  opacity: 0.8;
+}
+
+.splash-loader-bar {
+  width: 200px;
+  height: 2px;
+  background: rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.splash-loader-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 50%;
+  background: var(--border-dark);
+  animation: progress-slide 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes progress-slide {
+  0% { left: -50%; width: 30%; }
+  50% { left: 25%; width: 50%; }
+  100% { left: 100%; width: 30%; }
+}
+
+.splash-status {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.65rem;
   font-weight: 700;
-  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 2px;
+}
+
+.error-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  text-align: center;
 }
 
 /* Mobile Polish */

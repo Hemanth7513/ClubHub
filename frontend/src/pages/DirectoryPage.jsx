@@ -57,12 +57,39 @@ const DirectoryPage = () => {
 
   return (
     <div className="directory-page">
-      {loading && (
-        <div className="loading-overlay">
-          <div className="spinner"></div>
-          <p>Waking up the hubs...</p>
-        </div>
-      )}
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            className="splash-screen"
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.8, ease: "circOut" }}
+          >
+            <div className="splash-content">
+              <motion.div 
+                className="splash-logo"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <span className="city">VIJAYAWADA</span>
+                <span className="brand">CITY VOICE</span>
+              </motion.div>
+              
+              <div className="splash-loader-bar">
+                <div className="splash-loader-progress"></div>
+              </div>
+              
+              <motion.span 
+                className="splash-status"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                Establishing Portal Connection
+              </motion.span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {error && (
         <div className="error-overlay">
           <p>{error}</p>
