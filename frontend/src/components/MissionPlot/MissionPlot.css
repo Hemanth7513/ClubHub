@@ -16,19 +16,6 @@
   overflow: hidden;
 }
 
-.plot-card::before {
-  content: 'HUB';
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  font-size: 15rem;
-  font-weight: 900;
-  color: var(--accent-yellow);
-  opacity: 0.1;
-  z-index: 0;
-  pointer-events: none;
-}
-
 .plot-header {
   position: relative;
   z-index: 1;
