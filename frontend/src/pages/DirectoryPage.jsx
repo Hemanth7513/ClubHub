@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
 import ClubCard from '../components/ClubCard/ClubCard';
 import Button from '../components/Button/Button';
@@ -28,7 +28,7 @@ const DirectoryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   
   const discoveryRef = useRef(null);
-  const { scrollYProgress } = useScroll();
+
 
   const scrollToDiscovery = () => {
     discoveryRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -61,31 +61,30 @@ const DirectoryPage = () => {
         {loading && (
           <motion.div 
             className="splash-screen"
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.8, ease: "circOut" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <div className="splash-content">
               <motion.div 
                 className="splash-logo"
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
               >
                 <span className="city">VIJAYAWADA</span>
-                <span className="brand">CITY VOICE</span>
+                <span className="brand">CITY<br/>VOICE</span>
               </motion.div>
+
+              <motion.div
+                className="splash-accent-line"
+                initial={{ scaleX: 0, originX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              />
               
               <div className="splash-loader-bar">
                 <div className="splash-loader-progress"></div>
               </div>
-              
-              <motion.span 
-                className="splash-status"
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                Establishing Portal Connection
-              </motion.span>
             </div>
           </motion.div>
         )}
