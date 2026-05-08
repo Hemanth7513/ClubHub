@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, GlassWater, Trophy, Users, Globe2, Briefcase, Landmark, BookOpen, Laptop } from 'lucide-react';
 import ClubCard from '../components/ClubCard/ClubCard';
 import Button from '../components/Button/Button';
 import MissionPlot from '../components/MissionPlot/MissionPlot';
@@ -11,14 +11,14 @@ import API_BASE_URL from '../config';
 import './DirectoryPage.css';
 
 const CATEGORIES = [
-  { name: 'Social & Recreation Clubs', icon: '🏛️', color: 'var(--accent-cyan)', desc: 'Elite social hubs and premium recreation centers.' },
-  { name: 'Service Clubs', icon: '🤝', color: 'var(--accent-yellow)', desc: 'Community-driven service and leadership organizations.' },
-  { name: 'NGOs & Social Organizations', icon: '🌱', color: 'var(--accent-lime)', desc: 'Dedicated to social welfare and sustainable impact.' },
-  { name: 'Sports & Activity Clubs', icon: '🧗', color: 'var(--accent-pink)', desc: 'High-energy sports communities and fitness groups.' },
-  { name: 'Cultural & Literary Clubs', icon: '📚', color: 'var(--accent-violet)', desc: 'Artistic expressions and intellectual gatherings.' },
-  { name: 'Professional & Networking', icon: '🧑‍💼', color: 'var(--accent-orange)', desc: 'Career growth and elite professional circles.' },
-  { name: 'Student & Tech Groups', icon: '💻', color: 'var(--accent-cyan)', desc: 'Next-gen innovation and student-led initiatives.' },
-  { name: 'Nightlife & Entertainment', icon: '🌃', color: 'var(--accent-pink)', desc: 'The pulse of Vijayawada after dark.' }
+  { name: 'Social & Recreation Clubs', icon: <Landmark size={28} />, color: 'var(--accent-cyan)', desc: 'Elite social hubs and premium recreation centers.' },
+  { name: 'Service Clubs', icon: <Users size={28} />, color: 'var(--accent-yellow)', desc: 'Community-driven service and leadership organizations.' },
+  { name: 'NGOs & Social Organizations', icon: <Globe2 size={28} />, color: 'var(--accent-lime)', desc: 'Dedicated to social welfare and sustainable impact.' },
+  { name: 'Sports & Activity Clubs', icon: <Trophy size={28} />, color: 'var(--accent-pink)', desc: 'High-energy sports communities and fitness groups.' },
+  { name: 'Cultural & Literary Clubs', icon: <BookOpen size={28} />, color: 'var(--accent-violet)', desc: 'Artistic expressions and intellectual gatherings.' },
+  { name: 'Professional & Networking', icon: <Briefcase size={28} />, color: 'var(--accent-orange)', desc: 'Career growth and elite professional circles.' },
+  { name: 'Student & Tech Groups', icon: <Laptop size={28} />, color: 'var(--accent-cyan)', desc: 'Next-gen innovation and student-led initiatives.' },
+  { name: 'Nightlife & Entertainment', icon: <GlassWater size={28} />, color: 'var(--accent-pink)', desc: 'The pulse of Vijayawada after dark.' }
 ];
 
 const DirectoryPage = () => {
@@ -26,6 +26,9 @@ const DirectoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  
+  // Only show the splash screen once per session
+  const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splash_shown'));
   
   const discoveryRef = useRef(null);
 
@@ -35,6 +38,16 @@ const DirectoryPage = () => {
   };
 
   useEffect(() => { fetchClubs(); }, []);
+
+  useEffect(() => {
+    if (showSplash) {
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        sessionStorage.setItem('splash_shown', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash]);
 
   const fetchClubs = async () => {
     try {
@@ -58,7 +71,7 @@ const DirectoryPage = () => {
   return (
     <div className="directory-page">
       <AnimatePresence>
-        {loading && (
+        {showSplash && (
           <motion.div 
             className="splash-screen"
             exit={{ opacity: 0 }}
@@ -136,11 +149,17 @@ const DirectoryPage = () => {
                   <p>Curated categories for every interest.</p>
                 </div>
                 
-                <DiscoveryWheel 
-                  categories={CATEGORIES} 
-                  clubs={clubs} 
-                  onSelect={setSelectedCategory} 
-                />
+                {loading && !showSplash ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
+                    <div className="spinner"></div>
+                  </div>
+                ) : (
+                  <DiscoveryWheel 
+                    categories={CATEGORIES} 
+                    clubs={clubs} 
+                    onSelect={setSelectedCategory} 
+                  />
+                )}
               </div>
             </section>
 
