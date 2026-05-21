@@ -1,0 +1,21 @@
+{
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "^/backend/.*",
+      "status": 404
+    },
+    {
+      "src": "^/frontend/.*",
+      "status": 404
+    },
+    {
+      "src": "^/node_modules/.*",
+      "status": 404
+    },
+    {
+      "src": "^/(.*)",
+      "dest": "/dist/$1"
+    }
+  ]
+}

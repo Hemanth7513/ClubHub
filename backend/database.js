@@ -10,27 +10,66 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 function initializeDatabase() {
     db.serialize(() => {
-        db.run(`CREATE TABLE IF NOT EXISTS clubs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL, category TEXT NOT NULL, description TEXT NOT NULL,
-            location TEXT, contactInfo TEXT, imageUrl TEXT, establishedYear TEXT,
-            googleMapsUrl TEXT,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`, (err) => {
-            if (err) { console.error("Error creating clubs table:", err); }
-            else { console.log("Clubs table ready."); seedDatabase(); }
-        });
-
+        // 1. Users Table
         db.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT,
             name TEXT,
-            googleId TEXT UNIQUE,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            google_id TEXT UNIQUE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`, (err) => {
             if (err) { console.error("Error creating users table:", err); }
             else { console.log("Users table ready."); }
+        });
+
+        // 2. Profiles Table (4th Table)
+        db.run(`CREATE TABLE IF NOT EXISTS profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+            bio TEXT,
+            avatar_url TEXT,
+            theme_preference TEXT DEFAULT 'dark',
+            notifications_enabled BOOLEAN DEFAULT 1,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`, (err) => {
+            if (err) { console.error("Error creating profiles table:", err); }
+            else { console.log("Profiles table ready."); }
+        });
+
+        // 3. Clubs Table
+        db.run(`CREATE TABLE IF NOT EXISTS clubs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL, 
+            category TEXT NOT NULL, 
+            description TEXT NOT NULL,
+            location TEXT, 
+            contact_info TEXT, 
+            image_url TEXT, 
+            established_year TEXT,
+            google_maps_url TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
+        )`, (err) => {
+            if (err) { console.error("Error creating clubs table:", err); }
+            else { console.log("Clubs table ready."); seedDatabase(); }
+        });
+
+        // 4. Events Table
+        db.run(`CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            club_id INTEGER REFERENCES clubs(id) ON DELETE CASCADE,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            date TEXT NOT NULL,
+            location TEXT,
+            image_url TEXT,
+            category TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
+        )`, (err) => {
+            if (err) { console.error("Error creating events table:", err); }
+            else { console.log("Events table ready."); }
         });
     });
 }
@@ -38,14 +77,10 @@ function initializeDatabase() {
 function seedDatabase() {
     db.get("SELECT COUNT(*) AS count FROM clubs", (err, row) => {
         if (err) { console.error("Error checking rows:", err); return; }
-        // If table has no googleMapsUrl column but has rows, or if rows are 0, we reseed or alert
-        // For simplicity and since we are in dev, if rows > 0 and no googleMapsUrl data, we will just delete and reseed
-        // But better is to just check if we need to update. 
-        // User told me to delete .db to reseed anyway.
         
         if (row.count === 0) {
             console.log("Seeding database with Google Maps links...");
-            const stmt = db.prepare(`INSERT INTO clubs (name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+            const stmt = db.prepare(`INSERT INTO clubs (name, category, description, location, contact_info, image_url, established_year, google_maps_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
             
             const rawClubs = [
                 // 1. Social & Recreation Clubs
@@ -93,7 +128,7 @@ function seedDatabase() {
 
                 // 6. Professional & Networking
                 ['Press Club Vijayawada', 'Professional & Networking', 'The official gathering point for media professionals, journalists and editors in the Krishna district.', 'Vijayawada', 'info@pressclubvja.in', 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=1000', null],
-                ['BNI Vijayawada Chapter', 'Professional & Networking', 'Business Network International chapter helping entrepreneurs and professionals grow through structured referrals and networking.', 'Vijayawada', 'vijayawada@bni.com', 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=1000', null],
+                ['BNI Vijayawada Chapter', 'Professional & Networking', 'Business Network International chapter helping entrepreneurs and professionals grow through structured referrals and networking.', 'Vijayawada', 'rose@bnivja.in', 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=1000', null],
                 ['CII Andhra Pradesh', 'Professional & Networking', 'Confederation of Indian Industry regional office facilitating business growth, policy advocacy and industry events.', 'Vijayawada', 'ap@cii.in', 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1000', null],
                 ['Vijayawada Startup Community', 'Professional & Networking', 'Informal community of founders, investors and mentors meeting monthly to share learnings and support local startups.', 'Various Cafes, Vijayawada', 'startups.vja@gmail.com', 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1000', null],
 

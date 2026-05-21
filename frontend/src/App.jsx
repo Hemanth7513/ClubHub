@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage';
 import EventsPage from './pages/EventsPage';
 import SupportPage from './pages/SupportPage';
 import AddEventPage from './pages/AddEventPage';
+import SettingsPage from './pages/SettingsPage';
 import Cursor from './components/Cursor/Cursor';
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
@@ -45,6 +46,11 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/support" element={<SupportPage />} />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            } />
             <Route path="/add-event" element={
               <ProtectedRoute>
                 <AddEventPage />

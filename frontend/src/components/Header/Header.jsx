@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -9,6 +9,13 @@ import './Header.css';
 const Header = () => {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+    navigate('/');
+  };
 
   return (
     <header className="header sticky-header">
@@ -36,9 +43,11 @@ const Header = () => {
                   <PlusCircle size={18} /> Add Club
                 </Link>
                 <div className="user-profile">
-                  <User size={18} />
-                  <span className="user-name">{user.name}</span>
-                  <button onClick={logout} className="logout-btn">
+                  <Link to="/settings" className="user-profile-link" onClick={() => setIsMenuOpen(false)}>
+                    <User size={18} />
+                    <span className="user-name">{user.name}</span>
+                  </Link>
+                  <button onClick={handleLogout} className="logout-btn" title="Logout">
                     <LogOut size={16} />
                   </button>
                 </div>
