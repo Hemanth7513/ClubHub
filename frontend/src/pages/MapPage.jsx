@@ -77,17 +77,17 @@ const MapPage = () => {
         </div>
       </motion.div>
 
-      <div className="map-wrapper">
+      <div className="map-wrapper container">
         {loading ? (
-          <div className="spinner" style={{ margin: 'auto', marginTop: '20vh' }}></div>
+          <div className="spinner" style={{ margin: 'auto', marginTop: '10vh' }}></div>
         ) : (
-          <MapContainer 
-            center={centerPosition} 
-            zoom={13} 
-            scrollWheelZoom={true} 
-            className="leaflet-map-container"
-            style={{ height: '80vh', width: '100%', zIndex: 1 }}
-          >
+          <div className="map-brutalist-container">
+            <MapContainer 
+              center={centerPosition} 
+              zoom={13} 
+              scrollWheelZoom={true} 
+              className="leaflet-map-container"
+            >
             {/* CartoDB Dark Matter Tiles for Brutalist Dark Mode Look */}
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -114,7 +114,8 @@ const MapPage = () => {
                 </Popup>
               </Marker>
             ))}
-          </MapContainer>
+            </MapContainer>
+          </div>
         )}
       </div>
     </div>
