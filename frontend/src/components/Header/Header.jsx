@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, Sun, Moon, LayoutDashboard } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, Sun, Moon, LayoutDashboard, MapPin } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -32,6 +32,9 @@ const Header = () => {
           <div className="nav-links">
             <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               <Users size={18} /> Directory
+            </Link>
+            <Link to="/map" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <MapPin size={18} /> Map
             </Link>
             <Link to="/events" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               <Calendar size={18} /> Events

@@ -8,6 +8,11 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const NodeGeocoder = require('node-geocoder');
+
+const geocoder = NodeGeocoder({
+  provider: 'openstreetmap'
+});
 
 // Ensure env loaded from backend folder
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
@@ -80,6 +85,8 @@ app.get('/api/clubs', async (req, res) => {
             imageUrl: c.image_url,
             establishedYear: c.established_year,
             googleMapsUrl: c.google_maps_url,
+            latitude: c.latitude,
+            longitude: c.longitude,
             createdAt: c.created_at
         }));
         
@@ -112,6 +119,8 @@ app.get('/api/clubs/:id', async (req, res) => {
             imageUrl: club.image_url,
             establishedYear: club.established_year,
             googleMapsUrl: club.google_maps_url,
+            latitude: club.latitude,
+            longitude: club.longitude,
             createdAt: club.created_at
         };
         
@@ -126,11 +135,26 @@ app.post('/api/clubs', authenticateToken, async (req, res) => {
     try {
         const { name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl } = req.body;
         
+        let latitude = null;
+        let longitude = null;
+        if (location) {
+            try {
+                const geoRes = await geocoder.geocode(location);
+                if (geoRes.length > 0) {
+                    latitude = geoRes[0].latitude;
+                    longitude = geoRes[0].longitude;
+                }
+            } catch (err) {
+                console.error("Geocoding failed:", err);
+            }
+        }
+        
         const { data, error } = await supabase
             .from('clubs')
             .insert([{
                 name, category, description, location, contact_info: contactInfo, image_url: imageUrl, 
                 established_year: establishedYear, google_maps_url: googleMapsUrl,
+                latitude, longitude,
                 user_id: req.user.id
             }])
             .select();

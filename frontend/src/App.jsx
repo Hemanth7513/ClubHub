@@ -14,6 +14,7 @@ import SupportPage from './pages/SupportPage';
 import AddEventPage from './pages/AddEventPage';
 import SettingsPage from './pages/SettingsPage';
 import DashboardPage from './pages/DashboardPage';
+import MapPage from './pages/MapPage';
 
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
@@ -37,6 +38,7 @@ function App() {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<PageTransition><DirectoryPage /></PageTransition>} />
+            <Route path="/map" element={<PageTransition><MapPage /></PageTransition>} />
             <Route path="/club/:id" element={<PageTransition><ClubDetailPage /></PageTransition>} />
             <Route path="/add-club" element={
               <ProtectedRoute>
