@@ -2,7 +2,7 @@
   margin-top: 6rem;
   padding: 6rem 0 3rem;
   background-color: var(--border-dark);
-  color: white;
+  color: var(--bg-primary);
   border-top: 8px solid var(--accent-pink);
 }
 
@@ -18,11 +18,12 @@
   margin-bottom: 1.5rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: white;
+  color: var(--bg-primary);
 }
 
 .footer-brand p {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--bg-primary);
+  opacity: 0.8;
   max-width: 400px;
   font-size: 1.1rem;
   font-weight: 600;
@@ -34,7 +35,7 @@
 }
 
 .footer-group h4 {
-  color: var(--accent-lime);
+  color: var(--accent-pink);
   margin-bottom: 2rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -43,7 +44,8 @@
 
 .footer-group a {
   display: block;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--bg-primary);
+  opacity: 0.7;
   margin-bottom: 1rem;
   font-size: 1.1rem;
   font-weight: 700;
@@ -58,8 +60,9 @@
 .footer-bottom {
   text-align: center;
   padding-top: 3rem;
-  border-top: 2px dashed rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.6);
+  border-top: 2px dashed var(--bg-primary);
+  color: var(--bg-primary);
+  opacity: 0.6;
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
