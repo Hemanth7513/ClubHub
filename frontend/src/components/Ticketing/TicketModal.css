@@ -1,0 +1,143 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ticket-modal {
+  width: 90%;
+  max-width: 480px;
+  background-color: var(--bg-primary);
+  padding: 2.5rem;
+  border-radius: var(--border-radius);
+  position: relative;
+  border: 4px solid var(--border-dark);
+  box-shadow: var(--brutal-shadow-hover);
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--border-dark);
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.ticket-modal h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-title-preview {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+  padding-bottom: 1rem;
+}
+
+.ticket-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.selector-label {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.quantity-controls button {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  border: none;
+  font-size: 1.2rem;
+}
+
+.quantity-controls button:hover:not(:disabled) {
+  background-color: var(--border-dark);
+  color: white;
+}
+
+.qty-display {
+  font-weight: 800;
+  font-size: 1.2rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.price-breakdown {
+  background-color: rgba(0,0,0,0.02);
+  border: 2px dashed rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.fee-row {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.divider {
+  border: none;
+  border-top: 2px dashed rgba(0,0,0,0.1);
+  margin: 1rem 0;
+}
+
+.total-row {
+  font-weight: 800;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+.checkout-btn {
+  font-size: 1.1rem;
+}
+
+.modal-success, .modal-error {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.modal-success h2, .modal-error h2 {
+  margin: 1rem 0;
+}

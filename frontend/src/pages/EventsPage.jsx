@@ -4,6 +4,7 @@ import { Calendar, MapPin, Clock, ArrowRight, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button/Button';
 import SkeletonCard from '../components/Loaders/SkeletonCard';
+import TicketModal from '../components/Ticketing/TicketModal';
 import './EventsPage.css';
 
 import API_BASE_URL from '../config';
@@ -13,6 +14,8 @@ const EventsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   
   const categories = ['All', 'Gala', 'Workshop', 'Sports', 'Nightlife'];
 
@@ -132,14 +135,29 @@ const EventsPage = () => {
                       <MapPin size={16} /> <span>{event.location}</span>
                     </div>
                   </div>
-                  <Button variant="outline" className="btn-full">
-                    Get Invites <ArrowRight size={18} />
+                  <Button 
+                    variant="outline" 
+                    className="btn-full"
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Buy Ticket <ArrowRight size={18} />
                   </Button>
                 </div>
               </motion.div>
             ))}
           </div>
         </>
+      )}
+
+      {selectedEvent && (
+        <TicketModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          event={selectedEvent} 
+        />
       )}
     </div>
   );
