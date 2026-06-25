@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, ArrowRight, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button/Button';
+import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './EventsPage.css';
 
 import API_BASE_URL from '../config';
@@ -39,8 +40,18 @@ const EventsPage = () => {
     : events.filter(e => e.category === filter);
 
   if (loading) return (
-    <div className="container events-page flex-center" style={{ minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div className="spinner"></div>
+    <div className="container events-page">
+      <div className="page-header-flex">
+        <div>
+          <h1 className="text-gradient">Upcoming Events</h1>
+          <p>Loading the latest events...</p>
+        </div>
+      </div>
+      <div className="events-grid">
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <SkeletonCard key={`skeleton-${i}`} />
+        ))}
+      </div>
     </div>
   );
 

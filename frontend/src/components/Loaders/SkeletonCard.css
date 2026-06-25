@@ -1,0 +1,66 @@
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  min-height: 400px;
+}
+
+.skeleton-image {
+  height: 200px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-bottom: 3px solid var(--border-dark);
+}
+
+.skeleton-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  background-color: var(--bg-secondary);
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 70%;
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+
+.skeleton-line {
+  height: 14px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.skeleton-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.skeleton-button {
+  height: 48px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 2px solid var(--border-dark);
+}
+
+.pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
