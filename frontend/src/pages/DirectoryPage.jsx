@@ -143,7 +143,7 @@ const DirectoryPage = () => {
             exit={{ opacity: 0 }}
             className="landing-view"
           >
-            <section className="hero-refined">
+            <section className="hero-refined section-padding">
               <div className="container">
                 <motion.div 
                   className="hero-content-centered"
@@ -151,17 +151,23 @@ const DirectoryPage = () => {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8 }}
                 >
-                  <h1 className="title-xl">
-                    <StaggeredText text="CITY" />
-                    <span className="editorial-font italic">VOICE</span>
+                  <div className="badge">Vijayawada's Premier Directory</div>
+                  <h1 className="title-xl hero-title">
+                    Find Your Perfect <br/>
+                    <span className="editorial-font italic hero-highlight">Community</span>
                   </h1>
                   <p className="hero-tagline">
-                    The heart of community discovery. Connect with social, professional, and cultural circles that pulse with energy.
+                    Explore verified social, professional, and cultural clubs across the city. Connect with the people who share your passion.
                   </p>
                   <div className="hero-cta">
-                    <Button variant="primary" size="large" onClick={scrollToDiscovery}>
-                      Explore Hubs <ArrowRight size={20} />
+                    <Button variant="primary" size="large" onClick={scrollToDiscovery} className="btn-primary-hero">
+                      Start Exploring <ArrowRight size={20} />
                     </Button>
+                    <Link to="/register">
+                      <Button variant="outline" size="large">
+                        Join Now
+                      </Button>
+                    </Link>
                   </div>
                 </motion.div>
               </div>

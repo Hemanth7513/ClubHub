@@ -20,20 +20,33 @@
   margin: 0 auto;
 }
 
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.hero-highlight {
+  color: var(--accent-pink);
+  text-shadow: 4px 4px 0px var(--border-dark);
+}
+
 .hero-tagline {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   color: var(--text-secondary);
-  margin-bottom: 32px;
-  max-width: 500px;
+  margin-bottom: 40px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 .hero-cta {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
+  align-items: center;
 }
 
 /* Discovery Section */
@@ -244,6 +257,16 @@
   .cta-minimal-panel h2 {
     font-size: 1.8rem;
     word-break: break-word;
+  }
+  
+  .hero-cta {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .hero-cta button, .hero-cta a {
+    width: 100%;
   }
   
   .clubs-grid {

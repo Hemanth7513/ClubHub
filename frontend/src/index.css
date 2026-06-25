@@ -209,3 +209,14 @@ button {
     word-break: break-word;
   }
 }
+
+/* UX Audit: Standardized Section Spacing */
+.section-padding {
+  padding: 6rem 0;
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 4rem 0;
+  }
+}

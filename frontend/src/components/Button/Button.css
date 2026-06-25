@@ -25,7 +25,7 @@
 /* Variants */
 .btn-primary {
   background: var(--accent-pink);
-  color: #ffffff;
+  color: #000000; /* WCAG 4.5:1 contrast fix */
 }
 
 .btn-primary:hover {
@@ -51,7 +51,7 @@
 
 .btn-outline:hover {
   background: var(--border-dark);
-  color: white;
+  color: var(--bg-primary); /* Ensures contrast when border flips in dark mode */
 }
 
 /* Sizes */
