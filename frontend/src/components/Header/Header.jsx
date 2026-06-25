@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, Sun, Moon } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, Sun, Moon, LayoutDashboard } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -48,6 +48,9 @@ const Header = () => {
               <>
                 <Link to="/add-club" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                   <PlusCircle size={18} /> Add Club
+                </Link>
+                <Link to="/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                  <LayoutDashboard size={18} /> Dashboard
                 </Link>
                 <div className="user-profile">
                   <Link to="/settings" className="user-profile-link" onClick={() => setIsMenuOpen(false)}>

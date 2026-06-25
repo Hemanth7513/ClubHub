@@ -13,6 +13,7 @@ import EventsPage from './pages/EventsPage';
 import SupportPage from './pages/SupportPage';
 import AddEventPage from './pages/AddEventPage';
 import SettingsPage from './pages/SettingsPage';
+import DashboardPage from './pages/DashboardPage';
 
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
@@ -54,6 +55,11 @@ function App() {
             <Route path="/add-event" element={
               <ProtectedRoute>
                 <PageTransition><AddEventPage /></PageTransition>
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <PageTransition><DashboardPage /></PageTransition>
               </ProtectedRoute>
             } />
           </Routes>
