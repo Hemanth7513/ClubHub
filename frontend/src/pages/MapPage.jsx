@@ -86,6 +86,7 @@ const MapPage = () => {
             zoom={13} 
             scrollWheelZoom={true} 
             className="leaflet-map-container"
+            style={{ height: '80vh', width: '100%', zIndex: 1 }}
           >
             {/* CartoDB Dark Matter Tiles for Brutalist Dark Mode Look */}
             <TileLayer
