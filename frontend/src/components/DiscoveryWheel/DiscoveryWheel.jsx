@@ -18,7 +18,7 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
               key={cat.name}
               className="wheel-card"
               onClick={() => onSelect(cat.name)}
-              whileHover={{ scale: 1.05, y: -15, rotateY: 5 }}
+              whileHover={{ scale: 1.05, y: -10 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, rotateY: 45, x: 100 }}
               whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
