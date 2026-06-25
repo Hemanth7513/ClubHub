@@ -34,6 +34,8 @@ html {
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-blur: blur(16px);
   
+  --grid-color: rgba(0, 0, 0, 0.02);
+  
   --border-radius: 16px;
   --transition-speed: 0.3s;
 }
@@ -45,6 +47,7 @@ html {
   --text-secondary: #a3a3a3;
   --border-dark: #fcfcfc;
   --glass-bg: rgba(18, 18, 18, 0.7);
+  --grid-color: rgba(255, 255, 255, 0.03);
 }
 
 * {
@@ -62,8 +65,8 @@ body {
   overflow-x: hidden;
   position: relative;
   background-image: 
-    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import L from 'leaflet';
 import { motion } from 'framer-motion';
 import { MapPin, Navigation } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import API_BASE_URL from '../config';
 import Button from '../components/Button/Button';
 import './MapPage.css';
@@ -16,17 +17,22 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Custom Brutalist Icon
-const brutalistIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+// Custom Premium Brutalist Icon
+const premiumIcon = new L.divIcon({
+  className: 'premium-marker',
+  html: `<div class="premium-pin">
+           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+             <circle cx="12" cy="10" r="3"></circle>
+           </svg>
+         </div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
 });
 
 const MapPage = () => {
+  const { theme } = useTheme();
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -43,8 +49,14 @@ const MapPage = () => {
         // Only keep clubs that have valid coordinates
         const validClubs = data.filter(club => club.latitude && club.longitude);
         
-        // Add some dummy coordinates for testing if none exist
-        if (validClubs.length === 0 && data.length > 0) {
+        // If the database is completely empty (we wiped it), show some dummy data for the map to look alive
+        if (data.length === 0) {
+           setClubs([
+             { id: 'demo1', name: 'Vijayawada Tech Hub', category: 'Technology', latitude: 16.5062, longitude: 80.6480 },
+             { id: 'demo2', name: 'Benz Circle Runners', category: 'Sports', latitude: 16.4971, longitude: 80.6496 },
+             { id: 'demo3', name: 'Krishna River Art Club', category: 'Arts & Culture', latitude: 16.5120, longitude: 80.6120 }
+           ]);
+        } else if (validClubs.length === 0) {
            const demoClubs = data.map((club, index) => ({
              ...club,
              latitude: 16.5062 + (Math.random() * 0.05 - 0.025),
@@ -88,17 +100,22 @@ const MapPage = () => {
               scrollWheelZoom={true} 
               className="leaflet-map-container"
             >
-            {/* CartoDB Dark Matter Tiles for Brutalist Dark Mode Look */}
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            />
-            
+            {theme === 'dark' ? (
+              <TileLayer
+                attribution='&copy; CARTO'
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              />
+            ) : (
+              <TileLayer
+                attribution='&copy; CARTO'
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              />
+            )}
             {clubs.map(club => (
               <Marker 
                 key={club.id} 
                 position={[club.latitude, club.longitude]}
-                icon={brutalistIcon}
+                icon={premiumIcon}
               >
                 <Popup className="custom-popup">
                   <div className="popup-content">
