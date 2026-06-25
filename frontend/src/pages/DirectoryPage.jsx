@@ -5,6 +5,7 @@ import ClubCard from '../components/ClubCard/ClubCard';
 import Button from '../components/Button/Button';
 import MissionPlot from '../components/MissionPlot/MissionPlot';
 import DiscoveryWheel from '../components/DiscoveryWheel/DiscoveryWheel';
+import SearchBar from '../components/SearchBar/SearchBar';
 import StaggeredText from '../components/StaggeredText/StaggeredText';
 import { Link, useLocation } from 'react-router-dom';
 import API_BASE_URL from '../config';
@@ -26,6 +27,7 @@ const DirectoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Only show the splash screen once per session
   const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splash_shown'));
@@ -77,8 +79,20 @@ const DirectoryPage = () => {
 
   const handleBackToDiscovery = () => {
     setSelectedCategory(null);
+    setSearchQuery('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const filteredClubs = clubs.filter(c => {
+    if (selectedCategory && c.category !== selectedCategory) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return c.name.toLowerCase().includes(q) || 
+             c.category.toLowerCase().includes(q) || 
+             (c.description && c.description.toLowerCase().includes(q));
+    }
+    return true;
+  });
 
   return (
     <div className="directory-page">
@@ -159,10 +173,23 @@ const DirectoryPage = () => {
                   <h2 className="section-title">Explore Hubs</h2>
                   <p>Curated categories for every interest.</p>
                 </div>
+
+                <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 
                 {loading && !showSplash ? (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
                     <div className="spinner"></div>
+                  </div>
+                ) : searchQuery ? (
+                  <div className="clubs-grid mt-4">
+                    {filteredClubs.length > 0 ? filteredClubs.map((club, i) => (
+                      <ClubCard key={club.id} club={club} index={i} />
+                    )) : (
+                      <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
+                        <h3>No matches found</h3>
+                        <p>Try a different search term or explore categories.</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <DiscoveryWheel 
@@ -211,9 +238,14 @@ const DirectoryPage = () => {
                   <div className="category-accent-bar" style={{ background: CATEGORIES.find(c => c.name === selectedCategory)?.color }} />
                 </div>
                 <div className="clubs-grid">
-                  {clubs.filter(c => c.category === selectedCategory).map((club, i) => (
+                  {filteredClubs.length > 0 ? filteredClubs.map((club, i) => (
                     <ClubCard key={club.id} club={club} index={i} />
-                  ))}
+                  )) : (
+                    <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
+                      <h3>No matches found</h3>
+                      <p>Try a different search term.</p>
+                    </div>
+                  )}
                 </div>
               </div>
           </motion.div>
