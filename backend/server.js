@@ -6,10 +6,18 @@ const supabase = require('./supabase');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 // Ensure env loaded from backend folder
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_clubhub123',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_clubhub123',
+});
 
 const app = express();
 
@@ -271,6 +279,100 @@ app.post('/api/events', authenticateToken, async (req, res) => {
         res.status(201).json(data[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+// --- TICKETING & PAYMENT API ---
+
+app.post('/api/payment/create-order', authenticateToken, async (req, res) => {
+    try {
+        const { ticketId, quantity } = req.body;
+
+        // 1. Fetch ticket details
+        const { data: ticket, error: ticketError } = await supabase
+            .from('tickets')
+            .select('*')
+            .eq('id', ticketId)
+            .single();
+
+        if (ticketError || !ticket) return res.status(404).json({ error: 'Ticket not found' });
+        
+        // 2. Calculate Pricing (5% Platform Fee)
+        const baseTotal = ticket.price_inr * quantity;
+        const platformFee = baseTotal * 0.05;
+        const finalTotal = baseTotal + platformFee;
+
+        // 3. Create Razorpay Order
+        const options = {
+            amount: Math.round(finalTotal * 100), // amount in smallest currency unit (paise)
+            currency: "INR",
+            receipt: `receipt_ticket_${ticketId}_${Date.now()}`
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        // 4. Record Pending Order in DB
+        const { data: orderRecord, error: orderError } = await supabase
+            .from('orders')
+            .insert([{
+                user_id: req.user.id,
+                ticket_id: ticketId,
+                quantity: quantity,
+                total_amount_inr: finalTotal,
+                platform_fee_inr: platformFee,
+                payment_id: order.id,
+                status: 'PENDING'
+            }])
+            .select()
+            .single();
+
+        if (orderError) throw orderError;
+
+        res.json({
+            orderId: order.id,
+            amount: options.amount,
+            currency: options.currency,
+            dbOrderId: orderRecord.id
+        });
+    } catch (err) {
+        console.error("Create order error:", err);
+        res.status(500).json({ error: 'Failed to create payment order' });
+    }
+});
+
+app.post('/api/payment/verify', authenticateToken, async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId } = req.body;
+
+        // Verify Signature
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || 'secret_clubhub123')
+            .update(sign.toString())
+            .digest("hex");
+
+        if (razorpay_signature === expectedSign) {
+            // Payment is successful
+            const { error: updateError } = await supabase
+                .from('orders')
+                .update({ status: 'SUCCESS' })
+                .eq('id', dbOrderId);
+
+            if (updateError) throw updateError;
+            
+            res.json({ message: "Payment verified successfully" });
+        } else {
+            // Invalid signature
+            await supabase
+                .from('orders')
+                .update({ status: 'FAILED' })
+                .eq('id', dbOrderId);
+                
+            res.status(400).json({ error: "Invalid signature sent!" });
+        }
+    } catch (err) {
+        console.error("Verify payment error:", err);
+        res.status(500).json({ error: 'Failed to verify payment' });
     }
 });
 
