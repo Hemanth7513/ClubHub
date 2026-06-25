@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import DirectoryPage from './pages/DirectoryPage';
@@ -11,9 +13,10 @@ import EventsPage from './pages/EventsPage';
 import SupportPage from './pages/SupportPage';
 import AddEventPage from './pages/AddEventPage';
 import SettingsPage from './pages/SettingsPage';
-import Cursor from './components/Cursor/Cursor';
+
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
+import PageTransition from './components/PageTransition/PageTransition';
 import { useAuth } from './context/AuthContext';
 import './index.css';
 
@@ -25,42 +28,44 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  const location = useLocation();
+
   return (
-    <Router>
-      <div className="app-container">
-        <div className="mesh-bg" />
-        <ScrollProgress />
-        <Floaties />
-        <Cursor />
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/" element={<DirectoryPage />} />
-            <Route path="/club/:id" element={<ClubDetailPage />} />
+    <div className="app-container">
+      <div className="mesh-bg" />
+      <ScrollProgress />
+      <Floaties />
+
+      <Header />
+      <main>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<PageTransition><DirectoryPage /></PageTransition>} />
+            <Route path="/club/:id" element={<PageTransition><ClubDetailPage /></PageTransition>} />
             <Route path="/add-club" element={
               <ProtectedRoute>
-                <AddClubPage />
+                <PageTransition><AddClubPage /></PageTransition>
               </ProtectedRoute>
             } />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/events" element={<EventsPage />} />
-            <Route path="/support" element={<SupportPage />} />
+            <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+            <Route path="/register" element={<PageTransition><RegisterPage /></PageTransition>} />
+            <Route path="/events" element={<PageTransition><EventsPage /></PageTransition>} />
+            <Route path="/support" element={<PageTransition><SupportPage /></PageTransition>} />
             <Route path="/settings" element={
               <ProtectedRoute>
-                <SettingsPage />
+                <PageTransition><SettingsPage /></PageTransition>
               </ProtectedRoute>
             } />
             <Route path="/add-event" element={
               <ProtectedRoute>
-                <AddEventPage />
+                <PageTransition><AddEventPage /></PageTransition>
               </ProtectedRoute>
             } />
           </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+        </AnimatePresence>
+      </main>
+      <Footer />
+    </div>
   );
 }
 
