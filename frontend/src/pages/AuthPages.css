@@ -1,190 +1,192 @@
-/* ─── Ultra Clean Premium Auth Layout ─────────────────────────────────────── */
+/* ─── Uiverse.io Inspired Auth Page ─────────────────────────────────────── */
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary); /* Solid, clean background */
+  background-color: #000000;
   padding: 2rem;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 .auth-panel {
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   position: relative;
+}
+
+/* ─── Uiverse Animated Glowing Card ────────────────────────────────────────────── */
+.auth-card {
+  position: relative;
+  background: #111111;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
   z-index: 1;
 }
 
-/* ─── Premium Minimalist Card ────────────────────────────────────────────── */
-.auth-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-dark);
-  border-radius: 16px;
-  padding: 3rem;
-  /* Very soft, elegant, diffused shadow instead of harsh brutalist shadows */
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Uiverse Animated Gradient Border */
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 18px;
+  background: linear-gradient(
+    90deg, 
+    #00ffff, #ff00c8, #00ffff, #ff00c8
+  );
+  background-size: 400%;
+  z-index: -1;
+  animation: glowing 8s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes glowing {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
 }
 
 /* ─── Header ───────────────────────────────────────────────── */
 .auth-header {
-  margin-bottom: 2.5rem;
   text-align: center;
+  margin-bottom: 2rem;
 }
 
 .auth-eyebrow {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--accent-cyan);
+  color: #00ffff;
   margin-bottom: 1rem;
   display: block;
 }
 
 .auth-header h1 {
-  font-family: 'Syne', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  line-height: 1.2;
+  color: #ffffff;
   margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  letter-spacing: -0.03em;
 }
 
 .auth-header p {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.5;
+  color: #888888;
+  font-size: 0.9rem;
 }
 
 /* ─── Error ────────────────────────────────────────────────── */
 .auth-error {
-  background: rgba(255, 46, 99, 0.05);
-  color: var(--accent-pink);
-  padding: 0.8rem 1rem;
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4444;
+  padding: 0.8rem;
   border-radius: 8px;
-  margin-bottom: 2rem;
-  font-weight: 600;
+  margin-bottom: 1.5rem;
   font-size: 0.85rem;
   text-align: center;
-  border: 1px solid rgba(255, 46, 99, 0.2);
+  border: 1px solid rgba(255, 0, 0, 0.2);
 }
 
 /* ─── Form ─────────────────────────────────────────────────── */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.2rem;
 }
 
 .input-group {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
 }
 
 .input-group label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  color: #aaaaaa;
+  margin-bottom: 0.4rem;
   font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--text-primary);
-}
-
-.input-group label svg {
-  color: var(--text-secondary);
-  width: 14px;
-  height: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--border-dark);
-  border-radius: 10px;
-  font-family: 'Outfit', sans-serif;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #ffffff;
   font-size: 1rem;
-  background: transparent;
-  color: var(--text-primary);
-  transition: all 0.2s ease;
+  transition: box-shadow 0.3s ease, background 0.3s ease;
   outline: none;
 }
 
 .input-group input:focus {
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+  background: #222222;
+  box-shadow: inset 0 0 0 2px #00ffff;
 }
 
 .input-group input::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.5;
+  color: #555555;
 }
 
-/* ─── Submit Button ────────────────────────────────────────── */
+/* ─── Uiverse Submit Button ────────────────────────────────────────── */
 .auth-submit {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  position: relative;
+  background: #00ffff;
+  color: #000000;
   padding: 1rem;
-  border-radius: 10px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: 800;
   font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 1rem;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .auth-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  background: var(--accent-cyan);
-  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  transform: scale(1.02);
+}
+
+.auth-submit:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .auth-submit:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: #444444;
+  color: #888888;
 }
 
 /* ─── Footer ───────────────────────────────────────────────── */
 .auth-footer {
   margin-top: 2rem;
   text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  color: #888888;
 }
 
 .auth-footer a {
-  color: var(--text-primary);
-  font-weight: 600;
+  color: #00ffff;
+  font-weight: 700;
   text-decoration: none;
-  margin-left: 0.25rem;
-  transition: color 0.2s ease;
+  transition: text-shadow 0.3s ease;
 }
 
 .auth-footer a:hover {
-  color: var(--accent-cyan);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-@media (max-width: 480px) {
-  .auth-page {
-    padding: 1rem;
-  }
-  .auth-card {
-    padding: 2rem 1.5rem;
-    border-radius: 12px;
-  }
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
