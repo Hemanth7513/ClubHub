@@ -73,7 +73,8 @@
   justify-content: space-between;
   align-items: center;
   font-weight: 800;
-  background: white;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .faq-question svg {
@@ -89,7 +90,7 @@
   overflow: hidden;
   transition: all 0.3s;
   padding: 0 1.5rem;
-  background: #f8f8f8;
+  background: var(--bg-primary);
   color: var(--text-secondary);
   font-weight: 600;
 }
