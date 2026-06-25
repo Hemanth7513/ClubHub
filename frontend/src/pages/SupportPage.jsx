@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HelpCircle, FileText, Shield, ChevronDown } from 'lucide-react';
 import './SupportPage.css';
@@ -19,12 +20,16 @@ const FAQ = [
 ];
 
 const SupportPage = () => {
+  const location = useLocation();
   const [activeSection, setActiveSection] = useState('help');
   const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    if (location.hash === '#terms') setActiveSection('terms');
+    else if (location.hash === '#privacy') setActiveSection('privacy');
+    else setActiveSection('help');
+  }, [location.hash]);
 
   const renderHelp = () => (
     <div className="support-content-section">

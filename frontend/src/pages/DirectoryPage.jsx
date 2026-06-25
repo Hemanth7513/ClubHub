@@ -6,7 +6,7 @@ import Button from '../components/Button/Button';
 import MissionPlot from '../components/MissionPlot/MissionPlot';
 import DiscoveryWheel from '../components/DiscoveryWheel/DiscoveryWheel';
 import StaggeredText from '../components/StaggeredText/StaggeredText';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import API_BASE_URL from '../config';
 import './DirectoryPage.css';
 
@@ -33,11 +33,23 @@ const DirectoryPage = () => {
   const discoveryRef = useRef(null);
 
 
+  const location = useLocation();
+
   const scrollToDiscovery = () => {
     discoveryRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => { fetchClubs(); }, []);
+  useEffect(() => { 
+    fetchClubs(); 
+  }, []);
+
+  useEffect(() => {
+    if (location.hash === '#categories' && !loading) {
+      setTimeout(scrollToDiscovery, 100);
+    } else if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [location.hash, loading]);
 
   useEffect(() => {
     if (showSplash) {
@@ -122,10 +134,8 @@ const DirectoryPage = () => {
                 <motion.div 
                   className="hero-content-centered"
                   initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8 }}
                 >
-                  <div className="badge">VIJAYAWADA CLUB PORTAL</div>
                   <h1 className="title-xl">
                     <StaggeredText text="CITY" />
                     <span className="editorial-font italic">VOICE</span>

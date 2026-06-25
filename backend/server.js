@@ -12,7 +12,6 @@ const crypto = require('crypto');
 // Ensure env loaded from backend folder
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
-const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_clubhub123',
@@ -86,6 +85,7 @@ app.get('/api/clubs', async (req, res) => {
         
         res.json(mappedClubs);
     } catch (err) {
+        console.error("Fetch clubs error:", err);
         res.status(500).json({ error: 'Failed to fetch clubs' });
     }
 });

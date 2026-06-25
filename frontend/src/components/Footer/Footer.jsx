@@ -15,15 +15,15 @@ const Footer = () => {
           <div className="footer-links">
             <div className="footer-group">
               <h4>Platform</h4>
-              <Link to="/">Directory</Link>
-              <Link to="/events">Events</Link>
-              <Link to="/">Categories</Link>
+              <Link to="/" onClick={() => window.scrollTo(0, 0)}>Directory</Link>
+              <Link to="/events" onClick={() => window.scrollTo(0, 0)}>Events</Link>
+              <Link to="/#categories" onClick={() => window.scrollTo(0, 0)}>Categories</Link>
             </div>
             <div className="footer-group">
               <h4>Support</h4>
-              <Link to="/support">Help Center</Link>
-              <Link to="/support">Terms of Service</Link>
-              <Link to="/support">Privacy Policy</Link>
+              <Link to="/support#help" onClick={() => window.scrollTo(0, 0)}>Help Center</Link>
+              <Link to="/support#terms" onClick={() => window.scrollTo(0, 0)}>Terms of Service</Link>
+              <Link to="/support#privacy" onClick={() => window.scrollTo(0, 0)}>Privacy Policy</Link>
             </div>
           </div>
         </div>
