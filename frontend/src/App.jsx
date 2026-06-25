@@ -20,7 +20,6 @@ import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
 import PageTransition from './components/PageTransition/PageTransition';
 import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import './index.css';
 

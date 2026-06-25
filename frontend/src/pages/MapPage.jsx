@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import L from 'leaflet';
 import { motion } from 'framer-motion';
 import { MapPin, Navigation } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import API_BASE_URL from '../config';
 import Button from '../components/Button/Button';
 import './MapPage.css';
@@ -32,7 +31,6 @@ const premiumIcon = new L.divIcon({
 });
 
 const MapPage = () => {
-  const { theme } = useTheme();
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -100,17 +98,10 @@ const MapPage = () => {
               scrollWheelZoom={true} 
               className="leaflet-map-container"
             >
-            {theme === 'dark' ? (
-              <TileLayer
-                attribution='&copy; CARTO'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              />
-            ) : (
               <TileLayer
                 attribution='&copy; CARTO'
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
               />
-            )}
             {clubs.map(club => (
               <Marker 
                 key={club.id} 
