@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, Sun, Moon } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import logo from '../../assets/images/logo.png';
 import './Header.css';
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -37,6 +39,11 @@ const Header = () => {
             <Link to="/support" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               <HelpCircle size={18} /> Support
             </Link>
+            
+            <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle Dark Mode">
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
             {user ? (
               <>
                 <Link to="/add-club" className="nav-link" onClick={() => setIsMenuOpen(false)}>

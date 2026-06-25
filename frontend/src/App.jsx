@@ -17,15 +17,10 @@ import SettingsPage from './pages/SettingsPage';
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
 import PageTransition from './components/PageTransition/PageTransition';
-import { useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import './index.css';
-
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  if (loading) return <div className="loading-screen">Authenticating...</div>;
-  if (!user) return <LoginPage />; // Fallback to login if not authenticated
-  return children;
-};
 
 function App() {
   const location = useLocation();
