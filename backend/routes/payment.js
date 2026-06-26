@@ -112,6 +112,21 @@ router.post('/verify', authenticateToken, async (req, res) => {
                     .eq('id', order.ticket_id);
             }
             
+            // Send Email Ticket
+            try {
+                // We need the user's email and name, and ticket details
+                const { data: userData } = await supabase.from('users').select('email, name').eq('id', req.user.id).single();
+                const { data: ticketData } = await supabase.from('tickets').select('*').eq('id', order.ticket_id).single();
+                
+                if (userData && ticketData) {
+                    const { sendTicketEmail } = require('../utils/email');
+                    await sendTicketEmail(userData.email, userData.name, ticketData, order);
+                }
+            } catch (emailErr) {
+                console.error("Failed to trigger ticket email:", emailErr);
+                // We don't fail the payment verification if the email fails
+            }
+            
             res.json({ message: "Payment verified successfully" });
         } else {
             // Failed signature, update by razorpay_order_id securely
