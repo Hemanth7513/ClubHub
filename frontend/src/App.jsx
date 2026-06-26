@@ -16,6 +16,7 @@ import SettingsPage from './pages/SettingsPage';
 import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
@@ -70,6 +71,7 @@ function App() {
                 <PageTransition><AdminDashboardPage /></PageTransition>
               </AdminRoute>
             } />
+            <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
           </Routes>
         </AnimatePresence>
       </main>

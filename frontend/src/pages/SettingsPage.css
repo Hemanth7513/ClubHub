@@ -37,7 +37,7 @@
 
 .banner-success {
   background: var(--accent-lime);
-  color: #000;
+  color: var(--border-dark);
 }
 
 .banner-error {
@@ -89,7 +89,7 @@
 
 .sidebar-tab.active {
   background: var(--accent-cyan);
-  color: #000;
+  color: var(--border-dark);
   border-color: var(--border-dark);
   box-shadow: 4px 4px 0px var(--border-dark);
 }
@@ -319,7 +319,7 @@
 
 .theme-opt.selected {
   background: var(--accent-yellow);
-  color: #000;
+  color: var(--border-dark);
   box-shadow: 4px 4px 0px var(--border-dark);
 }
 

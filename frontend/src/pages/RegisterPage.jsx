@@ -61,6 +61,7 @@ const RegisterPage = () => {
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required 
+                maxLength={50}
               />
             </div>
             <div className="input-group">
@@ -71,6 +72,7 @@ const RegisterPage = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 required 
+                maxLength={100}
               />
             </div>
             <div className="input-group">
@@ -81,6 +83,8 @@ const RegisterPage = () => {
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 required 
+                minLength={6}
+                maxLength={100}
               />
             </div>
             <button type="submit" className="auth-submit" disabled={loading}>
