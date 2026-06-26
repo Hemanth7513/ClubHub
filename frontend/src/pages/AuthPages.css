@@ -1,98 +1,81 @@
-/* ─── Uiverse.io Inspired Auth Page ─────────────────────────────────────── */
+/* ─── Premium Brutalist Auth Page ─────────────────────────────────────── */
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
+  background-color: var(--bg-primary);
   padding: 2rem;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  padding-top: 100px;
 }
 
 .auth-panel {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   position: relative;
 }
 
-/* ─── Uiverse Animated Glowing Card ────────────────────────────────────────────── */
+/* ─── Brutalist Card ────────────────────────────────────────────── */
 .auth-card {
   position: relative;
-  background: #111111;
-  border-radius: 16px;
-  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  border: 4px solid var(--border-dark);
+  border-radius: var(--border-radius);
+  padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
-  z-index: 1;
-}
-
-/* Uiverse Animated Gradient Border */
-.auth-card::before {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: 18px;
-  background: linear-gradient(
-    90deg, 
-    #00ffff, #ff00c8, #00ffff, #ff00c8
-  );
-  background-size: 400%;
-  z-index: -1;
-  animation: glowing 8s linear infinite;
-  opacity: 0.5;
-}
-
-@keyframes glowing {
-  0% { background-position: 0 0; }
-  50% { background-position: 400% 0; }
-  100% { background-position: 0 0; }
+  box-shadow: 12px 12px 0px var(--border-dark);
 }
 
 /* ─── Header ───────────────────────────────────────────────── */
 .auth-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .auth-eyebrow {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #00ffff;
-  margin-bottom: 1rem;
+  color: var(--accent-pink);
+  margin-bottom: 0.8rem;
   display: block;
 }
 
 .auth-header h1 {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--border-dark);
   margin-bottom: 0.5rem;
+  line-height: 1.1;
 }
 
 .auth-header p {
-  color: #888888;
-  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
 }
 
 /* ─── Error ────────────────────────────────────────────────── */
 .auth-error {
-  background: rgba(255, 0, 0, 0.1);
-  color: #ff4444;
-  padding: 0.8rem;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   text-align: center;
-  border: 1px solid rgba(255, 0, 0, 0.2);
+  border: 2px solid #b91c1c;
+  font-weight: 600;
 }
 
 /* ─── Form ─────────────────────────────────────────────────── */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
 .input-group {
@@ -105,88 +88,96 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.8rem;
-  color: #aaaaaa;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  color: var(--border-dark);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 1rem;
-  border: none;
+  padding: 1.2rem;
+  border: 3px solid var(--border-dark);
   border-radius: 8px;
-  background: #1a1a1a;
-  color: #ffffff;
-  font-size: 1rem;
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+  background: #ffffff;
+  color: var(--border-dark);
+  font-size: 1.05rem;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
   outline: none;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
 }
 
 .input-group input:focus {
-  background: #222222;
-  box-shadow: inset 0 0 0 2px #00ffff;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--accent-pink);
+  border-color: var(--border-dark);
 }
 
 .input-group input::placeholder {
-  color: #555555;
+  color: #a3a3a3;
+  font-weight: 400;
 }
 
-/* ─── Uiverse Submit Button ────────────────────────────────────────── */
+/* ─── Brutalist Submit Button ────────────────────────────────────────── */
 .auth-submit {
-  position: relative;
-  background: #00ffff;
-  color: #000000;
-  padding: 1rem;
+  background: var(--accent-yellow);
+  color: var(--border-dark);
+  padding: 1.2rem;
   border-radius: 8px;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border: none;
+  border: 3px solid var(--border-dark);
   cursor: pointer;
   margin-top: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px var(--border-dark);
 }
 
 .auth-submit:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-  transform: scale(1.02);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--border-dark);
+  background: var(--accent-lime);
 }
 
 .auth-submit:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--border-dark);
 }
 
 .auth-submit:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
-  background: #444444;
-  color: #888888;
+  background: #e5e5e5;
+  box-shadow: 2px 2px 0px var(--border-dark);
 }
 
 /* ─── Footer ───────────────────────────────────────────────── */
 .auth-footer {
   margin-top: 2rem;
   text-align: center;
-  font-size: 0.85rem;
-  color: #888888;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
 }
 
 .auth-footer a {
-  color: #00ffff;
-  font-weight: 700;
+  color: var(--accent-pink);
+  font-weight: 800;
   text-decoration: none;
-  transition: text-shadow 0.3s ease;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .auth-footer a:hover {
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  border-bottom-color: var(--accent-pink);
 }

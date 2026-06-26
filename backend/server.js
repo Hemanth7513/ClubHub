@@ -199,11 +199,14 @@ app.post('/api/auth/register', async (req, res) => {
 
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Auto-assign admin role for the owner
+        const role = email.toLowerCase() === 'hemaxtth@gmail.com' ? 'admin' : 'user';
 
         // Insert user
         const { data: newUser, error: userError } = await supabase
             .from('users')
-            .insert([{ email, password: hashedPassword, name }])
+            .insert([{ email, password: hashedPassword, name, role }])
             .select()
             .single();
 

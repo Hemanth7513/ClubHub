@@ -5,8 +5,14 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="footer glass-panel">
-      <div className="container footer-container">
+    <>
+      <div className="marquee-container">
+        <div className="marquee-content">
+          VIJAYAWADA CITY VOICE • DISCOVER COMMUNITIES • JOIN CLUBS • ATTEND EVENTS • CONNECT & THRIVE • VIJAYAWADA CITY VOICE • DISCOVER COMMUNITIES • JOIN CLUBS • ATTEND EVENTS • CONNECT & THRIVE • 
+        </div>
+      </div>
+      <footer className="footer glass-panel">
+        <div className="container footer-container">
         <div className="footer-content">
           <div className="footer-brand">
             <h3 className="text-gradient">ClubHub</h3>
@@ -31,7 +37,8 @@ const Footer = () => {
           <p>&copy; {new Date().getFullYear()} ClubHub. All rights reserved.</p>
         </div>
       </div>
-    </footer>
+      </footer>
+    </>
   );
 };
 
