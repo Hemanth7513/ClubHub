@@ -201,7 +201,10 @@ const DirectoryPage = () => {
                   <DiscoveryWheel 
                     categories={CATEGORIES} 
                     clubs={clubs} 
-                    onSelect={setSelectedCategory} 
+                    onSelect={(cat) => {
+                      setSelectedCategory(cat);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                   />
                 )}
               </div>
