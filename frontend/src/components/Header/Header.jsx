@@ -22,7 +22,6 @@ const Header = () => {
       <div className="container header-container">
         <Link to="/" className="logo">
           <img src={logo} alt="ClubHub" className="logo-img" />
-          <span className="text-gradient">ClubHub</span>
         </Link>
 
         {/* Desktop Nav */}
