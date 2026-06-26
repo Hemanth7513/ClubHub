@@ -11,6 +11,7 @@ CREATE TABLE users (
   password TEXT,
   name TEXT,
   google_id TEXT UNIQUE,
+  role TEXT DEFAULT 'user',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

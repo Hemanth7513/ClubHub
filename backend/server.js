@@ -64,6 +64,15 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+const authenticateAdmin = (req, res, next) => {
+    authenticateToken(req, res, () => {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Access denied. Owner privileges required.' });
+        }
+        next();
+    });
+};
+
 // API Endpoints
 
 // 1. Get all clubs with filtering
@@ -241,7 +250,7 @@ app.post('/api/auth/login', async (req, res) => {
 
         // Generate JWT
         const token = jwt.sign(
-            { id: user.id, email: user.email }, 
+            { id: user.id, email: user.email, role: user.role || 'user' }, 
             JWT_SECRET, 
             { expiresIn: '24h' }
         );
@@ -251,7 +260,8 @@ app.post('/api/auth/login', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
-                name: user.name
+                name: user.name,
+                role: user.role || 'user'
             }
         });
     } catch (err) {
@@ -412,7 +422,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
     try {
         const { data: user, error: userError } = await supabase
             .from('users')
-            .select('id, email, name, google_id, created_at')
+            .select('id, email, name, google_id, role, created_at')
             .eq('id', req.user.id)
             .single();
             
@@ -447,6 +457,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                role: user.role || 'user',
                 googleId: user.google_id,
                 createdAt: user.created_at
             },
@@ -663,6 +674,70 @@ app.delete('/api/events/:id', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error("Delete event error:", err);
         res.status(500).json({ error: 'Failed to delete event' });
+    }
+});
+
+// --- ADMIN (OWNER) MODULE ENDPOINTS ---
+
+// Get Platform Stats
+app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
+    try {
+        const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
+        const { count: clubCount } = await supabase.from('clubs').select('*', { count: 'exact', head: true });
+        const { count: eventCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
+        
+        // Optionally fetch total revenue (mocked for now if orders table is empty)
+        const { data: orders } = await supabase.from('orders').select('platform_fee_inr').eq('status', 'SUCCESS');
+        const totalRevenue = orders ? orders.reduce((sum, order) => sum + (order.platform_fee_inr || 0), 0) : 0;
+
+        res.json({
+            users: userCount || 0,
+            clubs: clubCount || 0,
+            events: eventCount || 0,
+            revenue: totalRevenue
+        });
+    } catch (err) {
+        console.error("Admin stats error:", err);
+        res.status(500).json({ error: 'Failed to fetch admin stats' });
+    }
+});
+
+// Get all users
+app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, name, email, role, created_at')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+// Get all clubs
+app.get('/api/admin/clubs', authenticateAdmin, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('clubs')
+            .select('*, users(name, email)')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch clubs' });
+    }
+});
+
+// Admin delete club
+app.delete('/api/admin/clubs/:id', authenticateAdmin, async (req, res) => {
+    try {
+        const { error } = await supabase.from('clubs').delete().eq('id', req.params.id);
+        if (error) throw error;
+        res.json({ message: 'Club permanently removed.' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete club' });
     }
 });
 

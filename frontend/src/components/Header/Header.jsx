@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/logo.png';
@@ -49,6 +49,11 @@ const Header = () => {
                 <Link to="/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)}>
                   <LayoutDashboard size={18} /> Dashboard
                 </Link>
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ color: 'var(--accent-pink)' }}>
+                    <ShieldAlert size={18} /> Owner Panel
+                  </Link>
+                )}
                 <div className="user-profile">
                   <Link to="/settings" className="user-profile-link" onClick={() => setIsMenuOpen(false)}>
                     <User size={18} />

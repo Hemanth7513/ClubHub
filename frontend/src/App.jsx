@@ -15,12 +15,14 @@ import AddEventPage from './pages/AddEventPage';
 import SettingsPage from './pages/SettingsPage';
 import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
 
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
 import PageTransition from './components/PageTransition/PageTransition';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import './index.css';
 
 function App() {
@@ -62,6 +64,11 @@ function App() {
               <ProtectedRoute>
                 <PageTransition><DashboardPage /></PageTransition>
               </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <AdminRoute>
+                <PageTransition><AdminDashboardPage /></PageTransition>
+              </AdminRoute>
             } />
           </Routes>
         </AnimatePresence>
