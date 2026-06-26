@@ -8,7 +8,7 @@ const Footer = () => {
     <>
       <div className="marquee-container">
         <div className="marquee-content">
-          VIJAYAWADA CITY VOICE • DISCOVER COMMUNITIES • JOIN CLUBS • ATTEND EVENTS • CONNECT & THRIVE • VIJAYAWADA CITY VOICE • DISCOVER COMMUNITIES • JOIN CLUBS • ATTEND EVENTS • CONNECT & THRIVE • 
+          VIJAYAWADA CITY VOICE &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; DISCOVER COMMUNITIES &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; JOIN CLUBS &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ATTEND EVENTS &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; CONNECT &amp; THRIVE &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; VIJAYAWADA CITY VOICE &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; DISCOVER COMMUNITIES &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; JOIN CLUBS &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; ATTEND EVENTS &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; CONNECT &amp; THRIVE &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
         </div>
       </div>
       <footer className="footer glass-panel">
