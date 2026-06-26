@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Mail, Calendar, Navigation, Share2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Mail, Calendar, Navigation, Share2, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../components/Button/Button';
 import API_BASE_URL from '../config';
@@ -95,8 +95,9 @@ const ClubDetailPage = () => {
           className="hero-image"
         />
         <div className="hero-overlay">
-          <div className="hero-title">
+          <div className="hero-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1>{club.name}</h1>
+            {club.is_verified && <CheckCircle size={32} color="white" fill="#1da1f2" title="Verified Club" />}
           </div>
           <span className="hero-badge">{club.category}</span>
         </div>

@@ -60,4 +60,20 @@ router.delete('/clubs/:id', authenticateAdmin, async (req, res) => {
     }
 });
 
+router.put('/clubs/:id/verify', authenticateAdmin, async (req, res) => {
+    try {
+        const { is_verified } = req.body;
+        const { data, error } = await supabase
+            .from('clubs')
+            .update({ is_verified })
+            .eq('id', req.params.id)
+            .select()
+            .single();
+        if (error) throw error;
+        res.json({ message: 'Club verification updated.', club: data });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update club verification' });
+    }
+});
+
 module.exports = router;

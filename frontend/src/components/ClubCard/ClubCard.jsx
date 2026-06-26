@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Navigation } from 'lucide-react';
+import { MapPin, Navigation, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../Button/Button';
 import useMagnetic from '../../hooks/useMagnetic';
@@ -49,7 +49,10 @@ const ClubCard = ({ club, index }) => {
       </div>
 
       <div className="club-card-content" style={{ backgroundColor: cardColor }}>
-        <motion.h3>{club.name}</motion.h3>
+        <motion.h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {club.name}
+          {club.is_verified && <CheckCircle size={18} color="white" fill="#1da1f2" title="Verified Club" />}
+        </motion.h3>
         <p className="club-description">
           {club.description.length > 120
             ? `${club.description.substring(0, 120)}...`

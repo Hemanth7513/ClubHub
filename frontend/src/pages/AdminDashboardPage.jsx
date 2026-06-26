@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Users, ShieldAlert, Calendar } from 'lucide-react';
+import { Trash2, Users, ShieldAlert, Calendar, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import API_BASE_URL from '../config';
 import './AdminDashboardPage.css';
@@ -51,6 +51,26 @@ const AdminDashboardPage = () => {
         setStats(prev => ({ ...prev, clubs: prev.clubs - 1 }));
       } else {
         alert("Failed to delete club.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleVerify = async (club) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/clubs/${club.id}/verify`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ is_verified: !club.is_verified })
+      });
+      if (res.ok) {
+        setClubs(prev => prev.map(c => c.id === club.id ? { ...c, is_verified: !club.is_verified } : c));
+      } else {
+        alert("Failed to update verification status.");
       }
     } catch (err) {
       console.error(err);
@@ -160,9 +180,19 @@ const AdminDashboardPage = () => {
                   <td>{c.category}</td>
                   <td>{c.users ? c.users.name || c.users.email : 'Unknown'}</td>
                   <td>
-                    <button onClick={() => handleDeleteClub(c.id)} className="delete-btn" title="Delete Club">
-                      <Trash2 size={16} /> Delete
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button 
+                        onClick={() => handleToggleVerify(c)} 
+                        className={`badge ${c.is_verified ? 'verified' : ''}`}
+                        style={{ border: 'none', cursor: 'pointer', background: c.is_verified ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: c.is_verified ? 'white' : 'var(--text-secondary)' }}
+                        title="Toggle Verification"
+                      >
+                        <CheckCircle size={16} /> {c.is_verified ? 'Verified' : 'Verify'}
+                      </button>
+                      <button onClick={() => handleDeleteClub(c.id)} className="delete-btn" title="Delete Club">
+                        <Trash2 size={16} /> Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
