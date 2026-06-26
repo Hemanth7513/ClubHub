@@ -11,9 +11,32 @@ const TicketModal = ({ isOpen, onClose, event }) => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('idle'); // idle, processing, success, error
+  const [ticketData, setTicketData] = useState(null);
+  const [fetchLoading, setFetchLoading] = useState(true);
 
-  // Dummy ticket price for now, ideally fetched from backend
-  const TICKET_PRICE = 499; 
+  React.useEffect(() => {
+    if (isOpen && event) {
+      const fetchTicket = async () => {
+        try {
+          setFetchLoading(true);
+          const res = await fetch(`${API_BASE_URL}/events/${event.id}/tickets`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.length > 0) {
+              setTicketData(data[0]); // Just pick the first ticket tier for now
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching tickets:", err);
+        } finally {
+          setFetchLoading(false);
+        }
+      };
+      fetchTicket();
+    }
+  }, [isOpen, event]);
+
+  const TICKET_PRICE = ticketData ? ticketData.price_inr : 0; 
   const PLATFORM_FEE_PERCENT = 0.05;
   const platformFee = TICKET_PRICE * quantity * PLATFORM_FEE_PERCENT;
   const totalAmount = (TICKET_PRICE * quantity) + platformFee;
@@ -31,7 +54,7 @@ const TicketModal = ({ isOpen, onClose, event }) => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          ticketId: 1, // hardcoded for demo
+          ticketId: ticketData.id,
           quantity
         })
       });
@@ -131,40 +154,51 @@ const TicketModal = ({ isOpen, onClose, event }) => {
               <h2>Secure Your Spot</h2>
               <h3 className="event-title-preview">{event.title}</h3>
               
-              <div className="ticket-selector">
-                <p className="selector-label">Quantity</p>
-                <div className="quantity-controls">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={loading}>-</button>
-                  <span className="qty-display">{quantity}</span>
-                  <button onClick={() => setQuantity(Math.min(10, quantity + 1))} disabled={loading}>+</button>
-                </div>
-              </div>
+              {fetchLoading ? (
+                <p>Loading ticket info...</p>
+              ) : !ticketData ? (
+                <p>No tickets available for this event.</p>
+              ) : (
+                <>
+                  <div className="ticket-selector">
+                    <p className="selector-label">{ticketData.name}</p>
+                    <p className="text-sm" style={{color: 'var(--text-light)', marginBottom: '1rem'}}>
+                       {ticketData.capacity - ticketData.sold} left
+                    </p>
+                    <div className="quantity-controls">
+                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={loading}>-</button>
+                      <span className="qty-display">{quantity}</span>
+                      <button onClick={() => setQuantity(Math.min(10, Math.min(quantity + 1, ticketData.capacity - ticketData.sold)))} disabled={loading}>+</button>
+                    </div>
+                  </div>
 
-              <div className="price-breakdown">
-                <div className="breakdown-row">
-                  <span>Tickets ({quantity} x ₹{TICKET_PRICE})</span>
-                  <span>₹{TICKET_PRICE * quantity}</span>
-                </div>
-                <div className="breakdown-row fee-row">
-                  <span>Platform Fee (5%)</span>
-                  <span>₹{platformFee.toFixed(2)}</span>
-                </div>
-                <hr className="divider" />
-                <div className="breakdown-row total-row">
-                  <span>Total Amount</span>
-                  <span>₹{totalAmount.toFixed(2)}</span>
-                </div>
-              </div>
+                  <div className="price-breakdown">
+                    <div className="breakdown-row">
+                      <span>Tickets ({quantity} x ₹{TICKET_PRICE})</span>
+                      <span>₹{TICKET_PRICE * quantity}</span>
+                    </div>
+                    <div className="breakdown-row fee-row">
+                      <span>Platform Fee (5%)</span>
+                      <span>₹{platformFee.toFixed(2)}</span>
+                    </div>
+                    <hr className="divider" />
+                    <div className="breakdown-row total-row">
+                      <span>Total Amount</span>
+                      <span>₹{totalAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
 
-              <Button 
-                variant="primary" 
-                size="large" 
-                className="w-full checkout-btn"
-                onClick={handleCheckout}
-                disabled={loading}
-              >
-                {loading ? 'Processing...' : `Pay ₹${totalAmount.toFixed(2)}`}
-              </Button>
+                  <Button 
+                    variant="primary" 
+                    size="large" 
+                    className="w-full checkout-btn"
+                    onClick={handleCheckout}
+                    disabled={loading || ticketData.sold >= ticketData.capacity}
+                  >
+                    {loading ? 'Processing...' : (ticketData.sold >= ticketData.capacity ? 'Sold Out' : `Pay ₹${totalAmount.toFixed(2)}`)}
+                  </Button>
+                </>
+              )}
             </>
           )}
         </motion.div>

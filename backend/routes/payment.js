@@ -13,6 +13,10 @@ const razorpay = new Razorpay({
 router.post('/create-order', authenticateToken, async (req, res) => {
     try {
         const { ticketId, quantity } = req.body;
+        
+        if (!Number.isInteger(quantity) || quantity <= 0 || quantity > 10) {
+            return res.status(400).json({ error: 'Invalid quantity' });
+        }
 
         const { data: ticket, error: ticketError } = await supabase
             .from('tickets')
@@ -21,6 +25,10 @@ router.post('/create-order', authenticateToken, async (req, res) => {
             .single();
 
         if (ticketError || !ticket) return res.status(404).json({ error: 'Ticket not found' });
+        
+        if (ticket.sold + quantity > ticket.capacity) {
+            return res.status(400).json({ error: 'Not enough tickets available' });
+        }
         
         const baseTotal = ticket.price_inr * quantity;
         const platformFee = baseTotal * 0.05;
@@ -73,19 +81,44 @@ router.post('/verify', authenticateToken, async (req, res) => {
             .digest("hex");
 
         if (razorpay_signature === expectedSign) {
-            const { error: updateError } = await supabase
+            // Securely find the order and verify ownership
+            const { data: order, error: orderError } = await supabase
                 .from('orders')
-                .update({ status: 'SUCCESS' })
-                .eq('id', dbOrderId);
+                .select('*')
+                .eq('payment_id', razorpay_order_id)
+                .single();
 
-            if (updateError) throw updateError;
+            if (orderError || !order || order.user_id !== req.user.id) {
+                return res.status(403).json({ error: "Unauthorized or invalid order" });
+            }
+
+            // Update order status and set razorpay_payment_id
+            await supabase
+                .from('orders')
+                .update({ status: 'SUCCESS', razorpay_payment_id: razorpay_payment_id })
+                .eq('id', order.id);
+
+            // Increment ticket sold count
+            const { data: ticket } = await supabase
+                .from('tickets')
+                .select('sold')
+                .eq('id', order.ticket_id)
+                .single();
+
+            if (ticket) {
+                await supabase
+                    .from('tickets')
+                    .update({ sold: ticket.sold + order.quantity })
+                    .eq('id', order.ticket_id);
+            }
             
             res.json({ message: "Payment verified successfully" });
         } else {
+            // Failed signature, update by razorpay_order_id securely
             await supabase
                 .from('orders')
                 .update({ status: 'FAILED' })
-                .eq('id', dbOrderId);
+                .eq('payment_id', razorpay_order_id);
                 
             res.status(400).json({ error: "Invalid signature sent!" });
         }

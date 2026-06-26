@@ -74,14 +74,34 @@ async function seedEvents() {
     // Clear existing events first
     await supabase.from('events').delete().neq('id', 0);
 
-    const { error: insertError } = await supabase
+    const { data: insertedEvents, error: insertError } = await supabase
         .from('events')
-        .insert(finalEvents);
+        .insert(finalEvents)
+        .select();
 
     if (insertError) {
         console.error("Error seeding events:", insertError);
     } else {
-        console.log("Successfully seeded events linked to clubs!");
+        console.log(`Successfully seeded ${insertedEvents.length} events!`);
+        
+        // Seed tickets for each event
+        console.log("Seeding tickets for the events...");
+        await supabase.from('tickets').delete().neq('id', 0);
+        
+        const ticketsToInsert = insertedEvents.map(ev => ({
+            event_id: ev.id,
+            name: "General Admission",
+            price_inr: Math.floor(Math.random() * 5 + 1) * 499, // Random price: 499, 998, 1497, etc.
+            capacity: 100,
+            sold: 0
+        }));
+
+        const { error: ticketError } = await supabase.from('tickets').insert(ticketsToInsert);
+        if (ticketError) {
+            console.error("Error seeding tickets:", ticketError);
+        } else {
+            console.log("Successfully seeded tickets!");
+        }
     }
 }
 

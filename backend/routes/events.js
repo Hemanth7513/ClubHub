@@ -18,6 +18,20 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id/tickets', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('tickets')
+            .select('*')
+            .eq('event_id', req.params.id);
+        
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/', authenticateToken, validateEventInput, async (req, res) => {
     const { clubId, title, description, date, location, imageUrl, category } = req.body;
     try {

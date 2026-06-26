@@ -83,6 +83,7 @@ CREATE TABLE orders (
   total_amount_inr DECIMAL(10, 2) NOT NULL,
   platform_fee_inr DECIMAL(10, 2) NOT NULL, -- The percentage cut
   payment_id TEXT UNIQUE,
+  razorpay_payment_id TEXT UNIQUE,
   status TEXT NOT NULL DEFAULT 'PENDING', -- PENDING, SUCCESS, FAILED
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
