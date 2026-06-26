@@ -1,6 +1,6 @@
 .club-card {
   position: relative;
-  width: 320px; /* Reduced from ~380px */
+  width: 340px; /* Increased to prevent footer button overlap */
   height: 480px;
   overflow: hidden;
   cursor: pointer;
@@ -101,7 +101,7 @@
 
 .club-card-footer {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
 }
 
