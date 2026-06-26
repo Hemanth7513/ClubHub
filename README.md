@@ -6,7 +6,7 @@ ClubHub is a premium, high-engagement community discovery platform designed for 
 
 -   **Interactive Map Directory**: An ultra-compact, brutalist-styled interactive map to discover clubs by location across Vijayawada.
 -   **Smart Directory**: Verified database of local clubs with real-time filtering, search, and category exploration.
--   **Editorial Aesthetics**: Premium typography (`Syne` & `Outfit`), custom dark/light modes, and a vibrant "Electric" color palette.
+-   **Editorial Aesthetics**: Premium typography (`Syne` & `Outfit`), and a vibrant "Electric" color palette.
 -   **Interactive UI**: Velocity-sensitive scroll progress, magnetic buttons, and glass-brutalist components.
 -   **Secure Auth**: Custom JWT-based authentication integrated with Supabase PostgreSQL.
 -   **Event Ticketing**: Integrated event discovery and secure ticket purchasing powered by Razorpay.
