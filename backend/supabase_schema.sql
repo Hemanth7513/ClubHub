@@ -88,3 +88,8 @@ CREATE TABLE orders (
   status TEXT NOT NULL DEFAULT 'PENDING', -- PENDING, SUCCESS, FAILED
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Performance Indexes
+CREATE INDEX IF NOT EXISTS idx_clubs_category ON clubs(category);
+CREATE INDEX IF NOT EXISTS idx_events_club_id ON events(club_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_event_id ON tickets(event_id);

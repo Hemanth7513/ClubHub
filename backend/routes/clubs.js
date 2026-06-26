@@ -4,6 +4,10 @@ const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validateClubInput } = require('../middleware/validationMiddleware');
 const NodeGeocoder = require('node-geocoder');
+const NodeCache = require('node-cache');
+
+// Cache for 2 minutes (120 seconds)
+const myCache = new NodeCache({ stdTTL: 120 });
 
 const geocoder = NodeGeocoder({
   provider: 'openstreetmap'
@@ -13,6 +17,15 @@ const geocoder = NodeGeocoder({
 router.get('/', async (req, res) => {
     try {
         const { category, search } = req.query;
+        
+        // Use cache key based on query params
+        const cacheKey = `clubs_${category || 'all'}_${search || 'all'}`;
+        const cachedData = myCache.get(cacheKey);
+        
+        if (cachedData) {
+            return res.json(cachedData);
+        }
+
         let query = supabase.from('clubs').select('*');
 
         if (category) query = query.eq('category', category);
@@ -37,6 +50,7 @@ router.get('/', async (req, res) => {
             createdAt: c.created_at
         }));
         
+        myCache.set(cacheKey, mappedClubs);
         res.json(mappedClubs);
     } catch (err) {
         console.error("Fetch clubs error:", err);
@@ -106,6 +120,7 @@ router.post('/', authenticateToken, validateClubInput, async (req, res) => {
             .select();
 
         if (error) throw error;
+        myCache.flushAll();
         res.status(201).json(data[0]);
     } catch (err) {
         console.error("Add club error:", err);
@@ -134,6 +149,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
             .eq('id', req.params.id);
             
         if (deleteError) throw deleteError;
+        myCache.flushAll();
         res.json({ message: 'Club deleted successfully' });
     } catch (err) {
         console.error("Delete club error:", err);

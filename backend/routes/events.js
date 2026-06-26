@@ -4,14 +4,21 @@ const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validateEventInput } = require('../middleware/validationMiddleware');
 
+const NodeCache = require('node-cache');
+const myCache = new NodeCache({ stdTTL: 120 });
+
 router.get('/', async (req, res) => {
     try {
+        const cachedData = myCache.get('events_all');
+        if (cachedData) return res.json(cachedData);
+
         const { data, error } = await supabase
             .from('events')
             .select('*, clubs(name)')
             .order('date', { ascending: true });
         
         if (error) throw error;
+        myCache.set('events_all', data);
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -20,12 +27,17 @@ router.get('/', async (req, res) => {
 
 router.get('/:id/tickets', async (req, res) => {
     try {
+        const cacheKey = `tickets_${req.params.id}`;
+        const cachedData = myCache.get(cacheKey);
+        if (cachedData) return res.json(cachedData);
+
         const { data, error } = await supabase
             .from('tickets')
             .select('*')
             .eq('event_id', req.params.id);
         
         if (error) throw error;
+        myCache.set(cacheKey, data);
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -45,6 +57,7 @@ router.post('/', authenticateToken, validateEventInput, async (req, res) => {
             .select();
         
         if (error) throw error;
+        myCache.flushAll();
         res.status(201).json(data[0]);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -71,6 +84,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
             .eq('id', req.params.id);
             
         if (deleteError) throw deleteError;
+        myCache.flushAll();
         res.json({ message: 'Event deleted successfully' });
     } catch (err) {
         console.error("Delete event error:", err);
