@@ -18,14 +18,19 @@
 
 .discovery-wheel-track {
   display: flex;
-  gap: 60px; /* Massive gap for negative space */
-  padding: 20px 0;
+  width: max-content; /* Ensure the track expands to fit all cards */
+  padding: 20px 40px; /* Add padding to sides */
 }
 
 .wheel-card {
   width: 340px; /* Increased to prevent text overflow */
   flex-shrink: 0;
   cursor: pointer;
+  margin-right: 60px; /* Replace gap with margin for better Framer Motion compatibility */
+}
+
+.wheel-card:last-child {
+  margin-right: 0;
 }
 
 .wheel-card-inner {
