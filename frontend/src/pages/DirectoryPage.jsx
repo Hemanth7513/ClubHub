@@ -151,7 +151,7 @@ const DirectoryPage = () => {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8 }}
                 >
-                  <div className="badge">Vijayawada's Premier Directory</div>
+                  
                   <h1 className="title-xl hero-title">
                     Find Your Perfect <br/>
                     <span className="editorial-font italic hero-highlight">Community</span>

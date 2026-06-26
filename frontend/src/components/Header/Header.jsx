@@ -42,28 +42,31 @@ const Header = () => {
             </Link>
 
             {user ? (
-              <>
-                <Link to="/add-club" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                  <PlusCircle size={18} /> Add Club
-                </Link>
-                <Link to="/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                  <LayoutDashboard size={18} /> Dashboard
-                </Link>
-                {user.role === 'admin' && (
-                  <Link to="/admin" className="nav-link" onClick={() => setIsMenuOpen(false)} style={{ color: 'var(--accent-pink)' }}>
-                    <ShieldAlert size={18} /> Owner Panel
-                  </Link>
-                )}
+              <div className="user-dropdown-container">
                 <div className="user-profile">
-                  <Link to="/settings" className="user-profile-link" onClick={() => setIsMenuOpen(false)}>
-                    <User size={18} />
-                    <span className="user-name">{user.name}</span>
+                  <User size={18} />
+                  <span className="user-name">{user.name}</span>
+                </div>
+                <div className="dropdown-menu">
+                  <Link to="/dashboard" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                    <LayoutDashboard size={16} /> Dashboard
                   </Link>
-                  <button onClick={handleLogout} className="logout-btn" title="Logout">
-                    <LogOut size={16} />
+                  <Link to="/add-club" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                    <PlusCircle size={16} /> Add Club
+                  </Link>
+                  {user.role === 'admin' && (
+                    <Link to="/admin" className="dropdown-item admin-item" onClick={() => setIsMenuOpen(false)}>
+                      <ShieldAlert size={16} /> Owner Panel
+                    </Link>
+                  )}
+                  <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                    <User size={16} /> Settings
+                  </Link>
+                  <button onClick={handleLogout} className="dropdown-item logout-item" title="Logout">
+                    <LogOut size={16} /> Logout
                   </button>
                 </div>
-              </>
+              </div>
             ) : (
               <Link to="/login" onClick={() => setIsMenuOpen(false)}>
                 <Button variant="primary" size="small">
