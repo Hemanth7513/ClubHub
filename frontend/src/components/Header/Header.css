@@ -27,6 +27,8 @@
   height: 70px;
   width: auto;
   object-fit: contain;
+  transform: scale(1.8);
+  transform-origin: left center;
 }
 
 .nav-links {
@@ -207,6 +209,8 @@
   .logo-img {
     height: 48px;
     width: auto;
+    transform: scale(1.5);
+    transform-origin: center center;
   }
 
   .mobile-toggle {
