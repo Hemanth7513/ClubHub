@@ -55,13 +55,13 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
               const translateX = `${offset * 75}%`; // 75% of card width for good overlap
               const rotateY = `${-offset * 15}deg`; // slightly turn inwards
               const opacity = Math.abs(offset) > 2 ? 0 : isCenter ? 1 : 0.6;
-              const pointerEvents = isCenter ? 'auto' : 'none';
+              const pointerEvents = Math.abs(offset) > 2 ? 'none' : 'auto';
 
               return (
                 <motion.div
                   key={cat.name}
                   className={`wheel-card-3d ${isCenter ? 'active' : ''}`}
-                  onClick={() => isCenter && onSelect(cat.name)}
+                  onClick={() => isCenter ? onSelect(cat.name) : setCurrentIndex(i)}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ 
                     x: translateX, 
