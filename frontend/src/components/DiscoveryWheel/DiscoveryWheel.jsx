@@ -11,7 +11,6 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
           className="discovery-wheel-track"
           drag="x"
           dragConstraints={{ left: -1500, right: 0 }}
-          style={{ perspective: 1200 }}
         >
           {categories.map((cat, i) => (
             <motion.div
@@ -20,8 +19,8 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
               onClick={() => onSelect(cat.name)}
               whileHover={{ scale: 1.05, y: -10 }}
               whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, rotateY: 45, x: 100 }}
-              whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ 
                 delay: i * 0.05,
