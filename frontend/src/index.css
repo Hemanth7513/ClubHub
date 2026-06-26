@@ -263,10 +263,11 @@ button {
 
 .marquee-content {
   display: inline-block;
-  animation: marquee 25s linear infinite;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.5rem;
+  animation: marquee 45s linear infinite;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--border-dark);
   padding-left: 100%;
