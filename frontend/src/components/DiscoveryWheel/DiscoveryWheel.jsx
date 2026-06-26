@@ -26,11 +26,6 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
   return (
     <div className="discovery-wheel-outer">
       <div className="discovery-wheel-container-3d">
-        <div className="carousel-controls">
-          <button onClick={handlePrev} className="carousel-btn prev-btn"><ChevronLeft /></button>
-          <button onClick={handleNext} className="carousel-btn next-btn"><ChevronRight /></button>
-        </div>
-        
         <motion.div 
           className="discovery-wheel-track-3d"
           drag="x"
