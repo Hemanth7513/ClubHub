@@ -39,6 +39,7 @@ CREATE TABLE clubs (
   google_maps_url TEXT,
   latitude DECIMAL(10, 7),
   longitude DECIMAL(10, 7),
+  is_verified BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   user_id BIGINT REFERENCES users(id) ON DELETE SET NULL
 );
