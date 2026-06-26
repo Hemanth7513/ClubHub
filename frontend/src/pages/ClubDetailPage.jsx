@@ -111,7 +111,11 @@ const ClubDetailPage = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <h2>About Us</h2>
-          <p>{club.description}</p>
+          <div 
+            className="rich-text-content" 
+            dangerouslySetInnerHTML={{ __html: club.description }} 
+            style={{ lineHeight: '1.6', fontSize: '1.1rem' }}
+          />
         </motion.div>
 
         <motion.div 
