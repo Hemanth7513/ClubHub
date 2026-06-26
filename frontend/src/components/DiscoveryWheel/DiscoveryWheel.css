@@ -23,12 +23,14 @@
 }
 
 .wheel-card {
-  width: 280px; /* Senior Dev: Smaller is cleaner */
+  width: 340px; /* Increased to prevent text overflow */
   flex-shrink: 0;
   cursor: pointer;
 }
 
 .wheel-card-inner {
+  width: 100%;
+  box-sizing: border-box;
   padding: 32px;
   height: 380px;
   display: flex;
@@ -54,9 +56,11 @@
 }
 
 .wheel-card h3 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin-bottom: 12px;
   color: var(--border-dark);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .wheel-card p {
