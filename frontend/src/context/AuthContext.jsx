@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
         const data = await res.json();
         setUser(data.user);
         setProfile(data.profile);
-        localStorage.setItem('clubhub_user', JSON.stringify(data.user));
       } else if (res.status === 401 || res.status === 403) {
         logout();
       }
@@ -29,10 +28,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const savedUser = localStorage.getItem('clubhub_user');
       const savedToken = localStorage.getItem('clubhub_token');
-      if (savedUser && savedToken) {
-        setUser(JSON.parse(savedUser));
+      if (savedToken) {
         setToken(savedToken);
         
         try {
@@ -43,7 +40,6 @@ export const AuthProvider = ({ children }) => {
             const data = await res.json();
             setUser(data.user);
             setProfile(data.profile);
-            localStorage.setItem('clubhub_user', JSON.stringify(data.user));
           } else if (res.status === 401 || res.status === 403) {
             logout();
           }
@@ -61,7 +57,6 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, userToken) => {
     setUser(userData);
     setToken(userToken);
-    localStorage.setItem('clubhub_user', JSON.stringify(userData));
     localStorage.setItem('clubhub_token', userToken);
     fetchProfile(userToken);
   };
@@ -70,14 +65,12 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     setProfile(null);
-    localStorage.removeItem('clubhub_user');
     localStorage.removeItem('clubhub_token');
   };
 
   const updateProfileState = (updatedUser, updatedProfile) => {
     if (updatedUser) {
       setUser(updatedUser);
-      localStorage.setItem('clubhub_user', JSON.stringify(updatedUser));
     }
     if (updatedProfile) {
       setProfile(updatedProfile);

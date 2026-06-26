@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Mail, Calendar, Navigation, Share2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, MapPin, Map, Share2, Ticket, CheckCircle } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import Button from '../components/Button/Button';
 import API_BASE_URL from '../config';
@@ -113,7 +114,7 @@ const ClubDetailPage = () => {
           <h2>About Us</h2>
           <div 
             className="rich-text-content" 
-            dangerouslySetInnerHTML={{ __html: club.description }} 
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(club.description) }} 
             style={{ lineHeight: '1.6', fontSize: '1.1rem' }}
           />
         </motion.div>

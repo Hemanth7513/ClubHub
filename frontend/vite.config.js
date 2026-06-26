@@ -5,4 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: './',
+  build: {
+    sourcemap: false, // Prevent DevTools from showing original source code
+  },
+  esbuild: {
+    drop: ['console', 'debugger'], // Prevent leaking sensitive info in console
+  }
 })

@@ -277,3 +277,18 @@ button {
   0% { transform: translateX(0); }
   100% { transform: translateX(-100%); }
 }
+
+/* UX Audit: Performance & Battery Optimization for Mobile */
+@media (prefers-reduced-motion: reduce), (max-width: 768px) {
+  .mesh-bg {
+    animation: none !important;
+    filter: none !important;
+    background-image: none !important;
+  }
+  body::before {
+    display: none !important;
+  }
+  .text-gradient-animated {
+    animation: none !important;
+  }
+}

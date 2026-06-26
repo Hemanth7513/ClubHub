@@ -36,13 +36,19 @@ const SupportPage = () => {
       <h2>Help Center</h2>
       <div className="faq-list">
         {FAQ.map((item, i) => (
-          <div key={i} className={`faq-item ${openFaq === i ? 'open' : ''}`} onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+          <button 
+            key={i} 
+            className={`faq-item ${openFaq === i ? 'open' : ''}`} 
+            onClick={() => setOpenFaq(openFaq === i ? null : i)}
+            aria-expanded={openFaq === i}
+            style={{ width: '100%', textAlign: 'left', display: 'block' }}
+          >
             <div className="faq-question">
               <span>{item.q}</span>
               <ChevronDown size={20} />
             </div>
             <div className="faq-answer">{item.a}</div>
-          </div>
+          </button>
         ))}
       </div>
     </div>

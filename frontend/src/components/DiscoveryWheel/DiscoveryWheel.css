@@ -23,7 +23,7 @@
 }
 
 .wheel-card {
-  width: 340px; /* Increased to prevent text overflow */
+  width: min(340px, 85vw); /* Responsive: 340px max, 85% of screen on mobile */
   flex-shrink: 0;
   cursor: pointer;
   margin-right: 60px; /* Replace gap with margin for better Framer Motion compatibility */
