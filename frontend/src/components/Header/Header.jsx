@@ -20,9 +20,9 @@ const Header = () => {
   return (
     <header className="header sticky-header">
       <div className="container header-container">
-        <Link to="/" className="logo">
+        <a href="/" className="logo">
           <img src={logo} alt="ClubHub" className="logo-img" />
-        </Link>
+        </a>
 
         {/* Desktop Nav */}
         <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
