@@ -13,6 +13,12 @@ const TicketModal = ({ isOpen, onClose, event }) => {
   const [status, setStatus] = useState('idle'); // idle, processing, success, error
   const [ticketData, setTicketData] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
+  
+  // Registration Form State
+  const [attendeeName, setAttendeeName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [collegeId, setCollegeId] = useState('');
+  const [dietaryPref, setDietaryPref] = useState('');
 
   React.useEffect(() => {
     if (isOpen && event) {
@@ -23,7 +29,7 @@ const TicketModal = ({ isOpen, onClose, event }) => {
           if (res.ok) {
             const data = await res.json();
             if (data && data.length > 0) {
-              setTicketData(data[0]); // Just pick the first ticket tier for now
+              setTicketData(data[0]);
             }
           }
         } catch (err) {
@@ -42,11 +48,15 @@ const TicketModal = ({ isOpen, onClose, event }) => {
   const totalAmount = (TICKET_PRICE * quantity) + platformFee;
 
   const handleCheckout = async () => {
+    if (!attendeeName || !phone) {
+      alert("Please fill in your Name and Phone Number.");
+      return;
+    }
+
     try {
       setLoading(true);
       setStatus('processing');
       
-      // 1. Create Order on Backend
       const res = await fetch(`${API_BASE_URL}/payment/create-order`, {
         method: 'POST',
         headers: {
@@ -55,23 +65,27 @@ const TicketModal = ({ isOpen, onClose, event }) => {
         },
         body: JSON.stringify({
           ticketId: ticketData.id,
-          quantity
+          quantity,
+          registration: {
+            attendeeName,
+            phone,
+            collegeId,
+            dietaryPref
+          }
         })
       });
 
       if (!res.ok) throw new Error('Failed to initialize payment');
       const orderData = await res.json();
 
-      // 2. Initialize Razorpay Checkout
       const options = {
-        key: 'rzp_test_clubhub123', // Replace with real test key
+        key: 'rzp_test_clubhub123', 
         amount: orderData.amount,
         currency: orderData.currency,
         name: "ClubHub Events",
         description: `Tickets for ${event.title}`,
         order_id: orderData.orderId,
         handler: async function (response) {
-          // 3. Verify Payment
           try {
             const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
               method: 'POST',
@@ -83,7 +97,10 @@ const TicketModal = ({ isOpen, onClose, event }) => {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                dbOrderId: orderData.dbOrderId
+                dbOrderId: orderData.dbOrderId,
+                registration: {
+                  attendeeName, phone, collegeId, dietaryPref, eventId: event.id
+                }
               })
             });
             
@@ -97,9 +114,9 @@ const TicketModal = ({ isOpen, onClose, event }) => {
           }
         },
         prefill: {
-          name: "Club Member",
+          name: attendeeName,
           email: "member@example.com",
-          contact: "9999999999"
+          contact: phone
         },
         theme: {
           color: "#8b5cf6"
@@ -138,14 +155,14 @@ const TicketModal = ({ isOpen, onClose, event }) => {
           {status === 'success' ? (
             <div className="modal-success">
               <CheckCircle size={64} color="var(--accent-green)" />
-              <h2>Payment Successful!</h2>
+              <h2>Registration Complete!</h2>
               <p>Your tickets have been sent to your email.</p>
               <Button onClick={onClose} variant="primary" className="mt-4">Close</Button>
             </div>
           ) : status === 'error' ? (
             <div className="modal-error">
               <AlertTriangle size={64} color="var(--accent-pink)" />
-              <h2>Payment Failed</h2>
+              <h2>Registration Failed</h2>
               <p>Something went wrong during the transaction. Please try again.</p>
               <Button onClick={() => setStatus('idle')} variant="outline" className="mt-4">Retry</Button>
             </div>
@@ -172,7 +189,41 @@ const TicketModal = ({ isOpen, onClose, event }) => {
                     </div>
                   </div>
 
-                  <div className="price-breakdown">
+                  <div className="registration-form" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <h4 style={{ marginBottom: '0.5rem', color: 'var(--text-main)' }}>Attendee Details</h4>
+                    <input 
+                      type="text" 
+                      placeholder="Full Name *" 
+                      value={attendeeName}
+                      onChange={(e) => setAttendeeName(e.target.value)}
+                      className="auth-input"
+                      required
+                    />
+                    <input 
+                      type="tel" 
+                      placeholder="Phone Number *" 
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="auth-input"
+                      required
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="College / Organization ID (Optional)" 
+                      value={collegeId}
+                      onChange={(e) => setCollegeId(e.target.value)}
+                      className="auth-input"
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="Dietary Preferences (Optional)" 
+                      value={dietaryPref}
+                      onChange={(e) => setDietaryPref(e.target.value)}
+                      className="auth-input"
+                    />
+                  </div>
+
+                  <div className="price-breakdown" style={{ marginTop: '1.5rem' }}>
                     <div className="breakdown-row">
                       <span>Tickets ({quantity} x ₹{TICKET_PRICE})</span>
                       <span>₹{TICKET_PRICE * quantity}</span>
@@ -194,6 +245,7 @@ const TicketModal = ({ isOpen, onClose, event }) => {
                     className="w-full checkout-btn"
                     onClick={handleCheckout}
                     disabled={loading || ticketData.sold >= ticketData.capacity}
+                    style={{ marginTop: '1.5rem' }}
                   >
                     {loading ? 'Processing...' : (ticketData.sold >= ticketData.capacity ? 'Sold Out' : `Pay ₹${totalAmount.toFixed(2)}`)}
                   </Button>

@@ -8,7 +8,14 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 // Strict startup validation for critical ENV vars
-const requiredEnvs = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'JWT_SECRET'];
+const requiredEnvs = [
+    'SUPABASE_URL', 
+    'SUPABASE_ANON_KEY', 
+    'JWT_SECRET',
+    'FRONTEND_URL',
+    'RAZORPAY_KEY_ID',
+    'RAZORPAY_KEY_SECRET'
+];
 for (const env of requiredEnvs) {
     if (!process.env[env]) {
         console.error(`FATAL ERROR: Missing required environment variable: ${env}`);
@@ -23,9 +30,8 @@ app.use(helmet({
     crossOriginResourcePolicy: false,
 }));
 
-const allowedOrigins = process.env.FRONTEND_URL 
-    ? [process.env.FRONTEND_URL, 'http://localhost:5173'] 
-    : '*';
+// Strict CORS: No wildcards allowed.
+const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
 
 app.use(cors({
     origin: allowedOrigins,

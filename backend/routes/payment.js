@@ -6,8 +6,8 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_clubhub123',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_clubhub123',
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 router.post('/create-order', authenticateToken, async (req, res) => {
@@ -72,11 +72,11 @@ router.post('/create-order', authenticateToken, async (req, res) => {
 
 router.post('/verify', authenticateToken, async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId, registration } = req.body;
 
         const sign = razorpay_order_id + "|" + razorpay_payment_id;
         const expectedSign = crypto
-            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || 'secret_clubhub123')
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(sign.toString())
             .digest("hex");
 
@@ -97,6 +97,23 @@ router.post('/verify', authenticateToken, async (req, res) => {
                 .from('orders')
                 .update({ status: 'SUCCESS', razorpay_payment_id: razorpay_payment_id })
                 .eq('id', order.id);
+
+            // Insert event registration record
+            if (registration) {
+                const { error: regError } = await supabase
+                    .from('event_registrations')
+                    .insert([{
+                        order_id: order.id,
+                        event_id: registration.eventId,
+                        user_id: req.user.id,
+                        attendee_name: registration.attendeeName,
+                        phone: registration.phone,
+                        college_id: registration.collegeId || null,
+                        dietary_preference: registration.dietaryPref || null
+                    }]);
+                
+                if (regError) console.error("Error saving event registration:", regError);
+            }
 
             // Increment ticket sold count
             const { data: ticket } = await supabase

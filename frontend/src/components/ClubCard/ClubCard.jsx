@@ -7,14 +7,8 @@ import useMagnetic from '../../hooks/useMagnetic';
 import './ClubCard.css';
 
 const COLORS = [
-  'var(--accent-pink)',
-  'var(--accent-yellow)',
-  'var(--accent-green)',
-  'var(--accent-blue)',
-  'var(--accent-purple)',
-  'var(--accent-peach)',
-  'var(--accent-mint)',
-  'var(--accent-coral)',
+  'var(--bg-primary)',
+  'var(--accent-yellow)'
 ];
 
 const ClubCard = ({ club, index }) => {

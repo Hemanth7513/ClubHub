@@ -24,23 +24,30 @@
 
 /* Variants */
 .btn-primary {
-  background: var(--accent-pink);
-  color: #000000; /* WCAG 4.5:1 contrast fix */
+  background: var(--bg-primary);
+  color: var(--border-dark);
+  background-size: 200% 200%;
 }
 
 .btn-primary:hover {
-  background: var(--accent-pink);
-  box-shadow: 8px 8px 0px var(--accent-violet);
+  background-image: repeating-linear-gradient(45deg, var(--accent-yellow) 0, var(--accent-yellow) 10px, var(--bg-primary) 10px, var(--bg-primary) 20px);
+  animation: brutal-stripe 1s linear infinite;
+  box-shadow: 8px 8px 0px var(--border-dark);
+}
+
+@keyframes brutal-stripe {
+  0% { background-position: 0 0; }
+  100% { background-position: 28px 0; }
 }
 
 .btn-secondary {
-  background: var(--accent-yellow);
-  color: var(--border-dark);
+  background: var(--border-dark);
+  color: var(--bg-primary);
 }
 
 .btn-secondary:hover {
-  background: var(--accent-yellow);
-  box-shadow: 8px 8px 0px var(--accent-lime);
+  background: var(--border-dark);
+  box-shadow: 8px 8px 0px var(--accent-yellow);
 }
 
 .btn-outline {

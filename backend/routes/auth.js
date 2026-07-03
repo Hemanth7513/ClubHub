@@ -7,6 +7,99 @@ const { authenticateToken } = require('../middleware/authMiddleware');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
 
+const NodeCache = require('node-cache');
+const otpCache = new NodeCache({ stdTTL: 300 }); // OTP valid for 5 mins
+const { sendOtpEmail } = require('../utils/email');
+
+const rateLimit = require('express-rate-limit');
+const otpLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 3,
+    message: { error: 'Too many OTP requests, please try again later.' }
+});
+
+// Request OTP
+router.post('/request-otp', otpLimiter, async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+
+        // Generate 6 digit code
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Save to cache
+        otpCache.set(email.toLowerCase(), otpCode);
+
+        // Send Email
+        const emailSent = await sendOtpEmail(email, otpCode);
+        if (!emailSent) {
+            return res.status(500).json({ error: 'Failed to send email' });
+        }
+
+        res.json({ message: 'OTP sent to email' });
+    } catch (err) {
+        console.error("OTP Request error:", err);
+        res.status(500).json({ error: 'Failed to request OTP' });
+    }
+});
+
+// Verify OTP
+router.post('/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
+
+        const cachedOtp = otpCache.get(email.toLowerCase());
+        
+        if (!cachedOtp || cachedOtp !== otp) {
+            return res.status(401).json({ error: 'Invalid or expired OTP' });
+        }
+
+        // Clear OTP after successful use
+        otpCache.del(email.toLowerCase());
+
+        // Find or create user
+        let { data: user, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email.toLowerCase())
+            .single();
+
+        if (userError || !user) {
+            // Auto-register via OTP
+            const name = email.split('@')[0];
+            const role = email.toLowerCase() === 'hemaxtth@gmail.com' ? 'admin' : 'user';
+
+            const { data: newUser, error: createError } = await supabase
+                .from('users')
+                .insert([{ email: email.toLowerCase(), name, role }])
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            user = newUser;
+
+            // Create profile
+            await supabase.from('profiles').insert([{ user_id: user.id, bio: '', avatar_url: '', theme_preference: 'dark', notifications_enabled: true }]);
+        }
+
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role || 'user' }, 
+            JWT_SECRET, 
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            token,
+            user: { id: user.id, email: user.email, name: user.name, role: user.role || 'user' }
+        });
+
+    } catch (err) {
+        console.error("OTP Verify error:", err);
+        res.status(500).json({ error: 'Failed to verify OTP' });
+    }
+});
+
 // Register
 router.post('/register', async (req, res) => {
     try {
@@ -65,6 +158,8 @@ router.post('/login', async (req, res) => {
 
         if (error || !user) return res.status(401).json({ error: 'Invalid email or password' });
 
+        if (!user.password) return res.status(401).json({ error: 'Please login with Google or OTP' });
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ error: 'Invalid email or password' });
 
@@ -86,6 +181,73 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         console.error("Login error:", err);
         res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// Google OAuth Login
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '121724819330-qvtu35biu59bjp0jkia5vgsngqu073fu.apps.googleusercontent.com');
+
+router.post('/google', async (req, res) => {
+    try {
+        const { token: googleToken } = req.body;
+        
+        // Verify the token with Google
+        const ticket = await googleClient.verifyIdToken({
+            idToken: googleToken,
+            audience: process.env.GOOGLE_CLIENT_ID || '121724819330-qvtu35biu59bjp0jkia5vgsngqu073fu.apps.googleusercontent.com',
+        });
+        const payload = ticket.getPayload();
+        
+        const email = payload.email.toLowerCase();
+        const name = payload.name;
+        const google_id = payload.sub;
+
+        // Find or create user
+        let { data: user, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single();
+
+        if (userError || !user) {
+            const role = email === 'hemaxtth@gmail.com' ? 'admin' : 'user';
+            const { data: newUser, error: createError } = await supabase
+                .from('users')
+                .insert([{ email, name, google_id, role }])
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            user = newUser;
+
+            // Create profile
+            await supabase.from('profiles').insert([{ 
+                user_id: user.id, 
+                bio: '', 
+                avatar_url: payload.picture || '', 
+                theme_preference: 'dark', 
+                notifications_enabled: true 
+            }]);
+        } else if (!user.google_id) {
+            // Link google account to existing user
+            await supabase.from('users').update({ google_id }).eq('id', user.id);
+        }
+
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role || 'user' }, 
+            JWT_SECRET, 
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            token,
+            user: { id: user.id, email: user.email, name: user.name, role: user.role || 'user', avatarUrl: payload.picture }
+        });
+
+    } catch (err) {
+        console.error("Google Auth error:", err);
+        res.status(500).json({ error: 'Google login failed' });
     }
 });
 

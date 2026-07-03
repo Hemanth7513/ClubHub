@@ -55,6 +55,50 @@ const sendTicketEmail = async (userEmail, userName, ticketDetails, orderDetails)
     }
 };
 
+const sendOtpEmail = async (userEmail, otpCode) => {
+    try {
+        if (!process.env.RESEND_API_KEY) {
+            console.warn("No RESEND_API_KEY provided. Skipping email delivery. OTP:", otpCode);
+            return true; // Return true in dev so we don't break the flow
+        }
+
+        const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
+                <div style="background-color: #1a1a1a; padding: 20px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">ClubHub Security</h1>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <h2 style="color: #333333; margin-top: 0;">Your Login Code</h2>
+                    <p style="color: #555555; font-size: 16px;">Please use the following 6-digit code to log into your account.</p>
+                    
+                    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h1 style="margin: 0; color: #8b5cf6; font-size: 36px; letter-spacing: 5px;">${otpCode}</h1>
+                    </div>
+
+                    <p style="color: #555555; font-size: 14px;">This code will expire in 5 minutes. If you did not request this code, please ignore this email.</p>
+                </div>
+            </div>
+        `;
+
+        const { data, error } = await resend.emails.send({
+            from: 'ClubHub Security <security@resend.dev>',
+            to: [userEmail],
+            subject: 'Your ClubHub Login Code',
+            html: emailHtml,
+        });
+
+        if (error) {
+            console.error("Resend API Error:", error);
+            return false;
+        }
+        return true;
+    } catch (err) {
+        console.error("Failed to send OTP email:", err);
+        return false;
+    }
+};
+
 module.exports = {
-    sendTicketEmail
+    sendTicketEmail,
+    sendOtpEmail
 };
