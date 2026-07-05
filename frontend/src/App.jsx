@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
+import CookieBanner from './components/CookieBanner/CookieBanner';
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
 import PageTransition from './components/PageTransition/PageTransition';
@@ -84,6 +85,7 @@ function App() {
           </Suspense>
         </AnimatePresence>
       </main>
+      <CookieBanner />
       <Footer />
     </div>
   );

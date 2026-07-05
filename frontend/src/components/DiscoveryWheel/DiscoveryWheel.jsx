@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import './DiscoveryWheel.css';
 
-const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
+const DiscoveryWheel = React.memo(({ categories, clubs, onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    categories.forEach(cat => {
+      counts[cat.name] = clubs.filter(c => c.category === cat.name).length;
+    });
+    return counts;
+  }, [categories, clubs]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % categories.length);
@@ -86,7 +94,7 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
                     <p>{cat.desc}</p>
                     <div className="wheel-footer">
                       <span className="count-badge">
-                        {clubs.filter(c => c.category === cat.name).length} Orgs
+                        {categoryCounts[cat.name]} Orgs
                       </span>
                       <Globe size={18} />
                     </div>
@@ -103,6 +111,6 @@ const DiscoveryWheel = ({ categories, clubs, onSelect }) => {
       </div>
     </div>
   );
-};
+});
 
 export default DiscoveryWheel;

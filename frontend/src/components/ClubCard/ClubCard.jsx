@@ -11,7 +11,7 @@ const COLORS = [
   'var(--accent-yellow)'
 ];
 
-const ClubCard = ({ club, index }) => {
+const ClubCard = React.memo(({ club, index }) => {
   const cardColor = COLORS[index % COLORS.length];
   const ref = useRef(null);
   const { position: magPos, handleMouseMove: magMove, handleMouseLeave: magLeave, style: magStyle } = useMagnetic(0.3, 80);
@@ -33,13 +33,14 @@ const ClubCard = ({ club, index }) => {
       whileHover={{ y: -10, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      <div
-        className="club-card-image"
-        style={{ 
-          backgroundImage: `url(${club.imageUrl || 'https://via.placeholder.com/400x200'})`
-        }}
-      >
-        <span className="club-category-badge">{club.category}</span>
+      <div className="club-card-image" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img 
+          src={club.imageUrl || 'https://via.placeholder.com/400x200'} 
+          alt={club.name}
+          loading="lazy"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+        />
+        <span className="club-category-badge" style={{ position: 'relative', zIndex: 1 }}>{club.category}</span>
       </div>
 
       <div className="club-card-content" style={{ backgroundColor: cardColor }}>
@@ -88,6 +89,6 @@ const ClubCard = ({ club, index }) => {
       </div>
     </motion.div>
   );
-};
+});
 
 export default ClubCard;

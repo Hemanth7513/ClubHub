@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plus, GlassWater, Trophy, Users, Globe2, Briefcase, Landmark, BookOpen, Laptop } from 'lucide-react';
 import ClubCard from '../components/ClubCard/ClubCard';
@@ -83,16 +83,18 @@ const DirectoryPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const filteredClubs = clubs.filter(c => {
-    if (selectedCategory && c.category !== selectedCategory) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      return c.name.toLowerCase().includes(q) || 
-             c.category.toLowerCase().includes(q) || 
-             (c.description && c.description.toLowerCase().includes(q));
-    }
-    return true;
-  });
+  const filteredClubs = useMemo(() => {
+    return clubs.filter(c => {
+      if (selectedCategory && c.category !== selectedCategory) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return c.name.toLowerCase().includes(q) || 
+               c.category.toLowerCase().includes(q) || 
+               (c.description && c.description.toLowerCase().includes(q));
+      }
+      return true;
+    });
+  }, [clubs, selectedCategory, searchQuery]);
 
   return (
     <div className="directory-page">

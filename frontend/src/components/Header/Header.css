@@ -1,7 +1,6 @@
 .header {
   height: 80px;
   background: var(--bg-secondary);
-  backdrop-filter: var(--glass-blur);
   border-bottom: 3px solid var(--border-dark);
   z-index: 1000;
   display: flex;

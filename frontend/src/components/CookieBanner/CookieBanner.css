@@ -1,0 +1,33 @@
+.cookie-banner-overlay {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  left: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  z-index: 10000;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--bg-primary); /* Overriding glass-panel transparency for Brutalism */
+}
+
+.cookie-banner-content p {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .cookie-banner-overlay {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+  }
+}

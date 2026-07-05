@@ -31,8 +31,8 @@ html {
   --brutal-shadow: 6px 6px 0px var(--border-dark);
   --brutal-shadow-hover: 10px 10px 0px var(--border-dark);
   
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-blur: blur(16px);
+  --glass-bg: var(--bg-secondary);
+  --glass-blur: none;
   
   --grid-color: rgba(0, 0, 0, 0.02);
   
