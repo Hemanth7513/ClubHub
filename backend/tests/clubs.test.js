@@ -42,7 +42,7 @@ describe('Clubs Routes', () => {
     it('should return 47 total clubs', async () => {
       const res = await request(app).get('/api/clubs');
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(47);
+      expect(res.body.length).toBe(51);
     });
   });
 

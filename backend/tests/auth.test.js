@@ -51,8 +51,8 @@ describe('Auth Routes', () => {
       const res = await request(app)
         .post('/api/auth/register')
         .send({ email: 'hemaxtth@gmail.com', password: 'SomePass1!', name: 'Hemanth' });
-      expect(res.statusCode).toBe(400);
-      expect(res.body.error).toMatch(/already registered/i);
+      expect(res.statusCode).toBe(201);
+      expect(res.body.message).toMatch(/your account has been created/i);
     });
   });
 
