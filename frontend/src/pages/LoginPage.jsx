@@ -26,17 +26,27 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
       
+      const contentType = res.headers.get("content-type");
+      let data = null;
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        throw new Error('Received an HTML response instead of JSON. The backend server might be offline or unreachable.');
+      }
+
+      if (!res.ok) throw new Error(data?.error || 'Login failed');
+
       login(data.user, data.token);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
