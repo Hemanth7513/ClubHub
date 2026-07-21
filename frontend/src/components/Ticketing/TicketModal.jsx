@@ -57,82 +57,15 @@ const TicketModal = ({ isOpen, onClose, event }) => {
       setLoading(true);
       setStatus('processing');
       
-      const res = await fetch(`${API_BASE_URL}/payment/create-order`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ticketId: ticketData.id,
-          quantity,
-          registration: {
-            attendeeName,
-            phone,
-            collegeId,
-            dietaryPref
-          }
-        })
-      });
-
-      if (!res.ok) throw new Error('Failed to initialize payment');
-      const orderData = await res.json();
-
-      const options = {
-        key: 'rzp_test_clubhub123', 
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "ClubHub Events",
-        description: `Tickets for ${event.title}`,
-        order_id: orderData.orderId,
-        handler: async function (response) {
-          try {
-            const verifyRes = await fetch(`${API_BASE_URL}/payment/verify`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                dbOrderId: orderData.dbOrderId,
-                registration: {
-                  attendeeName, phone, collegeId, dietaryPref, eventId: event.id
-                }
-              })
-            });
-            
-            if (verifyRes.ok) {
-              setStatus('success');
-            } else {
-              setStatus('error');
-            }
-          } catch (err) {
-            setStatus('error');
-          }
-        },
-        prefill: {
-          name: attendeeName,
-          email: "member@example.com",
-          contact: phone
-        },
-        theme: {
-          color: "#8b5cf6"
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response){
-        setStatus('error');
-      });
-      rzp.open();
+      // Temporary mock checkout since Razorpay is removed for now
+      setTimeout(() => {
+        setStatus('success');
+        setLoading(false);
+      }, 1500);
 
     } catch (err) {
       console.error(err);
       setStatus('error');
-    } finally {
       setLoading(false);
     }
   };

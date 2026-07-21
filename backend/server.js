@@ -13,9 +13,7 @@ const requiredEnvs = [
     'SUPABASE_URL', 
     'SUPABASE_ANON_KEY', 
     'JWT_SECRET',
-    'FRONTEND_URL',
-    'RAZORPAY_KEY_ID',
-    'RAZORPAY_KEY_SECRET'
+    'FRONTEND_URL'
 ];
 for (const env of requiredEnvs) {
     if (!process.env[env]) {
