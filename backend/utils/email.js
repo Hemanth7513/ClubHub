@@ -98,7 +98,53 @@ const sendOtpEmail = async (userEmail, otpCode) => {
     }
 };
 
+const sendPasswordResetEmail = async (userEmail, resetLink) => {
+    try {
+        if (!process.env.RESEND_API_KEY) {
+            console.warn("No RESEND_API_KEY provided. Password reset link:", resetLink);
+            return true;
+        }
+
+        const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
+                <div style="background-color: #1a1a1a; padding: 20px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">ClubHub Security</h1>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <h2 style="color: #333333; margin-top: 0;">Password Reset Request</h2>
+                    <p style="color: #555555; font-size: 16px;">We received a request to reset your ClubHub password. Click the button below to set a new password.</p>
+
+                    <a href="${resetLink}" style="display: inline-block; background-color: #8b5cf6; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; margin: 20px 0;">Reset My Password</a>
+
+                    <p style="color: #888888; font-size: 13px;">This link will expire in <strong>15 minutes</strong> and can only be used once.</p>
+                    <p style="color: #888888; font-size: 13px;">If you did not request a password reset, you can safely ignore this email. Your password will not change.</p>
+                </div>
+                <div style="background-color: #f0f0f0; padding: 15px; text-align: center;">
+                    <p style="color: #888888; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Vijayawada ClubHub. All rights reserved.</p>
+                </div>
+            </div>
+        `;
+
+        const { data, error } = await resend.emails.send({
+            from: 'ClubHub Security <security@resend.dev>',
+            to: [userEmail],
+            subject: 'Reset Your ClubHub Password',
+            html: emailHtml,
+        });
+
+        if (error) {
+            console.error("Resend API Error (password reset):", error);
+            return false;
+        }
+        return true;
+    } catch (err) {
+        console.error("Failed to send password reset email:", err);
+        return false;
+    }
+};
+
 module.exports = {
     sendTicketEmail,
-    sendOtpEmail
+    sendOtpEmail,
+    sendPasswordResetEmail,
 };

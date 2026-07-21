@@ -19,6 +19,8 @@ const ClubDetailPage = lazy(() => import('./pages/ClubDetailPage'));
 const AddClubPage = lazy(() => import('./pages/AddClubPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const SupportPage = lazy(() => import('./pages/SupportPage'));
 const AddEventPage = lazy(() => import('./pages/AddEventPage'));
@@ -58,6 +60,8 @@ function App() {
               } />
               <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
               <Route path="/register" element={<PageTransition><RegisterPage /></PageTransition>} />
+              <Route path="/forgot-password" element={<PageTransition><ForgotPasswordPage /></PageTransition>} />
+              <Route path="/reset-password" element={<PageTransition><ResetPasswordPage /></PageTransition>} />
               <Route path="/events" element={<PageTransition><EventsPage /></PageTransition>} />
               <Route path="/support" element={<PageTransition><SupportPage /></PageTransition>} />
               <Route path="/settings" element={

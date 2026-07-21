@@ -6,14 +6,14 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 router.post('/create-order', authenticateToken, async (req, res) => {
     try {
         const { ticketId, quantity } = req.body;
-        
+
         if (!Number.isInteger(quantity) || quantity <= 0 || quantity > 10) {
             return res.status(400).json({ error: 'Invalid quantity' });
         }
@@ -25,17 +25,17 @@ router.post('/create-order', authenticateToken, async (req, res) => {
             .single();
 
         if (ticketError || !ticket) return res.status(404).json({ error: 'Ticket not found' });
-        
+
         if (ticket.sold + quantity > ticket.capacity) {
             return res.status(400).json({ error: 'Not enough tickets available' });
         }
-        
+
         const baseTotal = ticket.price_inr * quantity;
         const platformFee = baseTotal * 0.05;
         const finalTotal = baseTotal + platformFee;
 
         const options = {
-            amount: Math.round(finalTotal * 100), 
+            amount: Math.round(finalTotal * 100),
             currency: "INR",
             receipt: `receipt_ticket_${ticketId}_${Date.now()}`
         };
@@ -111,7 +111,7 @@ router.post('/verify', authenticateToken, async (req, res) => {
                         college_id: registration.collegeId || null,
                         dietary_preference: registration.dietaryPref || null
                     }]);
-                
+
                 if (regError) console.error("Error saving event registration:", regError);
             }
 
@@ -128,13 +128,13 @@ router.post('/verify', authenticateToken, async (req, res) => {
                     .update({ sold: ticket.sold + order.quantity })
                     .eq('id', order.ticket_id);
             }
-            
+
             // Send Email Ticket
             try {
                 // We need the user's email and name, and ticket details
                 const { data: userData } = await supabase.from('users').select('email, name').eq('id', req.user.id).single();
                 const { data: ticketData } = await supabase.from('tickets').select('*').eq('id', order.ticket_id).single();
-                
+
                 if (userData && ticketData) {
                     const { sendTicketEmail } = require('../utils/email');
                     await sendTicketEmail(userData.email, userData.name, ticketData, order);
@@ -143,7 +143,7 @@ router.post('/verify', authenticateToken, async (req, res) => {
                 console.error("Failed to trigger ticket email:", emailErr);
                 // We don't fail the payment verification if the email fails
             }
-            
+
             res.json({ message: "Payment verified successfully" });
         } else {
             // Failed signature, update by razorpay_order_id securely
@@ -151,7 +151,7 @@ router.post('/verify', authenticateToken, async (req, res) => {
                 .from('orders')
                 .update({ status: 'FAILED' })
                 .eq('payment_id', razorpay_order_id);
-                
+
             res.status(400).json({ error: "Invalid signature sent!" });
         }
     } catch (err) {

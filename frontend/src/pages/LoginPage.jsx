@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, Mail, Lock, ArrowRight, KeyRound } from 'lucide-react';
+import { LogIn, Mail, Lock, ArrowRight, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -11,6 +11,7 @@ const LoginPage = () => {
   const [loginMethod, setLoginMethod] = useState('password'); // 'password' or 'otp'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   
@@ -158,7 +159,15 @@ const LoginPage = () => {
                 </div>
                 <div className="input-group">
                   <label><Lock size={14} /> Password</label>
-                  <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', paddingRight: '40px' }} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', display: 'flex' }}>
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
+                    <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--accent-pink)', textDecoration: 'none', fontWeight: '600' }}>Forgot Password?</Link>
+                  </div>
                 </div>
                 <button type="submit" className="auth-submit" disabled={loading}>
                   {loading ? 'Authenticating...' : (<>Login <ArrowRight size={18} /></>)}

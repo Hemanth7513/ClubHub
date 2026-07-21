@@ -3,10 +3,11 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+// Use the service role key on the backend to bypass RLS — this key is NEVER exposed to the frontend
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
 
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-  console.warn('⚠️ Using fallback Supabase credentials. Please set them in the Render dashboard.');
+if (!supabaseUrl || !supabaseKey) {
+  console.warn('⚠️ Missing Supabase credentials. Please set them in the environment.');
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);

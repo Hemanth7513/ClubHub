@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import API_BASE_URL from '../config';
 import './AuthPages.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -77,15 +78,21 @@ const RegisterPage = () => {
             </div>
             <div className="input-group">
               <label><Lock size={14} /> Password</label>
-              <input 
-                type="password" 
-                placeholder="••••••••" 
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                required 
-                minLength={6}
-                maxLength={100}
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  required 
+                  minLength={6}
+                  maxLength={100}
+                  style={{ width: '100%', paddingRight: '40px' }}
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)', display: 'flex' }}>
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <button type="submit" className="auth-submit" disabled={loading}>
               {loading ? 'Creating Account...' : (<>Create Account <ArrowRight size={18} /></>)}

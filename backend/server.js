@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { sanitizeStrings } = require('./middleware/validationMiddleware');
 
 // Ensure env loaded from backend folder
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
@@ -40,7 +41,9 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
+// Limit request body to 10kb — prevents large-payload DoS attacks (Check 7)
+app.use(express.json({ limit: '10kb' }));
+
 
 // Rate limiting
 const limiter = rateLimit({
@@ -70,10 +73,16 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/search', searchRoutes);
 
-// Global Error Handler
+// Global Error Handler — never expose stack traces in production (Check 4)
 app.use((err, req, res, next) => {
-    console.error("Unhandled Error:", err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+        console.error('Unhandled Error [redacted for production]:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+        console.error('Unhandled Error:', err.stack);
+        res.status(500).json({ error: 'Internal Server Error', detail: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 5000;
