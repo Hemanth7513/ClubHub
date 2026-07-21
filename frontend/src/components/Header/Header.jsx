@@ -27,7 +27,7 @@ const Header = () => {
         {/* Desktop Nav */}
         <nav className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
           <div className="nav-links">
-            <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+            <Link to="/#categories" className="nav-link" onClick={() => setIsMenuOpen(false)}>
               <Users size={18} /> Directory
             </Link>
             <Link to="/map" className="nav-link" onClick={() => setIsMenuOpen(false)}>

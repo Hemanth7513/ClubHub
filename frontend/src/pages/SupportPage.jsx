@@ -6,16 +6,32 @@ import './SupportPage.css';
 
 const FAQ = [
   {
+    q: "What is ClubHub?",
+    a: "ClubHub is a centralized directory designed to help individuals discover, connect, and engage with social, cultural, and professional communities in Vijayawada."
+  },
+  {
+    q: "How do I join a club?",
+    a: "To join a club, simply explore our directory, select a community that aligns with your interests, and use the contact details or 'Join/Website' link provided on their dedicated profile page."
+  },
+  {
+    q: "Is it free to use ClubHub?",
+    a: "Yes! Browsing the directory, searching for clubs, and connecting with organizations is completely free for all users."
+  },
+  {
     q: "How do I register a new community?",
-    a: "Click on the 'Register Club' button in the directory or use the link in the footer. You'll need to be logged in to create a listing."
+    a: "Click on the 'Register Club' button in the directory or use the 'Add Club' link in the dropdown menu. You'll need to be logged into your account to submit a new listing."
   },
   {
     q: "Are the club details verified?",
-    a: "Yes, we manually verify the existence and primary contact details of each organization to ensure high-quality listings."
+    a: "Yes, we manually verify the existence and primary contact details of each organization upon submission to ensure the highest quality and accuracy of listings."
   },
   {
     q: "How can I update my club's information?",
-    a: "Currently, you can reach out to our support team at support@clubhub.vja or wait for our upcoming 'Club Dashboard' feature."
+    a: "Currently, you can reach out to our support team at support@clubhub.vja to request updates. We are also rolling out a 'Club Dashboard' feature very soon for self-service updates."
+  },
+  {
+    q: "Who can I contact for technical issues?",
+    a: "For any bugs, feedback, or platform-related issues, please email our support team at support@clubhub.vja, and our technical team will assist you promptly."
   }
 ];
 
