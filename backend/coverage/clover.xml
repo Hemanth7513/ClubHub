@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1784604770207" clover="3.2.0">
-  <project timestamp="1784604770207" name="All files">
-    <metrics statements="592" coveredstatements="139" conditionals="376" coveredconditionals="74" methods="49" coveredmethods="13" elements="1017" coveredelements="226" complexity="0" loc="592" ncloc="592" packages="3" files="11" classes="11"/>
+<coverage generated="1784709921360" clover="3.2.0">
+  <project timestamp="1784709921360" name="All files">
+    <metrics statements="552" coveredstatements="139" conditionals="342" coveredconditionals="74" methods="49" coveredmethods="13" elements="943" coveredelements="226" complexity="0" loc="552" ncloc="552" packages="3" files="11" classes="11"/>
     <package name="middleware">
       <metrics statements="84" coveredstatements="33" conditionals="78" coveredconditionals="19" methods="8" coveredmethods="3"/>
       <file name="authMiddleware.js" path="C:\Users\MKG\.gemini\antigravity\scratch\clubhub\backend\middleware\authMiddleware.js">
@@ -96,7 +96,7 @@
       </file>
     </package>
     <package name="routes">
-      <metrics statements="453" coveredstatements="88" conditionals="249" coveredconditionals="35" methods="35" coveredmethods="7"/>
+      <metrics statements="413" coveredstatements="88" conditionals="215" coveredconditionals="35" methods="35" coveredmethods="7"/>
       <file name="admin.js" path="C:\Users\MKG\.gemini\antigravity\scratch\clubhub\backend\routes\admin.js">
         <metrics statements="44" coveredstatements="0" conditionals="18" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
@@ -476,62 +476,22 @@
         <line num="95" count="0" type="stmt"/>
       </file>
       <file name="payment.js" path="C:\Users\MKG\.gemini\antigravity\scratch\clubhub\backend\routes\payment.js">
-        <metrics statements="55" coveredstatements="0" conditionals="34" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <metrics statements="15" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
         <line num="4" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="17" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="17" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="27" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="29" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="30" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
         <line num="35" count="0" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="68" count="0" type="stmt"/>
-        <line num="69" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="74" count="0" type="stmt"/>
-        <line num="75" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
-        <line num="78" count="0" type="stmt"/>
-        <line num="83" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="91" count="0" type="cond" truecount="0" falsecount="5"/>
-        <line num="92" count="0" type="stmt"/>
-        <line num="96" count="0" type="stmt"/>
-        <line num="102" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="103" count="0" type="stmt"/>
-        <line num="115" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="119" count="0" type="stmt"/>
-        <line num="125" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="126" count="0" type="stmt"/>
-        <line num="133" count="0" type="stmt"/>
-        <line num="135" count="0" type="stmt"/>
-        <line num="136" count="0" type="stmt"/>
-        <line num="138" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="139" count="0" type="stmt"/>
-        <line num="140" count="0" type="stmt"/>
-        <line num="143" count="0" type="stmt"/>
-        <line num="147" count="0" type="stmt"/>
-        <line num="150" count="0" type="stmt"/>
-        <line num="155" count="0" type="stmt"/>
-        <line num="158" count="0" type="stmt"/>
-        <line num="159" count="0" type="stmt"/>
-        <line num="163" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
       </file>
       <file name="search.js" path="C:\Users\MKG\.gemini\antigravity\scratch\clubhub\backend\routes\search.js">
         <metrics statements="12" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="2" coveredmethods="0"/>

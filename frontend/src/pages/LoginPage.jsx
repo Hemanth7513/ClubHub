@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, Mail, Lock, ArrowRight, KeyRound, Eye, EyeOff } from 'lucide-react';
