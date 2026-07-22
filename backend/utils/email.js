@@ -80,6 +80,10 @@ const sendOtpEmail = async (userEmail, otpCode) => {
             </div>
         `;
 
+        console.log("====================================================");
+        console.log(`[DEV / TESTING] OTP Code for ${userEmail}: ${otpCode}`);
+        console.log("====================================================");
+
         const { data, error } = await resend.emails.send({
             from: 'ClubHub Security <security@resend.dev>',
             to: [userEmail],
@@ -124,6 +128,11 @@ const sendPasswordResetEmail = async (userEmail, resetLink) => {
                 </div>
             </div>
         `;
+
+        console.log("====================================================");
+        console.log(`[DEV / TESTING] Password Reset Link for ${userEmail}:`);
+        console.log(resetLink);
+        console.log("====================================================");
 
         const { data, error } = await resend.emails.send({
             from: 'ClubHub Security <security@resend.dev>',
