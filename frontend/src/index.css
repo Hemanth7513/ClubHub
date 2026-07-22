@@ -235,6 +235,13 @@ button {
   border-radius: 6px;
 }
 
+/* Custom Focus Rings for Accessibility + Aesthetics */
+:focus-visible {
+  outline: 3px solid var(--accent-cyan);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .glass-panel:hover {
   transform: translate(-4px, -4px);
   box-shadow: 10px 10px 0px var(--border-dark);

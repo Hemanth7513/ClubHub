@@ -50,14 +50,24 @@
   border-top: none;
   border-radius: 0 0 24px 24px;
   box-shadow: var(--brutal-shadow);
-  transition: all 0.4s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   z-index: 1;
+  background-color: var(--bg-secondary);
+}
+
+.club-card:hover {
+  z-index: 10;
+}
+
+.club-card:hover .club-card-image {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
 .club-card:hover .club-card-content {
-  box-shadow: var(--brutal-shadow-hover);
-  transform: translateY(-5px);
+  box-shadow: 12px 12px 0px var(--border-dark), 0 20px 40px rgba(255, 46, 99, 0.15); /* Adds a subtle glowing drop shadow matching accent-pink */
+  transform: translateY(-8px);
 }
 
 .club-card-content h3 {

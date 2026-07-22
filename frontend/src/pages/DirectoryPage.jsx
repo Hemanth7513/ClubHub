@@ -146,22 +146,48 @@ const DirectoryPage = () => {
             className="landing-view"
           >
             <section className="hero-refined section-padding">
-              <div className="container">
+              <div className="hero-orb"></div>
+              <div className="container" style={{ position: 'relative', zIndex: 2 }}>
                 <motion.div 
                   className="hero-content-centered"
-                  initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.8 }}
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: { 
+                      opacity: 1, 
+                      transition: { staggerChildren: 0.15, delayChildren: 0.2 } 
+                    }
+                  }}
                 >
-                  
-                  <h1 className="title-xl hero-title">
+                  <motion.h1 
+                    className="title-xl hero-title"
+                    variants={{
+                      hidden: { y: 40, opacity: 0 },
+                      visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
+                    }}
+                  >
                     Find Your Perfect <br/>
                     <span className="editorial-font italic hero-highlight">Community</span>
-                  </h1>
-                  <p className="hero-tagline">
+                  </motion.h1>
+
+                  <motion.p 
+                    className="hero-tagline"
+                    variants={{
+                      hidden: { y: 20, opacity: 0 },
+                      visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } }
+                    }}
+                  >
                     Explore verified social, professional, and cultural clubs across the city. Connect with the people who share your passion.
-                  </p>
-                  <div className="hero-cta">
+                  </motion.p>
+                  
+                  <motion.div 
+                    className="hero-cta"
+                    variants={{
+                      hidden: { y: 20, opacity: 0 },
+                      visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } }
+                    }}
+                  >
                     <Button variant="primary" size="large" onClick={scrollToDiscovery} className="btn-primary-hero">
                       Start Exploring <ArrowRight size={20} />
                     </Button>
@@ -170,7 +196,7 @@ const DirectoryPage = () => {
                         Join Now
                       </Button>
                     </Link>
-                  </div>
+                  </motion.div>
                 </motion.div>
               </div>
             </section>
