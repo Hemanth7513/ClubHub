@@ -31,8 +31,6 @@ const MapPage = lazy(() => import('./pages/MapPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
-import PageLoader from './components/Loaders/PageLoader';
-
 function App() {
   const location = useLocation();
 
@@ -45,7 +43,7 @@ function App() {
       <Header />
       <main>
         <AnimatePresence mode="wait">
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={null}>
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<PageTransition><DirectoryPage /></PageTransition>} />
               <Route path="/map" element={<PageTransition><MapPage /></PageTransition>} />
