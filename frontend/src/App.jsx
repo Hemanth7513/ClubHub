@@ -31,11 +31,7 @@ const MapPage = lazy(() => import('./pages/MapPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
-const PageLoader = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', width: '100%' }}>
-    <div className="spinner"></div>
-  </div>
-);
+import PageLoader from './components/Loaders/PageLoader';
 
 function App() {
   const location = useLocation();
