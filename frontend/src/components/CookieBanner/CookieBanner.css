@@ -1,27 +1,41 @@
 .cookie-banner-overlay {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  left: 2rem;
-  max-width: 600px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  left: 1.5rem;
+  max-width: 450px; /* Reduced max-width for a more compact card */
   margin: 0 auto;
   z-index: 10000;
-  padding: 1.5rem;
+  padding: 1rem 1.25rem; /* Reduced padding */
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  background-color: var(--bg-primary); /* Overriding glass-panel transparency for Brutalism */
+  gap: 0.75rem; /* Reduced gap */
+  background-color: var(--bg-primary); 
+  border-radius: 8px; /* Assuming rounded corners fit the aesthetic */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Add subtle shadow */
 }
 
 .cookie-banner-content p {
-  font-size: 0.95rem;
+  font-size: 0.85rem; /* Slightly smaller text */
+  line-height: 1.4;
+  color: var(--text-secondary); /* Less harsh text color */
+  margin-bottom: 0.75rem;
+}
+
+.cookie-banner-content p strong {
   color: var(--text-primary);
-  margin-bottom: 1rem;
 }
 
 .cookie-banner-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 0.5rem; /* Added gap between buttons */
+}
+
+/* Make buttons a bit smaller if needed by overriding within this context */
+.cookie-banner-actions button {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 768px) {
@@ -29,5 +43,6 @@
     bottom: 1rem;
     right: 1rem;
     left: 1rem;
+    max-width: none; /* Let it stretch on mobile */
   }
 }
