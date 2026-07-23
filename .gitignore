@@ -3,6 +3,11 @@ node_modules/
 dist/
 build/
 .env
+.env.local
+.env.production
+
+# Test coverage reports
+coverage/
 
 # Databases
 *.db

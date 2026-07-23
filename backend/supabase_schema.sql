@@ -116,7 +116,7 @@ BEGIN
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
-    CASE WHEN lower(NEW.email) = 'hemaxtth@gmail.com' THEN 'admin' ELSE 'user' END
+    CASE WHEN lower(NEW.email) = lower(current_setting('app.admin_email', true)) THEN 'admin' ELSE 'user' END
   );
   
   -- Automatically create an empty profile for them
