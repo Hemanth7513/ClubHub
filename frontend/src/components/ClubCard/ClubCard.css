@@ -61,13 +61,26 @@
 }
 
 .club-card:hover .club-card-image {
-  transform: translateY(-8px) scale(1.03);
+  transform: translateY(-8px) scale(1.05) perspective(1000px) rotateX(2deg) rotateY(-2deg);
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
+.club-card:hover .club-card-image::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  animation: shimmer 0.75s ease-out forwards;
+}
+
+@keyframes shimmer {
+  100% { left: 200%; }
+}
+
 .club-card:hover .club-card-content {
-  box-shadow: 12px 12px 0px var(--border-dark), 0 20px 40px rgba(255, 46, 99, 0.15); /* Adds a subtle glowing drop shadow matching accent-pink */
-  transform: translateY(-8px);
+  box-shadow: 15px 15px 0px var(--border-dark), 0 25px 50px rgba(255, 46, 99, 0.2);
+  transform: translateY(-8px) perspective(1000px) rotateX(2deg) rotateY(-2deg);
 }
 
 .club-card-content h3 {

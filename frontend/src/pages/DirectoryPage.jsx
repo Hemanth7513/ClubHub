@@ -215,7 +215,7 @@ const DirectoryPage = () => {
                     <div className="spinner"></div>
                   </div>
                 ) : searchQuery ? (
-                  <div className="clubs-grid mt-4">
+                  <div className="clubs-grid stagger-in mt-4">
                     {filteredClubs.length > 0 ? filteredClubs.map((club, i) => (
                       <ClubCard key={club.id} club={club} index={i} />
                     )) : (
@@ -274,7 +274,7 @@ const DirectoryPage = () => {
                   <h1 className="title-xl">{selectedCategory}</h1>
                   <div className="category-accent-bar" style={{ background: CATEGORIES.find(c => c.name === selectedCategory)?.color }} />
                 </div>
-                <div className="clubs-grid">
+                <div className="clubs-grid stagger-in">
                   {filteredClubs.length > 0 ? filteredClubs.map((club, i) => (
                     <ClubCard key={club.id} club={club} index={i} />
                   )) : (

@@ -38,6 +38,9 @@ html {
   
   --border-radius: 16px;
   --transition-speed: 0.3s;
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 * {
@@ -259,6 +262,25 @@ button {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* Stagger in animations for grids/lists */
+.stagger-in > * {
+  opacity: 0;
+  animation: fade-slide-up 0.6s var(--ease-out) forwards;
+}
+.stagger-in > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-in > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-in > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-in > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-in > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-in > *:nth-child(6) { animation-delay: 0.6s; }
+.stagger-in > *:nth-child(7) { animation-delay: 0.7s; }
+.stagger-in > *:nth-child(8) { animation-delay: 0.8s; }
+
+@keyframes fade-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .marquee-container {
