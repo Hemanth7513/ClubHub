@@ -263,17 +263,17 @@ router.post('/login', loginLimiter, sanitizeStrings, async (req, res) => {
         // same time (~60-100ms), so attackers cannot enumerate accounts
         // by measuring response latency.
         // ──────────────────────────────────────────────────────────
-        const hashToCompare = (user && user.password) ? user.password : DUMMY_HASH;
+        // If user exists but has no password, they signed up via OTP/Google
+        if (user && !user.password) {
+            return res.status(401).json({ error: 'This account uses OTP or Google login. Please use the Email OTP tab or Google sign-in.' });
+        }
+
+        const hashToCompare = user?.password || DUMMY_HASH;
         const isMatch = await bcrypt.compare(password, hashToCompare);
 
         if (error || !user || !isMatch) {
             securityLog(SECURITY_EVENTS.LOGIN_FAILED, { email: email.toLowerCase() }, req);
-            // Check 4: One generic error for both "no user" and "wrong password"
             return res.status(401).json({ error: 'Invalid email or password' });
-        }
-
-        if (!user.password) {
-            return res.status(401).json({ error: 'Please log in with Google or OTP' });
         }
 
         securityLog(SECURITY_EVENTS.LOGIN_SUCCESS, { email: user.email, userId: user.id }, req);
