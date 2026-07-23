@@ -29,9 +29,7 @@ const DirectoryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Only show the splash screen once per session
-  const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('splash_shown'));
-  
+
   const discoveryRef = useRef(null);
 
 
@@ -53,15 +51,7 @@ const DirectoryPage = () => {
     }
   }, [location.hash, loading]);
 
-  useEffect(() => {
-    if (showSplash) {
-      const timer = setTimeout(() => {
-        setShowSplash(false);
-        sessionStorage.setItem('splash_shown', 'true');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showSplash]);
+
 
   const fetchClubs = async () => {
     try {
@@ -98,38 +88,7 @@ const DirectoryPage = () => {
 
   return (
     <div className="directory-page">
-      <AnimatePresence>
-        {showSplash && (
-          <motion.div 
-            className="splash-screen"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <div className="splash-content">
-              <motion.div 
-                className="splash-logo"
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-              >
-                <span className="city">VIJAYAWADA</span>
-                <span className="brand">CITY<br/>VOICE</span>
-              </motion.div>
 
-              <motion.div
-                className="splash-accent-line"
-                initial={{ scaleX: 0, originX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              />
-              
-              <div className="splash-loader-bar">
-                <div className="splash-loader-progress"></div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
       {error && (
         <div className="error-overlay">
           <p>{error}</p>
@@ -210,7 +169,7 @@ const DirectoryPage = () => {
 
                 <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 
-                {loading && !showSplash ? (
+                {loading ? (
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
                     <div className="spinner"></div>
                   </div>
