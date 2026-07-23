@@ -21,7 +21,8 @@ router.get('/', async (req, res) => {
         myCache.set('events_all', data);
         res.json(data);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Fetch events error:', err);
+        res.status(500).json({ error: 'Failed to fetch events' });
     }
 });
 
@@ -40,7 +41,8 @@ router.get('/:id/tickets', async (req, res) => {
         myCache.set(cacheKey, data);
         res.json(data);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Fetch tickets error:', err);
+        res.status(500).json({ error: 'Failed to fetch tickets' });
     }
 });
 
@@ -60,7 +62,8 @@ router.post('/', authenticateToken, validateEventInput, async (req, res) => {
         myCache.flushAll();
         res.status(201).json(data[0]);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Create event error:', err);
+        res.status(500).json({ error: 'Failed to create event' });
     }
 });
 

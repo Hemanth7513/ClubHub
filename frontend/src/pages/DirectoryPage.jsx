@@ -6,7 +6,6 @@ import Button from '../components/Button/Button';
 import MissionPlot from '../components/MissionPlot/MissionPlot';
 import DiscoveryWheel from '../components/DiscoveryWheel/DiscoveryWheel';
 import SearchBar from '../components/SearchBar/SearchBar';
-import StaggeredText from '../components/StaggeredText/StaggeredText';
 import { Link, useLocation } from 'react-router-dom';
 import API_BASE_URL from '../config';
 import './DirectoryPage.css';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Calendar, MapPin, Map, Share2, Ticket, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, MapPin, Map, Share2, Ticket, CheckCircle, Mail, Navigation } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import Button from '../components/Button/Button';
@@ -13,6 +13,7 @@ const ClubDetailPage = () => {
   const [club, setClub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchClubDetails = async () => {
@@ -47,8 +48,10 @@ const ClubDetailPage = () => {
         url: window.location.href,
       }).catch(console.error);
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
     }
   };
 
@@ -79,8 +82,8 @@ const ClubDetailPage = () => {
           <ArrowLeft size={20} />
           Back to Directory
         </Link>
-        <button onClick={handleShare} className="share-btn-round" title="Share this club">
-          <Share2 size={20} />
+        <button onClick={handleShare} className="share-btn-round" title={copied ? 'Link copied!' : 'Share this club'} aria-label="Share club">
+          {copied ? <CheckCircle size={20} color="var(--accent-lime)" /> : <Share2 size={20} />}
         </button>
       </div>
 

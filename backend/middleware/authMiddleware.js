@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET env var is missing.');
 const supabase = require('../supabase');
 const { securityLog, SECURITY_EVENTS } = require('../utils/logger');
 

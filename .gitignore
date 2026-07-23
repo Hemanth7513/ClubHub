@@ -22,3 +22,6 @@ task.md
 implementation_plan.md
 walkthrough.md
 deployment_guide.md
+
+# Claude Code local settings (may contain API keys)
+.claude/

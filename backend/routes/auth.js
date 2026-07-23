@@ -9,7 +9,8 @@ const { validateAuthInput, validatePasswordReset, sanitizeStrings } = require('.
 const { securityLog, SECURITY_EVENTS } = require('../utils/logger');
 const { sendOtpEmail, sendPasswordResetEmail } = require('../utils/email');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'clubhub_secret_2024';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET env var is missing.');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 const NodeCache = require('node-cache');
@@ -134,7 +135,7 @@ router.post('/verify-otp', async (req, res) => {
         if (userError || !user) {
             // Auto-register via OTP
             const name = email.split('@')[0];
-            const role = email.toLowerCase() === 'hemaxtth@gmail.com' ? 'admin' : 'user';
+            const role = email.toLowerCase() === process.env.ADMIN_EMAIL ? 'admin' : 'user';
 
             const { data: newUser, error: createError } = await supabase
                 .from('users')
@@ -197,7 +198,7 @@ router.post('/register', sanitizeStrings, validateAuthInput, async (req, res) =>
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const role = normalizedEmail === 'hemaxtth@gmail.com' ? 'admin' : 'user';
+        const role = normalizedEmail === process.env.ADMIN_EMAIL ? 'admin' : 'user';
 
         const { data: newUser, error: userError } = await supabase
             .from('users')
@@ -293,9 +294,7 @@ router.post('/login', loginLimiter, sanitizeStrings, async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 
 const { OAuth2Client } = require('google-auth-library');
-const googleClient = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID || '121724819330-qvtu35biu59bjp0jkia5vgsngqu073fu.apps.googleusercontent.com'
-);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 router.post('/google', async (req, res) => {
     try {
@@ -303,7 +302,7 @@ router.post('/google', async (req, res) => {
 
         const ticket = await googleClient.verifyIdToken({
             idToken: googleToken,
-            audience: process.env.GOOGLE_CLIENT_ID || '121724819330-qvtu35biu59bjp0jkia5vgsngqu073fu.apps.googleusercontent.com',
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
 
@@ -318,7 +317,7 @@ router.post('/google', async (req, res) => {
             .single();
 
         if (userError || !user) {
-            const role = email === 'hemaxtth@gmail.com' ? 'admin' : 'user';
+            const role = email === process.env.ADMIN_EMAIL ? 'admin' : 'user';
             const { data: newUser, error: createError } = await supabase
                 .from('users')
                 .insert([{ id: crypto.randomUUID(), email, name, google_id, role, token_version: 0 }])
@@ -644,6 +643,11 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
             .single();
 
         if (error || !user) return res.status(404).json({ error: 'User not found' });
+
+        // OTP-only users have no password — prevent crash on bcrypt.compare
+        if (!user.password) {
+            return res.status(400).json({ error: 'This account uses OTP or Google login. Password deletion not supported directly.' });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Incorrect password' });
