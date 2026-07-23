@@ -93,16 +93,51 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
 
+        const normalizedEmail = email.toLowerCase();
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-        otpCache.set(email.toLowerCase(), otpCode);
+        const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-        const emailSent = await sendOtpEmail(email, otpCode);
+        // 1. Ensure user exists (auto-register if not)
+        let { data: user, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', normalizedEmail)
+            .single();
+
+        if (userError || !user) {
+            const name = normalizedEmail.split('@')[0];
+            const role = normalizedEmail === process.env.ADMIN_EMAIL ? 'admin' : 'user';
+            
+            const { data: newUser, error: createError } = await supabase
+                .from('users')
+                .insert([{ id: crypto.randomUUID(), email: normalizedEmail, name, role, token_version: 0 }])
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            user = newUser;
+        }
+
+        // 2. Ensure profile exists and store OTP JSON in bio
+        const otpData = JSON.stringify({ code: otpCode, expiresAt });
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+                user_id: user.id,
+                bio: otpData,
+                theme_preference: 'dark',
+                notifications_enabled: true
+            }, { onConflict: 'user_id' });
+
+        if (profileError) throw profileError;
+
+        // 3. Send email
+        const emailSent = await sendOtpEmail(normalizedEmail, otpCode);
         if (!emailSent) {
             return res.status(500).json({ error: 'Failed to send email' });
         }
 
-        securityLog(SECURITY_EVENTS.OTP_REQUESTED, { email }, req);
-        // Check 2 & 4: generic response — never reveals whether email is registered
+        securityLog(SECURITY_EVENTS.OTP_REQUESTED, { email: normalizedEmail }, req);
         res.json({ message: 'If this email is valid, a one-time code has been sent.' });
     } catch (err) {
         console.error('OTP Request error:', err);
@@ -116,46 +151,42 @@ router.post('/verify-otp', async (req, res) => {
         const { email, otp } = req.body;
         if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
 
-        const cachedOtp = otpCache.get(email.toLowerCase());
+        const normalizedEmail = email.toLowerCase();
 
-        if (!cachedOtp || cachedOtp !== otp) {
-            securityLog(SECURITY_EVENTS.OTP_FAILED, { email }, req);
+        // 1. Fetch user and their profile
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('id, email, name, role, token_version, profiles(bio)')
+            .eq('email', normalizedEmail)
+            .single();
+
+        if (userError || !user || !user.profiles) {
+            securityLog(SECURITY_EVENTS.OTP_FAILED, { email: normalizedEmail }, req);
             return res.status(401).json({ error: 'Invalid or expired OTP' });
         }
 
-        // Check 1: Single-use — delete immediately after successful verify
-        otpCache.del(email.toLowerCase());
-
-        let { data: user, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', email.toLowerCase())
-            .single();
-
-        if (userError || !user) {
-            // Auto-register via OTP
-            const name = email.split('@')[0];
-            const role = email.toLowerCase() === process.env.ADMIN_EMAIL ? 'admin' : 'user';
-
-            const { data: newUser, error: createError } = await supabase
-                .from('users')
-                .insert([{ id: crypto.randomUUID(), email: email.toLowerCase(), name, role, token_version: 0 }])
-                .select()
-                .single();
-
-            if (createError) throw createError;
-            user = newUser;
-
-            await supabase.from('profiles').insert([{
-                user_id: user.id,
-                bio: '',
-                avatar_url: '',
-                theme_preference: 'dark',
-                notifications_enabled: true,
-            }]);
+        // 2. Parse and validate OTP from profile.bio
+        let otpData;
+        try {
+            otpData = JSON.parse(user.profiles.bio);
+        } catch (e) {
+            // Bio does not contain valid JSON OTP data
+            securityLog(SECURITY_EVENTS.OTP_FAILED, { email: normalizedEmail }, req);
+            return res.status(401).json({ error: 'Invalid or expired OTP' });
         }
 
-        securityLog(SECURITY_EVENTS.OTP_VERIFIED, { email, userId: user.id }, req);
+        if (!otpData || otpData.code !== otp || Date.now() > otpData.expiresAt) {
+            securityLog(SECURITY_EVENTS.OTP_FAILED, { email: normalizedEmail }, req);
+            return res.status(401).json({ error: 'Invalid or expired OTP' });
+        }
+
+        // 3. OTP verified: Clear the OTP from bio
+        await supabase
+            .from('profiles')
+            .update({ bio: '' })
+            .eq('user_id', user.id);
+
+        securityLog(SECURITY_EVENTS.OTP_VERIFIED, { email: normalizedEmail, userId: user.id }, req);
 
         const token = signToken(user);
         res.json({
