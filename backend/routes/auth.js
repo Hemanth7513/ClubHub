@@ -304,7 +304,16 @@ router.post('/login', loginLimiter, sanitizeStrings, async (req, res) => {
 
         if (error || !user || !isMatch) {
             securityLog(SECURITY_EVENTS.LOGIN_FAILED, { email: email.toLowerCase() }, req);
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ 
+                error: 'Invalid email or password',
+                debug: { 
+                    dbError: error ? error.message : null, 
+                    userFound: !!user, 
+                    isMatch: isMatch, 
+                    userEmail: user ? user.email : null,
+                    hasHash: user ? !!user.password : false
+                }
+            });
         }
 
         securityLog(SECURITY_EVENTS.LOGIN_SUCCESS, { email: user.email, userId: user.id }, req);
