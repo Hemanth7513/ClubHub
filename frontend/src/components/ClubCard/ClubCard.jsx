@@ -40,7 +40,6 @@ const ClubCard = React.memo(({ club, index }) => {
           loading="lazy"
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
         />
-        <span className="club-category-badge" style={{ position: 'relative', zIndex: 1 }}>{club.category}</span>
       </div>
 
       <div className="club-card-content" style={{ backgroundColor: cardColor }}>
