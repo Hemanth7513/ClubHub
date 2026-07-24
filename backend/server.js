@@ -50,8 +50,12 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Health check
-app.get('/', (req, res) => res.json({ status: 'ok', message: 'ClubHub API is live' }));
+// Health check - temporarily exposing database URL for diagnostic purposes
+app.get('/', (req, res) => res.json({ 
+    status: 'ok', 
+    message: 'ClubHub API is live', 
+    dbUrl: process.env.SUPABASE_URL 
+}));
 
 // Import Routes
 const authRoutes = require('./routes/auth');
