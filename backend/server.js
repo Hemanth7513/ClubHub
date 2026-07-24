@@ -24,6 +24,9 @@ for (const env of requiredEnvs) {
 
 const app = express();
 
+// Trust reverse proxy (Render proxy layer) for rate limiting client IP extraction
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet({
     crossOriginResourcePolicy: false,
