@@ -7,7 +7,6 @@ import Footer from './components/Footer/Footer';
 import CookieBanner from './components/CookieBanner/CookieBanner';
 import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
-import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import PageTransition from './components/PageTransition/PageTransition';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -84,7 +83,6 @@ function App() {
           </Suspense>
         </AnimatePresence>
       </main>
-      <ScrollToTop />
       <CookieBanner />
       <Footer />
     </div>
