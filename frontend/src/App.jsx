@@ -34,6 +34,11 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 function App() {
   const location = useLocation();
 
+  // Scroll to top of the page on route/navigation changes
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <div className="app-container">
       <div className="mesh-bg" />

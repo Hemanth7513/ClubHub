@@ -163,9 +163,6 @@ const ClubDetailPage = () => {
           </div>
           
           <div className="sidebar-actions">
-            <Button variant="primary" className="w-full btn-large mb-4">
-              Request to Join
-            </Button>
             
             {club.googleMapsUrl && (
               <a 
