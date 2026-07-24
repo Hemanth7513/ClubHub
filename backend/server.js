@@ -50,12 +50,8 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Health check - temporarily exposing database URL for diagnostic purposes
-app.get('/', (req, res) => res.json({ 
-    status: 'ok', 
-    message: 'ClubHub API is live', 
-    dbUrl: process.env.SUPABASE_URL 
-}));
+// Health check
+app.get('/', (req, res) => res.json({ status: 'ok', message: 'ClubHub API is live' }));
 
 // Import Routes
 const authRoutes = require('./routes/auth');
@@ -75,10 +71,16 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/search', searchRoutes);
 
-// Global Error Handler — temporarily exposing error details to debug 500 error
+// Global Error Handler — never expose stack traces in production (Check 4)
 app.use((err, req, res, next) => {
-    console.error('Unhandled Error:', err.stack || err.message);
-    res.status(500).json({ error: 'Internal Server Error', detail: err.message, stack: err.stack });
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+        console.error('Unhandled Error [redacted for production]:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+        console.error('Unhandled Error:', err.stack);
+        res.status(500).json({ error: 'Internal Server Error', detail: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 5000;
