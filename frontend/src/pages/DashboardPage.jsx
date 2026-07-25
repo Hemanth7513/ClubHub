@@ -53,7 +53,7 @@ const DashboardPage = () => {
         {/* Sidebar */}
         <aside className="dashboard-sidebar glass-panel">
           <div className="sidebar-header">
-            <h3>Member Panel</h3>
+            <h3>{user?.role === 'admin' ? 'Owner Panel' : 'Member Panel'}</h3>
           </div>
           <nav className="sidebar-nav">
             <button 
@@ -87,7 +87,7 @@ const DashboardPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="title-xl">Welcome, <span className="editorial-font" style={{ background: 'var(--accent-yellow)', padding: '0 10px', border: '3px solid var(--border-dark)', boxShadow: '4px 4px 0px var(--border-dark)' }}>{user?.name?.split(' ')[0] || 'Member'}</span></h1>
+            <h1 className="title-xl">Welcome, <span className="editorial-font" style={{ background: 'var(--accent-yellow)', padding: '0 10px', border: '3px solid var(--border-dark)', boxShadow: '4px 4px 0px var(--border-dark)' }}>{user?.name?.split(' ')[0] || (user?.role === 'admin' ? 'Owner' : 'Member')}</span></h1>
             <p>Manage your registered communities and events from one central hub.</p>
           </motion.div>
 

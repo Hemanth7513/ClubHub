@@ -290,7 +290,6 @@ button {
   border-bottom: 3px solid var(--border-dark);
   background: var(--accent-yellow);
   padding: 12px 0;
-  display: flex;
   margin-top: 2rem;
 }
 
