@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert, Settings } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/logo.png';
 import './Header.css';
 
 const Header = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -40,7 +41,12 @@ const Header = () => {
               <HelpCircle size={18} /> Support
             </Link>
 
-            {user ? (
+            {loading ? (
+              <div className="auth-buttons" style={{ opacity: 0 }}>
+                {/* Invisible placeholder to prevent layout shift */}
+                <Button>Loading</Button>
+              </div>
+            ) : user ? (
               <div className="user-dropdown-container">
                 <div className="user-profile">
                   <User size={18} />
@@ -59,24 +65,27 @@ const Header = () => {
                     </Link>
                   )}
                   <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <User size={16} /> Settings
+                    <Settings size={16} /> Settings
                   </Link>
-                  <button onClick={handleLogout} className="dropdown-item logout-item" title="Logout">
+                  <button onClick={handleLogout} className="dropdown-item logout-item">
                     <LogOut size={16} /> Logout
                   </button>
                 </div>
               </div>
             ) : (
-              <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="primary" size="small">
+              <div className="auth-buttons">
+                <Link to="/login" className="login-btn" onClick={() => setIsMenuOpen(false)}>
                   <LogIn size={18} /> Login
+                </Link>
+                <Button onClick={() => { navigate('/register'); setIsMenuOpen(false); }}>
+                  Register
                 </Button>
-              </Link>
+              </div>
             )}
           </div>
         </nav>
 
-        {/* Mobile Toggle */}
+        {/* Mobile Menu Toggle */}
         <button className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
