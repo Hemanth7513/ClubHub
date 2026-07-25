@@ -53,11 +53,7 @@ function App() {
         <AnimatePresence mode="wait">
           <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}><div className="spinner" /></div>}>
             <Routes location={location} key={location.pathname}>
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <PageTransition><DirectoryPage /></PageTransition>
-                </ProtectedRoute>
-              } />
+              <Route path="/" element={<PageTransition><DirectoryPage /></PageTransition>} />
               <Route path="/map" element={
                 <ProtectedRoute>
                   <PageTransition><MapPage /></PageTransition>
