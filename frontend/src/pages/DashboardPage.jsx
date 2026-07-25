@@ -91,14 +91,6 @@ const DashboardPage = () => {
             <p>Manage your registered communities and events from one central hub.</p>
           </motion.div>
 
-          <div className="marquee-container" style={{ marginBottom: '2rem' }}>
-            <div className="marquee-content">
-              CONNECT • ORGANIZE • DISCOVER • VIJAYAWADA CITY VOICE • NO DARK PATTERNS • PURE BRUTALISM • CONNECT • ORGANIZE • DISCOVER • VIJAYAWADA CITY VOICE
-            </div>
-            <div className="marquee-content" aria-hidden="true">
-              CONNECT • ORGANIZE • DISCOVER • VIJAYAWADA CITY VOICE • NO DARK PATTERNS • PURE BRUTALISM • CONNECT • ORGANIZE • DISCOVER • VIJAYAWADA CITY VOICE
-            </div>
-          </div>
 
           {loading ? (
             <div className="spinner" style={{ margin: '4rem auto' }}></div>

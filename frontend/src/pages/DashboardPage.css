@@ -60,6 +60,10 @@
 }
 
 /* Main Content */
+.dashboard-content {
+  padding-bottom: 6rem;
+}
+
 .dashboard-header {
   margin-bottom: 3rem;
 }
