@@ -12,6 +12,7 @@ import PageTransition from './components/PageTransition/PageTransition';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import OfflineBanner from './components/OfflineBanner';
 import './index.css';
 
 // Lazy loaded pages to reduce initial bundle size
@@ -47,7 +48,7 @@ function App() {
       <div className="mesh-bg" />
       <ScrollProgress />
       <Floaties />
-
+      <OfflineBanner />
       <Header />
       <main>
         <AnimatePresence mode="wait">
