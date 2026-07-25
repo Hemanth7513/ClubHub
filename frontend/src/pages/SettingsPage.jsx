@@ -22,7 +22,7 @@ const SettingsPage = () => {
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl || '');
   
   // Preference state
-  const [themePreference, setThemePreference] = useState(profile?.themePreference || 'dark');
+  const [themePreference, setThemePreference] = useState('light');
   const [notificationsEnabled, setNotificationsEnabled] = useState(profile?.notificationsEnabled !== false);
   
   // Security state
@@ -52,7 +52,7 @@ const SettingsPage = () => {
     if (profile) {
       setBio(profile.bio || '');
       setAvatarUrl(profile.avatarUrl || '');
-      setThemePreference(profile.themePreference || 'dark');
+      setThemePreference('light');
       setNotificationsEnabled(profile.notificationsEnabled !== false);
     }
   }, [profile]);
@@ -220,7 +220,6 @@ const SettingsPage = () => {
   const tabs = [
     { id: 'profile', name: 'Profile Details', icon: <User size={18} /> },
     { id: 'communities', name: 'My Hubs', icon: <Users size={18} /> },
-    { id: 'preferences', name: 'App Preferences', icon: <Bell size={18} /> },
     { id: 'security', name: 'Security & Access', icon: <Lock size={18} /> }
   ];
 
@@ -326,6 +325,19 @@ const SettingsPage = () => {
                     )}
                   </div>
 
+                  <div className="checkbox-group" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+                    <input 
+                      type="checkbox" 
+                      id="notif_pref" 
+                      checked={notificationsEnabled}
+                      onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                    />
+                    <label htmlFor="notif_pref">
+                      <strong>Enable Email Notifications</strong>
+                      <span>Receive email digests and alerts for upcoming events of your joined clubs.</span>
+                    </label>
+                  </div>
+
                   <Button type="submit" variant="primary" disabled={loading}>
                     {loading ? 'Saving Changes...' : 'Save Settings'}
                   </Button>
@@ -394,57 +406,7 @@ const SettingsPage = () => {
               </motion.div>
             )}
 
-            {activeTab === 'preferences' && (
-              <motion.div
-                key="preferences-tab"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="panel-content"
-              >
-                <h2>App Preferences</h2>
-                <p className="panel-desc">Customize your interface and notification alerts.</p>
-                
-                <form onSubmit={handleUpdateProfile} className="settings-form">
-                  <div className="form-group">
-                    <label>Theme Mode</label>
-                    <div className="theme-toggle-group">
-                      <button 
-                        type="button" 
-                        className={`theme-opt ${themePreference === 'dark' ? 'selected' : ''}`}
-                        onClick={() => setThemePreference('dark')}
-                      >
-                        Dark Editorial
-                      </button>
-                      <button 
-                        type="button" 
-                        className={`theme-opt ${themePreference === 'light' ? 'selected' : ''}`}
-                        onClick={() => setThemePreference('light')}
-                      >
-                        Brutalist Light
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className="checkbox-group">
-                    <input 
-                      type="checkbox" 
-                      id="notif_pref" 
-                      checked={notificationsEnabled}
-                      onChange={(e) => setNotificationsEnabled(e.target.checked)}
-                    />
-                    <label htmlFor="notif_pref">
-                      <strong>Enable Email Notifications</strong>
-                      <span>Receive email digests and alerts for upcoming events of your joined clubs.</span>
-                    </label>
-                  </div>
-
-                  <Button type="submit" variant="primary" disabled={loading}>
-                    {loading ? 'Saving Preferences...' : 'Save Preferences'}
-                  </Button>
-                </form>
-              </motion.div>
-            )}
 
             {activeTab === 'security' && (
               <motion.div
