@@ -105,7 +105,7 @@ const EditClubPage = () => {
         throw new Error(data.error || 'Failed to update club');
       }
       setSuccess(true);
-      setTimeout(() => navigate('/dashboard'), 1800);
+      setTimeout(() => navigate('/manage-clubs'), 1800);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -129,7 +129,7 @@ const EditClubPage = () => {
           <AlertCircle size={48} />
           <h2>Access Denied</h2>
           <p>You can only edit clubs you have created.</p>
-          <Button variant="primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
+          <Button variant="primary" onClick={() => navigate('/manage-clubs')}>Back to Dashboard</Button>
         </div>
       </div>
     );
@@ -142,7 +142,7 @@ const EditClubPage = () => {
         initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, type: 'spring' }}
       >
-        <button className="back-btn" onClick={() => navigate('/dashboard')}>
+        <button className="back-btn" onClick={() => navigate('/manage-clubs')}>
           <ArrowLeft size={18} /> Back to Dashboard
         </button>
         <h1 className="text-gradient">Edit Community</h1>
@@ -247,7 +247,7 @@ const EditClubPage = () => {
 
           {/* Actions */}
           <div className="form-actions">
-            <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => navigate('/manage-clubs')}>Cancel</Button>
             <Button type="submit" variant="primary" disabled={loading || success}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>

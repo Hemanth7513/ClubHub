@@ -79,7 +79,7 @@ const AddClubPage = () => {
       }
       setSuccess(true);
       // Redirect to dashboard → My Clubs tab
-      setTimeout(() => navigate('/dashboard'), 2000);
+      setTimeout(() => navigate('/manage-clubs'), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -230,7 +230,7 @@ const AddClubPage = () => {
 
           {/* Actions */}
           <div className="form-actions">
-            <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>
+            <Button type="button" variant="outline" onClick={() => navigate('/manage-clubs')}>
               Cancel
             </Button>
             <Button type="submit" variant="primary" disabled={loading || success}>

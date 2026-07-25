@@ -111,7 +111,7 @@ const EditEventPage = () => {
         throw new Error(data.error || 'Failed to update event');
       }
       setSuccess(true);
-      setTimeout(() => navigate('/dashboard'), 1800);
+      setTimeout(() => navigate('/manage-clubs'), 1800);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -135,7 +135,7 @@ const EditEventPage = () => {
           <AlertCircle size={48} />
           <h2>Access Denied</h2>
           <p>You can only edit events you have created.</p>
-          <Button variant="primary" onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
+          <Button variant="primary" onClick={() => navigate('/manage-clubs')}>Back to Dashboard</Button>
         </div>
       </div>
     );
@@ -148,7 +148,7 @@ const EditEventPage = () => {
         initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, type: 'spring' }}
       >
-        <button className="back-btn" onClick={() => navigate('/dashboard')}>
+        <button className="back-btn" onClick={() => navigate('/manage-clubs')}>
           <ArrowLeft size={18} /> Back to Dashboard
         </button>
         <h1 className="text-gradient">Edit Event</h1>
@@ -248,7 +248,7 @@ const EditEventPage = () => {
 
           {/* Actions */}
           <div className="form-actions">
-            <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => navigate('/manage-clubs')}>Cancel</Button>
             <Button type="submit" variant="primary" disabled={loading || success}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>

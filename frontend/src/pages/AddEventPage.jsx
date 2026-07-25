@@ -99,7 +99,7 @@ const AddEventPage = () => {
       }
 
       setSuccess(true);
-      setTimeout(() => navigate('/dashboard'), 2000);
+      setTimeout(() => navigate('/manage-clubs'), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -267,7 +267,7 @@ const AddEventPage = () => {
 
           {/* Actions */}
           <div className="form-actions">
-            <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => navigate('/manage-clubs')}>Cancel</Button>
             <Button type="submit" variant="primary" disabled={loading || success}>
               {loading ? 'Posting...' : 'Post Event'}
             </Button>
