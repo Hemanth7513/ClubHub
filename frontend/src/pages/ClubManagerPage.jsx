@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Calendar as CalendarIcon, Activity, Settings,
   PlusCircle, LayoutDashboard, Pencil, Trash2, CheckCircle,
-  AlertCircle, TicketIcon, Clock, Scan
+  AlertCircle, TicketIcon, Clock, Scan, MapPin
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../config';
@@ -256,7 +256,7 @@ const ClubManagerPage = () => {
                               )}
                             </div>
                             <span className="manage-club-cat">{club.category}</span>
-                            <span className="manage-club-loc">📍 {club.location}</span>
+                            {club.location && <span className="manage-club-loc"><MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} /> {club.location}</span>}
                           </div>
                           <div className="manage-card-actions">
                             <Button variant="outline" size="small" onClick={() => navigate(`/edit-club/${club.id}`)}>
