@@ -87,7 +87,7 @@ const DashboardPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="title-xl">Welcome, <span className="editorial-font" style={{ background: 'var(--accent-yellow)', padding: '0 10px', border: '3px solid var(--border-dark)', boxShadow: '4px 4px 0px var(--border-dark)' }}>{user?.name?.split(' ')[0] || (user?.role === 'admin' ? 'Owner' : 'Member')}</span></h1>
+            <h1 className="title-xl" style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px 15px', lineHeight: '1.2' }}>Welcome, <span className="editorial-font" style={{ background: 'var(--accent-yellow)', padding: '0 10px', border: '3px solid var(--border-dark)', boxShadow: '4px 4px 0px var(--border-dark)', display: 'inline-block', whiteSpace: 'nowrap' }}>{user?.name?.split(' ')[0] || (user?.role === 'admin' ? 'Owner' : 'Member')}</span></h1>
             <p>Manage your registered communities and events from one central hub.</p>
           </motion.div>
 
