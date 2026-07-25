@@ -20,10 +20,10 @@ L.Icon.Default.mergeOptions({
 // Custom Premium Brutalist Icon
 const premiumIcon = new L.divIcon({
   className: 'premium-marker',
-  html: `<div class="premium-pin">
-           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FF2E63" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-             <circle cx="12" cy="10" r="3" fill="#ffffff" stroke="#000000"></circle>
+  html: `<div class="premium-pin" style="filter: drop-shadow(4px 4px 0px #1a1a1a);">
+           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#ccff00" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="miter">
+             <polygon points="12,2 22,12 12,22 2,12" />
+             <circle cx="12" cy="12" r="3" fill="#1a1a1a" />
            </svg>
          </div>`,
   iconSize: [28, 28],

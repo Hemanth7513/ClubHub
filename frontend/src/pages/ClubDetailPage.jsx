@@ -8,6 +8,7 @@ import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import Button from '../components/Button/Button';
 import { useAuth } from '../context/AuthContext';
+import { Helmet } from 'react-helmet-async';
 import API_BASE_URL from '../config';
 import './ClubDetailPage.css';
 
@@ -121,8 +122,25 @@ const ClubDetailPage = () => {
     );
   }
 
+  const currentUrl = window.location.href;
+  const ogImageUrl = club.imageUrl || 'https://clubhub-vja.vercel.app/favicon.png';
+
   return (
     <div className="container club-detail-page">
+      <Helmet>
+        <title>{club.name} | ClubHub</title>
+        <meta name="description" content={club.description ? club.description.substring(0, 160) : `Join ${club.name} on ClubHub.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:title" content={`${club.name} | ClubHub`} />
+        <meta property="og:description" content={club.description ? club.description.substring(0, 160) : `Join ${club.name} on ClubHub.`} />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={currentUrl} />
+        <meta property="twitter:title" content={`${club.name} | ClubHub`} />
+        <meta property="twitter:description" content={club.description ? club.description.substring(0, 160) : `Join ${club.name} on ClubHub.`} />
+        <meta property="twitter:image" content={ogImageUrl} />
+      </Helmet>
 
       {/* ── Nav Row ─────────────────────────────── */}
       <div className="detail-nav-row">

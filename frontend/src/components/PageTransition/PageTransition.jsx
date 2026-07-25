@@ -4,21 +4,15 @@ import { motion } from 'framer-motion';
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 20,
-    scale: 0.98,
-    filter: 'blur(10px)',
+    x: -20,
   },
   in: {
     opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
+    x: 0,
   },
   out: {
     opacity: 0,
-    y: -20,
-    scale: 1.02,
-    filter: 'blur(10px)',
+    x: 20,
   }
 };
 

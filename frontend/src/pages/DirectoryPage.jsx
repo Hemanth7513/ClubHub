@@ -8,6 +8,7 @@ import DiscoveryWheel from '../components/DiscoveryWheel/DiscoveryWheel';
 import SearchBar from '../components/SearchBar/SearchBar';
 import { Link, useLocation } from 'react-router-dom';
 import API_BASE_URL from '../config';
+import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './DirectoryPage.css';
 
 const CATEGORIES = [
@@ -164,8 +165,10 @@ const DirectoryPage = () => {
                 <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 
                 {loading ? (
-                  <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem 0' }}>
-                    <div className="spinner"></div>
+                  <div className="clubs-grid stagger-in mt-4">
+                    {[...Array(6)].map((_, i) => (
+                      <SkeletonCard key={`skeleton-${i}`} index={i} />
+                    ))}
                   </div>
                 ) : searchQuery ? (
                   <div className="clubs-grid stagger-in mt-4">
