@@ -106,7 +106,7 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
 
         if (userError || !user) {
             const name = normalizedEmail.split('@')[0];
-            const role = normalizedEmail === process.env.ADMIN_EMAIL ? 'admin' : 'user';
+            const role = normalizedEmail === (process.env.ADMIN_EMAIL || 'hemaxxth@gmail.com').toLowerCase() ? 'admin' : 'user';
             
             const { data: newUser, error: createError } = await supabase
                 .from('users')
@@ -229,7 +229,7 @@ router.post('/register', sanitizeStrings, validateAuthInput, async (req, res) =>
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const role = normalizedEmail === process.env.ADMIN_EMAIL ? 'admin' : 'user';
+        const role = normalizedEmail === (process.env.ADMIN_EMAIL || 'hemaxxth@gmail.com').toLowerCase() ? 'admin' : 'user';
 
         const { data: newUser, error: userError } = await supabase
             .from('users')
@@ -348,7 +348,7 @@ router.post('/google', async (req, res) => {
             .single();
 
         if (userError || !user) {
-            const role = email === process.env.ADMIN_EMAIL ? 'admin' : 'user';
+            const role = email.toLowerCase() === (process.env.ADMIN_EMAIL || 'hemaxxth@gmail.com').toLowerCase() ? 'admin' : 'user';
             const { data: newUser, error: createError } = await supabase
                 .from('users')
                 .insert([{ id: crypto.randomUUID(), email, name, google_id, role, token_version: 0 }])
