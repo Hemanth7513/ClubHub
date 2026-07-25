@@ -1,0 +1,85 @@
+/* EditClubPage-specific extras — form grid styles from AddClubPage.css are shared */
+
+.edit-club-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.edit-unauthorized {
+  max-width: 500px;
+  margin: 8rem auto;
+  text-align: center;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.edit-unauthorized h2 {
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: var(--accent-yellow);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0px var(--border-dark);
+}
+
+.image-preview-wrap {
+  margin-bottom: 1.5rem;
+  border: 3px solid var(--border-dark);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 4px 4px 0px var(--border-dark);
+}
+
+.image-preview {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ─── Mobile ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .image-preview {
+    height: 160px;
+  }
+
+  .back-btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}

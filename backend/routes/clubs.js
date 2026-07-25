@@ -47,6 +47,8 @@ router.get('/', async (req, res) => {
             googleMapsUrl: c.google_maps_url,
             latitude: c.latitude,
             longitude: c.longitude,
+            isVerified: c.is_verified,
+            userId: c.user_id,
             createdAt: c.created_at
         }));
         
@@ -81,6 +83,8 @@ router.get('/:id', async (req, res) => {
             googleMapsUrl: club.google_maps_url,
             latitude: club.latitude,
             longitude: club.longitude,
+            isVerified: club.is_verified,
+            userId: club.user_id,
             createdAt: club.created_at
         };
         
@@ -125,6 +129,58 @@ router.post('/', authenticateToken, validateClubInput, async (req, res) => {
     } catch (err) {
         console.error("Add club error:", err);
         res.status(500).json({ error: 'Failed to add club' });
+    }
+});
+
+// Update club (protected, owner only)
+router.put('/:id', authenticateToken, async (req, res) => {
+    try {
+        const { data: club, error: fetchError } = await supabase
+            .from('clubs')
+            .select('user_id')
+            .eq('id', req.params.id)
+            .single();
+
+        if (fetchError || !club) return res.status(404).json({ error: 'Club not found' });
+
+        if (club.user_id && club.user_id.toString() !== req.user.id.toString()) {
+            return res.status(403).json({ error: 'You are not authorized to edit this club' });
+        }
+
+        const { name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl } = req.body;
+
+        let latitude = null;
+        let longitude = null;
+        if (location) {
+            try {
+                const geoRes = await geocoder.geocode(location);
+                if (geoRes.length > 0) {
+                    latitude = geoRes[0].latitude;
+                    longitude = geoRes[0].longitude;
+                }
+            } catch (err) {
+                console.error("Geocoding failed:", err);
+            }
+        }
+
+        const { data, error } = await supabase
+            .from('clubs')
+            .update({
+                name, category, description, location,
+                contact_info: contactInfo, image_url: imageUrl,
+                established_year: establishedYear, google_maps_url: googleMapsUrl,
+                latitude, longitude
+            })
+            .eq('id', req.params.id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        myCache.flushAll();
+        res.json(data);
+    } catch (err) {
+        console.error("Edit club error:", err);
+        res.status(500).json({ error: 'Failed to update club' });
     }
 });
 

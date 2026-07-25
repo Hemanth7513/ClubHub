@@ -1,78 +1,134 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
-import { Users, Calendar as CalendarIcon, Activity, Settings, PlusCircle, LayoutDashboard, Search } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Users, Calendar as CalendarIcon, Activity, Settings,
+  PlusCircle, LayoutDashboard, Pencil, Trash2, CheckCircle,
+  AlertCircle, TicketIcon, Clock
+} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../config';
-import ClubCard from '../components/ClubCard/ClubCard';
 import Button from '../components/Button/Button';
 import './DashboardPage.css';
 
+/* ─── Small utility: is the event in the past? ─────── */
+const isEventPast = (dateStr) => new Date(dateStr) < new Date();
+
+/* ─── Confirm delete modal ──────────────────────────── */
+const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
+  <div className="confirm-overlay">
+    <motion.div
+      className="confirm-modal glass-panel"
+      initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.85, opacity: 0 }}
+    >
+      <AlertCircle size={36} style={{ color: 'var(--accent-pink)' }} />
+      <p>{message}</p>
+      <div className="confirm-actions">
+        <Button variant="outline" onClick={onCancel} disabled={loading}>Cancel</Button>
+        <Button variant="primary" onClick={onConfirm} disabled={loading}
+          style={{ background: 'var(--accent-pink)', border: '3px solid var(--border-dark)' }}>
+          {loading ? 'Deleting...' : 'Yes, Delete'}
+        </Button>
+      </div>
+    </motion.div>
+  </div>
+);
+
 const DashboardPage = () => {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [clubs, setClubs] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'club'|'event', id, name }
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      try {
-        const headers = { 'Authorization': `Bearer ${token}` };
-        
-        const [clubsRes, eventsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/users/clubs`, { headers }),
-          fetch(`${API_BASE_URL}/users/events`, { headers })
-        ]);
-
-        if (clubsRes.ok) {
-          const clubsData = await clubsRes.json();
-          setClubs(clubsData);
-        }
-        if (eventsRes.ok) {
-          const eventsData = await eventsRes.json();
-          setEvents(eventsData);
-        }
-      } catch (err) {
-        console.error("Error fetching dashboard data", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (token) {
-      fetchDashboardData();
+  const fetchData = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const headers = { 'Authorization': `Bearer ${token}` };
+      const [clubsRes, eventsRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/users/clubs`, { headers }),
+        fetch(`${API_BASE_URL}/users/events`, { headers })
+      ]);
+      if (clubsRes.ok) setClubs(await clubsRes.json());
+      if (eventsRes.ok) setEvents(await eventsRes.json());
+    } catch (err) {
+      console.error('Dashboard fetch error', err);
+    } finally {
+      setLoading(false);
     }
   }, [token]);
 
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  /* ─── Delete handlers ─────────────────────────────── */
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    const endpoint = deleteTarget.type === 'club'
+      ? `${API_BASE_URL}/clubs/${deleteTarget.id}`
+      : `${API_BASE_URL}/events/${deleteTarget.id}`;
+    try {
+      const res = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      if (deleteTarget.type === 'club') {
+        setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
+      } else {
+        setEvents(prev => prev.filter(e => e.id !== deleteTarget.id));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleteLoading(false);
+      setDeleteTarget(null);
+    }
+  };
+
+  const upcomingEvents = events.filter(e => !isEventPast(e.date));
+  const pastEvents = events.filter(e => isEventPast(e.date));
+
   return (
     <div className="dashboard-page">
+      {/* Confirm delete modal */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <ConfirmModal
+            message={`Delete "${deleteTarget.name}"? This action cannot be undone.`}
+            onConfirm={handleDelete}
+            onCancel={() => setDeleteTarget(null)}
+            loading={deleteLoading}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="container dashboard-container">
-        
-        {/* Sidebar */}
+
+        {/* ── Sidebar ──────────────────────────────────── */}
         <aside className="dashboard-sidebar glass-panel">
           <div className="sidebar-header">
             <h3>{user?.role === 'admin' ? 'Owner Panel' : 'Member Panel'}</h3>
           </div>
           <nav className="sidebar-nav">
-            <button 
-              className={`sidebar-link ${activeTab === 'overview' ? 'active' : ''}`}
-              onClick={() => setActiveTab('overview')}
-            >
+            <button className={`sidebar-link ${activeTab === 'overview' ? 'active' : ''}`}
+              onClick={() => setActiveTab('overview')}>
               <LayoutDashboard size={18} /> Overview
             </button>
-            <button 
-              className={`sidebar-link ${activeTab === 'clubs' ? 'active' : ''}`}
-              onClick={() => setActiveTab('clubs')}
-            >
+            <button className={`sidebar-link ${activeTab === 'clubs' ? 'active' : ''}`}
+              onClick={() => setActiveTab('clubs')}>
               <Users size={18} /> My Clubs
+              {clubs.length > 0 && <span className="sidebar-badge">{clubs.length}</span>}
             </button>
-            <button 
-              className={`sidebar-link ${activeTab === 'events' ? 'active' : ''}`}
-              onClick={() => setActiveTab('events')}
-            >
+            <button className={`sidebar-link ${activeTab === 'events' ? 'active' : ''}`}
+              onClick={() => setActiveTab('events')}>
               <CalendarIcon size={18} /> Manage Events
+              {upcomingEvents.length > 0 && <span className="sidebar-badge">{upcomingEvents.length}</span>}
             </button>
             <Link to="/settings" className="sidebar-link">
               <Settings size={18} /> Settings
@@ -80,48 +136,49 @@ const DashboardPage = () => {
           </nav>
         </aside>
 
-        {/* Main Content */}
+        {/* ── Main Content ──────────────────────────────── */}
         <main className="dashboard-content">
-          <motion.div 
-            className="dashboard-header"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="title-xl" style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px 15px', lineHeight: '1.2' }}>Welcome, <span className="editorial-font" style={{ background: 'var(--accent-yellow)', padding: '0 10px', border: '3px solid var(--border-dark)', boxShadow: '4px 4px 0px var(--border-dark)', display: 'inline-block', whiteSpace: 'nowrap' }}>{user?.name?.split(' ')[0] || (user?.role === 'admin' ? 'Owner' : 'Member')}</span></h1>
+          <motion.div className="dashboard-header" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="title-xl" style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px 15px', lineHeight: '1.2' }}>
+              Welcome,{' '}
+              <span className="editorial-font" style={{
+                background: 'var(--accent-yellow)', padding: '0 10px',
+                border: '3px solid var(--border-dark)', boxShadow: '4px 4px 0px var(--border-dark)',
+                display: 'inline-block', whiteSpace: 'nowrap'
+              }}>
+                {user?.name?.split(' ')[0] || (user?.role === 'admin' ? 'Owner' : 'Member')}
+              </span>
+            </h1>
             <p>Manage your registered communities and events from one central hub.</p>
           </motion.div>
 
-
           {loading ? (
-            <div className="spinner" style={{ margin: '4rem auto' }}></div>
+            <div className="spinner" style={{ margin: '4rem auto' }} />
           ) : (
             <>
-              {/* OVERVIEW TAB */}
+              {/* ── OVERVIEW TAB ──────────────────────── */}
               {activeTab === 'overview' && (
-                <motion.div 
-                  className="dashboard-tab"
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                >
+                <motion.div className="dashboard-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="stats-grid">
                     <div className="stat-card glass-panel">
                       <div className="stat-icon"><Users size={24} /></div>
                       <div className="stat-info">
-                        <h4>Total Clubs</h4>
+                        <h4>My Clubs</h4>
                         <h2>{clubs.length}</h2>
                       </div>
                     </div>
                     <div className="stat-card glass-panel">
                       <div className="stat-icon"><CalendarIcon size={24} /></div>
                       <div className="stat-info">
-                        <h4>Active Events</h4>
-                        <h2>{events.length}</h2>
+                        <h4>Upcoming Events</h4>
+                        <h2>{upcomingEvents.length}</h2>
                       </div>
                     </div>
                     <div className="stat-card glass-panel">
                       <div className="stat-icon"><Activity size={24} /></div>
                       <div className="stat-info">
-                        <h4>Total Members</h4>
-                        <h2>--</h2>
+                        <h4>Past Events</h4>
+                        <h2>{pastEvents.length}</h2>
                       </div>
                     </div>
                   </div>
@@ -129,73 +186,146 @@ const DashboardPage = () => {
                   <div className="quick-actions glass-panel">
                     <h3>Quick Actions</h3>
                     <div className="action-buttons">
-                      <Link to="/add-club"><Button variant="primary"><PlusCircle size={18}/> New Club</Button></Link>
-                      <Link to="/add-event"><Button variant="outline"><CalendarIcon size={18}/> Host Event</Button></Link>
+                      <Link to="/add-club"><Button variant="primary"><PlusCircle size={18} /> New Club</Button></Link>
+                      <Link to="/add-event"><Button variant="outline"><CalendarIcon size={18} /> Host Event</Button></Link>
                     </div>
                   </div>
+
+                  {/* Recent clubs preview */}
+                  {clubs.length > 0 && (
+                    <div className="overview-recent glass-panel">
+                      <div className="section-header">
+                        <h3>Recent Clubs</h3>
+                        <button className="text-link" onClick={() => setActiveTab('clubs')}>View all →</button>
+                      </div>
+                      <div className="recent-clubs-list">
+                        {clubs.slice(0, 3).map(club => (
+                          <div key={club.id} className="recent-club-row">
+                            <img src={club.imageUrl || '/placeholder.jpg'} alt={club.name} className="recent-club-img" onError={e => e.target.src = '/placeholder.jpg'} />
+                            <div className="recent-club-info">
+                              <strong>{club.name}</strong>
+                              <span>{club.category}</span>
+                            </div>
+                            {club.isVerified && <CheckCircle size={16} style={{ color: 'var(--accent-green)', flexShrink: 0 }} title="Verified" />}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
 
-              {/* MY CLUBS TAB */}
+              {/* ── MY CLUBS TAB ──────────────────────── */}
               {activeTab === 'clubs' && (
-                <motion.div 
-                  className="dashboard-tab"
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                >
+                <motion.div className="dashboard-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="section-header">
                     <h2>My Communities</h2>
-                    <Link to="/add-club"><Button variant="primary" size="small"><PlusCircle size={16}/> Add Club</Button></Link>
+                    <Link to="/add-club"><Button variant="primary" size="small"><PlusCircle size={16} /> Add Club</Button></Link>
                   </div>
-                  
+
                   {clubs.length === 0 ? (
                     <div className="empty-state glass-panel">
                       <Users size={48} className="empty-icon" />
-                      <h3>No clubs found</h3>
-                      <p>You haven't created any clubs yet.</p>
+                      <h3>No clubs yet</h3>
+                      <p>Register your first community and get discovered by Vijayawada!</p>
                       <Link to="/add-club"><Button variant="primary">Create Your First Club</Button></Link>
                     </div>
                   ) : (
-                    <div className="clubs-grid">
-                      {clubs.map((club, i) => (
-                        <ClubCard key={club.id} club={club} index={i} />
+                    <div className="manage-clubs-list">
+                      {clubs.map(club => (
+                        <div key={club.id} className="manage-club-card glass-panel">
+                          <img src={club.imageUrl || '/placeholder.jpg'} alt={club.name} className="manage-club-img"
+                            onError={e => e.target.src = '/placeholder.jpg'} />
+                          <div className="manage-club-info">
+                            <div className="manage-club-title">
+                              <h4>{club.name}</h4>
+                              {club.isVerified && (
+                                <span className="verified-badge"><CheckCircle size={14} /> Verified</span>
+                              )}
+                            </div>
+                            <span className="manage-club-cat">{club.category}</span>
+                            <span className="manage-club-loc">📍 {club.location}</span>
+                          </div>
+                          <div className="manage-card-actions">
+                            <Button variant="outline" size="small" onClick={() => navigate(`/edit-club/${club.id}`)}>
+                              <Pencil size={14} /> Edit
+                            </Button>
+                            <Button size="small" variant="outline"
+                              style={{ borderColor: 'var(--accent-pink)', color: 'var(--accent-pink)' }}
+                              onClick={() => setDeleteTarget({ type: 'club', id: club.id, name: club.name })}>
+                              <Trash2 size={14} /> Delete
+                            </Button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
                 </motion.div>
               )}
 
-              {/* MANAGE EVENTS TAB */}
+              {/* ── MANAGE EVENTS TAB ─────────────────── */}
               {activeTab === 'events' && (
-                <motion.div 
-                  className="dashboard-tab"
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                >
+                <motion.div className="dashboard-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="section-header">
                     <h2>Hosted Events</h2>
-                    <Link to="/add-event"><Button variant="primary" size="small"><PlusCircle size={16}/> Host Event</Button></Link>
+                    <Link to="/add-event"><Button variant="primary" size="small"><PlusCircle size={16} /> Host Event</Button></Link>
                   </div>
 
                   {events.length === 0 ? (
                     <div className="empty-state glass-panel">
                       <CalendarIcon size={48} className="empty-icon" />
-                      <h3>No events found</h3>
-                      <p>You haven't hosted any events yet.</p>
+                      <h3>No events yet</h3>
+                      <p>Create your first event and bring the community together.</p>
                       <Link to="/add-event"><Button variant="primary">Host Your First Event</Button></Link>
                     </div>
                   ) : (
                     <div className="events-list">
-                      {events.map((event) => (
-                        <div key={event.id} className="admin-event-card glass-panel">
-                          <img src={event.image_url} alt={event.title} className="admin-event-img" />
-                          <div className="admin-event-info">
-                            <h4>{event.title}</h4>
-                            <p className="admin-event-meta">{new Date(event.date).toLocaleDateString()} • {event.clubs?.name}</p>
+                      {events.map(event => {
+                        const past = isEventPast(event.date);
+                        const tickets = event.tickets || [];
+                        const totalSold = tickets.reduce((s, t) => s + (t.sold || 0), 0);
+                        const totalCap = tickets.reduce((s, t) => s + (t.capacity || 0), 0);
+
+                        return (
+                          <div key={event.id} className={`admin-event-card glass-panel ${past ? 'event-past' : ''}`}>
+                            <img src={event.image_url || '/placeholder.jpg'} alt={event.title}
+                              className="admin-event-img" onError={e => e.target.src = '/placeholder.jpg'} />
+                            <div className="admin-event-info">
+                              <div className="admin-event-title-row">
+                                <h4>{event.title}</h4>
+                                <span className={`event-status-badge ${past ? 'badge-past' : 'badge-upcoming'}`}>
+                                  {past ? <><Clock size={12} /> Past</> : <><CheckCircle size={12} /> Upcoming</>}
+                                </span>
+                              </div>
+                              <p className="admin-event-meta">
+                                {new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {event.clubs?.name && ` • ${event.clubs.name}`}
+                              </p>
+                              {tickets.length > 0 && (
+                                <div className="ticket-stat">
+                                  <TicketIcon size={13} />
+                                  <span>{totalSold} / {totalCap} tickets sold</span>
+                                  <div className="ticket-bar">
+                                    <div className="ticket-bar-fill" style={{ width: `${totalCap ? (totalSold / totalCap) * 100 : 0}%` }} />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <div className="admin-event-actions">
+                              {!past && (
+                                <Button variant="outline" size="small" onClick={() => navigate(`/edit-event/${event.id}`)}>
+                                  <Pencil size={14} /> Edit
+                                </Button>
+                              )}
+                              <Button size="small" variant="outline"
+                                style={{ borderColor: 'var(--accent-pink)', color: 'var(--accent-pink)' }}
+                                onClick={() => setDeleteTarget({ type: 'event', id: event.id, name: event.title })}>
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
                           </div>
-                          <div className="admin-event-actions">
-                            <Button variant="outline" size="small">Edit</Button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </motion.div>

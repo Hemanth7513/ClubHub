@@ -29,6 +29,8 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const MapPage = lazy(() => import('./pages/MapPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const EditClubPage = lazy(() => import('./pages/EditClubPage'));
+const EditEventPage = lazy(() => import('./pages/EditEventPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
@@ -83,6 +85,16 @@ function App() {
                 <AdminRoute>
                   <PageTransition><AdminDashboardPage /></PageTransition>
                 </AdminRoute>
+              } />
+              <Route path="/edit-club/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><EditClubPage /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/edit-event/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><EditEventPage /></PageTransition>
+                </ProtectedRoute>
               } />
               <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
             </Routes>
