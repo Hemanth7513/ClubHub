@@ -8,7 +8,7 @@ const NodeCache = require('node-cache');
 const myCache = new NodeCache({ stdTTL: 120 });
 
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const QRCode = require('qrcode');
 
 // Get all events
@@ -262,34 +262,36 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
                 console.error('QR Gen error:', err);
             }
 
-            resend.emails.send({
-                from: 'ClubHub <onboarding@resend.dev>',
-                to: req.user.email,
-                subject: `🎟️ Your Ticket: ${eventTitle}`,
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 20px; border: 4px solid #ccff00; border-radius: 8px;">
-                        <h1 style="color: #ccff00; text-transform: uppercase;">You're In!</h1>
-                        <p style="font-size: 16px;">Hi ${attendeeName},</p>
-                        <p style="font-size: 16px;">Your RSVP for <strong>${eventTitle}</strong> hosted by <strong>${clubName}</strong> is confirmed.</p>
-                        
-                        ${qrCodeDataUrl ? `
-                        <div style="text-align: center; margin: 30px 0;">
-                            <p style="color: #ccff00; font-weight: bold; margin-bottom: 10px;">SCAN THIS AT THE DOOR</p>
-                            <img src="${qrCodeDataUrl}" alt="Ticket QR Code" style="border: 4px solid #fff; border-radius: 8px; width: 200px; height: 200px;" />
-                            <p style="color: #888; font-size: 12px; margin-top: 10px;">Ticket ID: ${registration.id}</p>
-                        </div>
-                        ` : ''}
+            if (resend) {
+                resend.emails.send({
+                    from: 'ClubHub <onboarding@resend.dev>',
+                    to: req.user.email,
+                    subject: `🎟️ Your Ticket: ${eventTitle}`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 20px; border: 4px solid #ccff00; border-radius: 8px;">
+                            <h1 style="color: #ccff00; text-transform: uppercase;">You're In!</h1>
+                            <p style="font-size: 16px;">Hi ${attendeeName},</p>
+                            <p style="font-size: 16px;">Your RSVP for <strong>${eventTitle}</strong> hosted by <strong>${clubName}</strong> is confirmed.</p>
+                            
+                            ${qrCodeDataUrl ? `
+                            <div style="text-align: center; margin: 30px 0;">
+                                <p style="color: #ccff00; font-weight: bold; margin-bottom: 10px;">SCAN THIS AT THE DOOR</p>
+                                <img src="${qrCodeDataUrl}" alt="Ticket QR Code" style="border: 4px solid #fff; border-radius: 8px; width: 200px; height: 200px;" />
+                                <p style="color: #888; font-size: 12px; margin-top: 10px;">Ticket ID: ${registration.id}</p>
+                            </div>
+                            ` : ''}
 
-                        <div style="background: #1a1a1a; padding: 15px; margin: 20px 0; border-left: 4px solid #ff2e63;">
-                            <p style="margin: 5px 0;"><strong>Ticket Type:</strong> ${ticket.name}</p>
-                            <p style="margin: 5px 0;"><strong>Date:</strong> ${eventDate}</p>
-                            <p style="margin: 5px 0;"><strong>Location:</strong> ${eventData?.location || 'TBA'}</p>
+                            <div style="background: #1a1a1a; padding: 15px; margin: 20px 0; border-left: 4px solid #ff2e63;">
+                                <p style="margin: 5px 0;"><strong>Ticket Type:</strong> ${ticket.name}</p>
+                                <p style="margin: 5px 0;"><strong>Date:</strong> ${eventDate}</p>
+                                <p style="margin: 5px 0;"><strong>Location:</strong> ${eventData?.location || 'TBA'}</p>
+                            </div>
+                            <p style="font-size: 14px; color: #888;">Present this email at the entrance. See you there!</p>
+                            <p style="font-size: 14px; color: #888;">- The ClubHub Team</p>
                         </div>
-                        <p style="font-size: 14px; color: #888;">Present this email at the entrance. See you there!</p>
-                        <p style="font-size: 14px; color: #888;">- The ClubHub Team</p>
-                    </div>
-                `
-            }).catch(err => console.error('Failed to send RSVP email:', err));
+                    `
+                }).catch(err => console.error('Failed to send RSVP email:', err));
+            }
         }
 
         res.status(201).json({ message: 'RSVP successful!', registration });
