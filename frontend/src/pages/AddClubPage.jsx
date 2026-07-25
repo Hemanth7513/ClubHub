@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button/Button';
 import API_BASE_URL from '../config';
 import './AddClubPage.css';
+
+const CATEGORIES = [
+  'Social & Recreation Clubs',
+  'Service Clubs',
+  'NGOs & Social Organizations',
+  'Sports & Activity Clubs',
+  'Cultural & Literary Clubs',
+  'Professional & Networking',
+  'Student & Tech Groups',
+  'Nightlife & Entertainment'
+];
 
 const AddClubPage = () => {
   const { user, token } = useAuth();
@@ -12,9 +24,7 @@ const AddClubPage = () => {
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
-    if (!user) {
-      navigate('/login');
-    }
+    if (!user) navigate('/login');
   }, [user, navigate]);
 
   const [formData, setFormData] = useState({
@@ -24,7 +34,8 @@ const AddClubPage = () => {
     location: '',
     contactInfo: '',
     imageUrl: '',
-    establishedYear: ''
+    establishedYear: '',
+    googleMapsUrl: ''
   });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -32,13 +43,12 @@ const AddClubPage = () => {
   const [success, setSuccess] = useState(false);
 
   const validateForm = () => {
-    let errors = {};
-    if (!formData.name.trim()) errors.name = "Community name is required";
-    if (!formData.category) errors.category = "Please select a category";
-    if (formData.description.trim().length < 50) errors.description = "Description should be at least 50 characters";
-    if (!formData.location.trim()) errors.location = "Location is required";
-    if (!formData.contactInfo.trim()) errors.contactInfo = "Contact info is required";
-    
+    const errors = {};
+    if (!formData.name.trim()) errors.name = 'Community name is required';
+    if (!formData.category) errors.category = 'Please select a category';
+    if (formData.description.trim().length < 50) errors.description = 'Description must be at least 50 characters';
+    if (!formData.location.trim()) errors.location = 'Location is required';
+    if (!formData.contactInfo.trim()) errors.contactInfo = 'Contact info is required';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -46,19 +56,14 @@ const AddClubPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
-    if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: null }));
-    }
+    if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: null }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
     setLoading(true);
     setError(null);
-    
     try {
       const response = await fetch(`${API_BASE_URL}/clubs`, {
         method: 'POST',
@@ -66,15 +71,15 @@ const AddClubPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       });
-
       if (!response.ok) {
-        throw new Error('Failed to create club. Please check your credentials.');
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create club.');
       }
-
       setSuccess(true);
-      setTimeout(() => navigate('/'), 2000);
+      // Redirect to dashboard → My Clubs tab
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -82,65 +87,59 @@ const AddClubPage = () => {
     }
   };
 
-  const categoriesList = [
-    'Social & Recreation Clubs',
-    'Service Clubs',
-    'NGOs & Social Organizations',
-    'Sports & Activity Clubs',
-    'Cultural & Literary Clubs',
-    'Professional & Networking',
-    'Student & Tech Groups',
-    'Nightlife & Entertainment'
-  ];
-
   return (
     <div className="container add-club-page">
-      <motion.div 
+      <motion.div
         className="page-header"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, type: "spring" }}
+        transition={{ duration: 0.5, type: 'spring' }}
       >
         <h1 className="text-gradient">Add a Community</h1>
         <p>Help others discover your Vijayawada-based club or organization.</p>
       </motion.div>
 
       {success && (
-        <motion.div 
-          className="success-message"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          Community created successfully! Redirecting to directory...
+        <motion.div className="success-message" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <CheckCircle size={20} style={{ display: 'inline', marginRight: 8 }} />
+          Community created! Redirecting to your dashboard...
         </motion.div>
       )}
 
       {error && (
-        <motion.div 
-          className="error-message"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
+        <motion.div className="error-message" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <AlertCircle size={20} style={{ display: 'inline', marginRight: 8 }} />
           {error}
         </motion.div>
       )}
 
-      <motion.div 
+      <motion.div
         className="form-container"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
+        {/* Image Preview */}
+        {formData.imageUrl && (
+          <div className="image-preview-wrap">
+            <img
+              src={formData.imageUrl}
+              alt="Cover preview"
+              className="image-preview"
+              onError={e => e.target.style.display = 'none'}
+            />
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="club-form" noValidate>
+
+          {/* Row 1: Name + Category */}
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="name">Community Name *</label>
               <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
+                type="text" id="name" name="name"
+                value={formData.name} onChange={handleChange}
                 placeholder="e.g., GDG Vijayawada"
                 className={formErrors.name ? 'input-error' : ''}
               />
@@ -149,44 +148,38 @@ const AddClubPage = () => {
             <div className="form-group">
               <label htmlFor="category">Category *</label>
               <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
+                id="category" name="category"
+                value={formData.category} onChange={handleChange}
                 className={formErrors.category ? 'input-error' : ''}
               >
                 <option value="" disabled>Select a category</option>
-                {categoriesList.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
+                {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
               {formErrors.category && <span className="error-text">{formErrors.category}</span>}
             </div>
           </div>
 
+          {/* Description */}
           <div className="form-group">
             <label htmlFor="description">Description *</label>
             <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
+              id="description" name="description"
+              value={formData.description} onChange={handleChange}
               placeholder="What is your community about? What do you do? (Minimum 50 characters)"
               className={formErrors.description ? 'input-error' : ''}
-              rows={8}
+              rows={7}
             />
+            <span className="char-hint">{formData.description.trim().length} / 50 min</span>
             {formErrors.description && <span className="error-text">{formErrors.description}</span>}
           </div>
 
+          {/* Row 2: Location + Contact */}
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="location">Location *</label>
               <input
-                type="text"
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
+                type="text" id="location" name="location"
+                value={formData.location} onChange={handleChange}
                 placeholder="e.g., Benz Circle, Vijayawada"
                 className={formErrors.location ? 'input-error' : ''}
               />
@@ -195,11 +188,8 @@ const AddClubPage = () => {
             <div className="form-group">
               <label htmlFor="contactInfo">Contact Info *</label>
               <input
-                type="text"
-                id="contactInfo"
-                name="contactInfo"
-                value={formData.contactInfo}
-                onChange={handleChange}
+                type="text" id="contactInfo" name="contactInfo"
+                value={formData.contactInfo} onChange={handleChange}
                 placeholder="Email, Phone, or Website link"
                 className={formErrors.contactInfo ? 'input-error' : ''}
               />
@@ -207,46 +197,43 @@ const AddClubPage = () => {
             </div>
           </div>
 
+          {/* Row 3: Image URL + Year */}
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="imageUrl">Cover Image URL</label>
               <input
-                type="url"
-                id="imageUrl"
-                name="imageUrl"
-                value={formData.imageUrl}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
+                type="url" id="imageUrl" name="imageUrl"
+                value={formData.imageUrl} onChange={handleChange}
+                placeholder="https://images.unsplash.com/..."
               />
             </div>
             <div className="form-group">
               <label htmlFor="establishedYear">Established Year</label>
               <input
-                type="number"
-                id="establishedYear"
-                name="establishedYear"
-                value={formData.establishedYear}
-                onChange={handleChange}
-                placeholder="e.g. 2021"
-                min="1800"
-                max={new Date().getFullYear()}
+                type="number" id="establishedYear" name="establishedYear"
+                value={formData.establishedYear} onChange={handleChange}
+                placeholder="e.g. 2015"
+                min="1800" max={new Date().getFullYear()}
               />
             </div>
           </div>
 
+          {/* Google Maps URL */}
+          <div className="form-group">
+            <label htmlFor="googleMapsUrl">Google Maps URL <span className="label-hint">(optional)</span></label>
+            <input
+              type="url" id="googleMapsUrl" name="googleMapsUrl"
+              value={formData.googleMapsUrl} onChange={handleChange}
+              placeholder="https://maps.google.com/?q=..."
+            />
+          </div>
+
+          {/* Actions */}
           <div className="form-actions">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate('/')}
-            >
+            <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              variant="primary" 
-              disabled={loading || success}
-            >
+            <Button type="submit" variant="primary" disabled={loading || success}>
               {loading ? 'Creating...' : 'Create Community'}
             </Button>
           </div>

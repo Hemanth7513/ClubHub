@@ -532,3 +532,52 @@
     padding: 1.75rem;
   }
 }
+
+/* ─── Avatar Preview ─────────────────────────── */
+.avatar-preview-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 2px dashed var(--border-dark);
+  border-radius: 10px;
+  background: var(--bg-primary);
+}
+
+.avatar-preview-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-dark);
+  box-shadow: 3px 3px 0px var(--border-dark);
+  flex-shrink: 0;
+}
+
+.avatar-preview-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Small mobile ───────────────────────────── */
+@media (max-width: 480px) {
+  .settings-page {
+    padding-top: 1.5rem;
+  }
+
+  .settings-panel {
+    padding: 1.25rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}

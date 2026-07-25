@@ -1,9 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Trash2, Users, ShieldAlert, Calendar, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Trash2, Users, ShieldAlert, Calendar, CheckCircle,
+  Clock, BarChart2, AlertTriangle, RefreshCw
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import Button from '../components/Button/Button';
 import API_BASE_URL from '../config';
 import './AdminDashboardPage.css';
+
+/* ─── Confirm delete modal ─────────────────── */
+const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
+  <div className="admin-confirm-overlay">
+    <motion.div
+      className="admin-confirm-modal glass-panel"
+      initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.85, opacity: 0 }}
+    >
+      <AlertTriangle size={36} style={{ color: 'var(--accent-pink)' }} />
+      <p>{message}</p>
+      <div className="admin-confirm-actions">
+        <Button variant="outline" onClick={onCancel} disabled={loading}>Cancel</Button>
+        <Button variant="primary" onClick={onConfirm} disabled={loading}
+          style={{ background: 'var(--accent-pink)', border: '3px solid var(--border-dark)' }}>
+          {loading ? 'Deleting...' : 'Confirm Delete'}
+        </Button>
+      </div>
+    </motion.div>
+  </div>
+);
 
 const AdminDashboardPage = () => {
   const { token } = useAuth();
@@ -11,17 +36,17 @@ const AdminDashboardPage = () => {
   const [users, setUsers] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('users'); // 'users' | 'clubs'
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('pending'); // 'pending' | 'clubs' | 'users'
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  useEffect(() => {
-    fetchAdminData();
-  }, [token]);
-
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
+      else setRefreshing(true);
       const headers = { 'Authorization': `Bearer ${token}` };
-      
+
       const [statsRes, usersRes, clubsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/stats`, { headers }),
         fetch(`${API_BASE_URL}/admin/users`, { headers }),
@@ -31,177 +56,328 @@ const AdminDashboardPage = () => {
       if (statsRes.ok) setStats(await statsRes.json());
       if (usersRes.ok) setUsers(await usersRes.json());
       if (clubsRes.ok) setClubs(await clubsRes.json());
-      
-    } catch (error) {
-      console.error("Error fetching admin data:", error);
+    } catch (err) {
+      console.error('Admin fetch error:', err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [token]);
 
-  const handleDeleteClub = async (id) => {
-    if (!window.confirm("Are you sure you want to permanently delete this club?")) return;
+  useEffect(() => { fetchAdminData(); }, [fetchAdminData]);
+
+  const handleDeleteClub = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/clubs/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/admin/clubs/${deleteTarget.id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        setClubs(prev => prev.filter(c => c.id !== id));
-        setStats(prev => ({ ...prev, clubs: prev.clubs - 1 }));
-      } else {
-        alert("Failed to delete club.");
+        setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
+        setStats(prev => ({ ...prev, clubs: Math.max(0, prev.clubs - 1) }));
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
+      setDeleteTarget(null);
     }
   };
 
   const handleToggleVerify = async (club) => {
+    const newValue = !club.is_verified;
+    // Optimistic update
+    setClubs(prev => prev.map(c => c.id === club.id ? { ...c, is_verified: newValue } : c));
     try {
       const res = await fetch(`${API_BASE_URL}/admin/clubs/${club.id}/verify`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify({ is_verified: !club.is_verified })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ is_verified: newValue })
       });
-      if (res.ok) {
-        setClubs(prev => prev.map(c => c.id === club.id ? { ...c, is_verified: !club.is_verified } : c));
-      } else {
-        alert("Failed to update verification status.");
+      if (!res.ok) {
+        // Revert on failure
+        setClubs(prev => prev.map(c => c.id === club.id ? { ...c, is_verified: !newValue } : c));
       }
     } catch (err) {
-      console.error(err);
+      setClubs(prev => prev.map(c => c.id === club.id ? { ...c, is_verified: !newValue } : c));
     }
   };
 
+  const pendingClubs = clubs.filter(c => !c.is_verified);
+  const verifiedClubs = clubs.filter(c => c.is_verified);
+
   if (loading) {
-    return <div className="spinner" style={{ margin: 'auto', marginTop: '20vh' }}></div>;
+    return (
+      <div className="admin-loading">
+        <div className="spinner" />
+        <p>Loading admin data...</p>
+      </div>
+    );
   }
+
+  const tabs = [
+    { id: 'pending', label: 'Pending Verification', icon: <Clock size={16} />, count: pendingClubs.length },
+    { id: 'clubs', label: 'All Clubs', icon: <Calendar size={16} />, count: clubs.length },
+    { id: 'users', label: 'All Users', icon: <Users size={16} />, count: users.length },
+  ];
 
   return (
     <div className="admin-dashboard container">
-      <motion.div 
-        className="admin-header"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h1 className="text-gradient"><ShieldAlert size={36} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Owner Platform</h1>
-        <p>Global oversight of Vijayawada City Voice.</p>
+      <AnimatePresence>
+        {deleteTarget && (
+          <ConfirmModal
+            message={`Permanently delete "${deleteTarget.name}"? This cannot be undone.`}
+            onConfirm={handleDeleteClub}
+            onCancel={() => setDeleteTarget(null)}
+            loading={deleteLoading}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Header ──────────────────────────── */}
+      <motion.div className="admin-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="admin-header-row">
+          <div>
+            <h1 className="text-gradient">
+              <ShieldAlert size={34} style={{ verticalAlign: 'middle', marginRight: 10 }} />
+              Owner Platform
+            </h1>
+            <p>Global oversight of Vijayawada City Voice.</p>
+          </div>
+          <Button variant="outline" size="small" onClick={() => fetchAdminData(true)} disabled={refreshing}>
+            <RefreshCw size={15} className={refreshing ? 'spin' : ''} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </div>
       </motion.div>
 
-      <motion.div 
+      {/* ── Stats Grid ──────────────────────── */}
+      <motion.div
         className="admin-stats-grid"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="stat-card">
-          <h3>Total Users</h3>
-          <div className="stat-value">{stats.users}</div>
+        <div className="admin-stat-card glass-panel">
+          <div className="admin-stat-icon"><Users size={22} /></div>
+          <div>
+            <h4>Total Users</h4>
+            <h2>{stats.users}</h2>
+          </div>
         </div>
-        <div className="stat-card">
-          <h3>Total Clubs</h3>
-          <div className="stat-value">{stats.clubs}</div>
+        <div className="admin-stat-card glass-panel">
+          <div className="admin-stat-icon"><Calendar size={22} /></div>
+          <div>
+            <h4>Total Clubs</h4>
+            <h2>{stats.clubs}</h2>
+          </div>
         </div>
-        <div className="stat-card">
-          <h3>Total Events</h3>
-          <div className="stat-value">{stats.events}</div>
+        <div className="admin-stat-card glass-panel">
+          <div className="admin-stat-icon"><BarChart2 size={22} /></div>
+          <div>
+            <h4>Total Events</h4>
+            <h2>{stats.events}</h2>
+          </div>
         </div>
-        <div className="stat-card">
-          <h3>Platform Revenue</h3>
-          <div className="stat-value">₹{stats.revenue.toFixed(2)}</div>
+        <div className="admin-stat-card glass-panel accent-card">
+          <div className="admin-stat-icon"><Clock size={22} /></div>
+          <div>
+            <h4>Pending Verify</h4>
+            <h2>{pendingClubs.length}</h2>
+          </div>
         </div>
       </motion.div>
 
+      {/* ── Tabs ────────────────────────────── */}
       <div className="admin-tabs">
-        <button 
-          className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
-          onClick={() => setActiveTab('users')}
-        >
-          <Users size={18} style={{ verticalAlign: 'text-bottom', marginRight: '6px' }} /> Users Directory
-        </button>
-        <button 
-          className={`admin-tab ${activeTab === 'clubs' ? 'active' : ''}`}
-          onClick={() => setActiveTab('clubs')}
-        >
-          <Calendar size={18} style={{ verticalAlign: 'text-bottom', marginRight: '6px' }} /> Clubs Directory
-        </button>
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            className={`admin-tab ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.icon} {tab.label}
+            <span className="admin-tab-badge">{tab.count}</span>
+          </button>
+        ))}
       </div>
 
-      <motion.div 
+      {/* ── Tab Content ─────────────────────── */}
+      <motion.div
         className="admin-table-container"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
         key={activeTab}
+        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       >
-        {activeTab === 'users' ? (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id}>
-                  <td style={{ fontWeight: 600 }}>{u.name || 'Anonymous'}</td>
-                  <td>{u.email}</td>
-                  <td>
-                    <span className="badge" style={{ margin: 0, background: u.role === 'admin' ? 'var(--accent-pink)' : '', color: u.role === 'admin' ? 'white' : '' }}>
-                      {u.role}
+
+        {/* PENDING VERIFICATION */}
+        {activeTab === 'pending' && (
+          pendingClubs.length === 0 ? (
+            <div className="admin-empty">
+              <CheckCircle size={44} style={{ color: 'var(--accent-green)' }} />
+              <h3>All Clear!</h3>
+              <p>No clubs pending verification. Every registered club has been reviewed.</p>
+            </div>
+          ) : (
+            <div className="admin-card-list">
+              {pendingClubs.map(club => (
+                <div key={club.id} className="admin-club-card glass-panel">
+                  <img
+                    src={club.image_url || 'https://via.placeholder.com/80x60'}
+                    alt={club.name} className="admin-club-thumb"
+                    onError={e => e.target.src = 'https://via.placeholder.com/80x60'}
+                  />
+                  <div className="admin-club-info">
+                    <h4>{club.name}</h4>
+                    <span className="admin-club-cat">{club.category}</span>
+                    <span className="admin-club-owner">
+                      By: {club.users ? (club.users.name || club.users.email) : 'Unknown'}
                     </span>
-                  </td>
-                  <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                </tr>
+                  </div>
+                  <div className="admin-club-actions">
+                    <Button variant="primary" size="small" onClick={() => handleToggleVerify(club)}>
+                      <CheckCircle size={14} /> Verify
+                    </Button>
+                    <Button size="small" variant="outline"
+                      style={{ borderColor: 'var(--accent-pink)', color: 'var(--accent-pink)' }}
+                      onClick={() => setDeleteTarget({ id: club.id, name: club.name })}>
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                </div>
               ))}
-              {users.length === 0 && <tr><td colSpan="4" style={{ textAlign: 'center' }}>No users found</td></tr>}
-            </tbody>
-          </table>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Club Name</th>
-                <th>Category</th>
-                <th>Creator (User)</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+            </div>
+          )
+        )}
+
+        {/* ALL CLUBS */}
+        {activeTab === 'clubs' && (
+          <>
+            {/* Desktop table */}
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Club Name</th>
+                  <th>Category</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {clubs.map(c => (
+                  <tr key={c.id}>
+                    <td style={{ fontWeight: 700 }}>{c.name}</td>
+                    <td>{c.category}</td>
+                    <td>{c.users ? (c.users.name || c.users.email) : '—'}</td>
+                    <td>
+                      {c.is_verified
+                        ? <span className="badge badge-verified"><CheckCircle size={12} /> Verified</span>
+                        : <span className="badge badge-pending"><Clock size={12} /> Pending</span>
+                      }
+                    </td>
+                    <td>
+                      <div className="admin-action-row">
+                        <button
+                          className={`admin-verify-btn ${c.is_verified ? 'is-verified' : ''}`}
+                          onClick={() => handleToggleVerify(c)}
+                          title={c.is_verified ? 'Unverify' : 'Verify'}
+                        >
+                          <CheckCircle size={14} /> {c.is_verified ? 'Unverify' : 'Verify'}
+                        </button>
+                        <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: c.id, name: c.name })} title="Delete">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {clubs.length === 0 && <tr><td colSpan="5" className="admin-empty-cell">No clubs found</td></tr>}
+              </tbody>
+            </table>
+
+            {/* Mobile cards */}
+            <div className="admin-card-list admin-card-mobile">
               {clubs.map(c => (
-                <tr key={c.id}>
-                  <td style={{ fontWeight: 600 }}>{c.name}</td>
-                  <td>{c.category}</td>
-                  <td>{c.users ? c.users.name || c.users.email : 'Unknown'}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button 
-                        onClick={() => handleToggleVerify(c)} 
-                        className={`badge ${c.is_verified ? 'verified' : ''}`}
-                        style={{ border: 'none', cursor: 'pointer', background: c.is_verified ? 'var(--accent-blue)' : 'var(--bg-secondary)', color: c.is_verified ? 'white' : 'var(--text-secondary)' }}
-                        title="Toggle Verification"
-                      >
-                        <CheckCircle size={16} /> {c.is_verified ? 'Verified' : 'Verify'}
-                      </button>
-                      <button onClick={() => handleDeleteClub(c.id)} className="delete-btn" title="Delete Club">
-                        <Trash2 size={16} /> Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <div key={c.id} className="admin-club-card glass-panel">
+                  <img src={c.image_url || 'https://via.placeholder.com/80x60'} alt={c.name}
+                    className="admin-club-thumb" onError={e => e.target.src = 'https://via.placeholder.com/80x60'} />
+                  <div className="admin-club-info">
+                    <h4>{c.name}</h4>
+                    <span className="admin-club-cat">{c.category}</span>
+                    {c.is_verified
+                      ? <span className="badge badge-verified"><CheckCircle size={11} /> Verified</span>
+                      : <span className="badge badge-pending"><Clock size={11} /> Pending</span>
+                    }
+                  </div>
+                  <div className="admin-club-actions">
+                    <button className={`admin-verify-btn ${c.is_verified ? 'is-verified' : ''}`}
+                      onClick={() => handleToggleVerify(c)}>
+                      <CheckCircle size={13} /> {c.is_verified ? 'Unverify' : 'Verify'}
+                    </button>
+                    <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: c.id, name: c.name })}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
               ))}
-              {clubs.length === 0 && <tr><td colSpan="4" style={{ textAlign: 'center' }}>No clubs found</td></tr>}
-            </tbody>
-          </table>
+            </div>
+          </>
+        )}
+
+        {/* ALL USERS */}
+        {activeTab === 'users' && (
+          <>
+            {/* Desktop table */}
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(u => (
+                  <tr key={u.id}>
+                    <td style={{ fontWeight: 700 }}>{u.name || 'Anonymous'}</td>
+                    <td style={{ fontSize: '0.9rem' }}>{u.email}</td>
+                    <td>
+                      <span className={`badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td style={{ fontSize: '0.85rem' }}>
+                      {new Date(u.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                  </tr>
+                ))}
+                {users.length === 0 && <tr><td colSpan="4" className="admin-empty-cell">No users found</td></tr>}
+              </tbody>
+            </table>
+
+            {/* Mobile cards */}
+            <div className="admin-user-cards admin-card-mobile">
+              {users.map(u => (
+                <div key={u.id} className="admin-user-card glass-panel">
+                  <div className="admin-user-avatar">{(u.name || 'A')[0].toUpperCase()}</div>
+                  <div className="admin-user-info">
+                    <strong>{u.name || 'Anonymous'}</strong>
+                    <span>{u.email}</span>
+                    <div className="admin-user-meta">
+                      <span className={`badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}`}>{u.role}</span>
+                      <span className="admin-user-date">
+                        {new Date(u.created_at).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </motion.div>
-
     </div>
   );
 };

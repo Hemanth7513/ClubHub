@@ -157,7 +157,8 @@ const SettingsPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/delete-account`, {
+      // First try the auth route; fall back to users/me
+      let res = await fetch(`${API_BASE_URL}/auth/delete-account`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -165,10 +166,18 @@ const SettingsPage = () => {
         },
         body: JSON.stringify({ password: deleteConfirmPassword })
       });
-      
+
+      // If auth route doesn't exist, use users/me
+      if (res.status === 404) {
+        res = await fetch(`${API_BASE_URL}/users/me`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Account deletion failed');
-      
+
       setShowDeleteModal(false);
       logout();
       navigate('/');
@@ -319,8 +328,13 @@ const SettingsPage = () => {
                     />
                     {avatarUrl && (
                       <div className="avatar-preview-wrapper">
-                        <span>Preview:</span>
-                        <img src={avatarUrl} alt="Avatar Preview" className="avatar-preview-img" onError={(e) => e.target.style.display = 'none'} />
+                        <img
+                          src={avatarUrl}
+                          alt="Avatar Preview"
+                          className="avatar-preview-img"
+                          onError={(e) => e.target.style.display = 'none'}
+                        />
+                        <span className="avatar-preview-label">Preview</span>
                       </div>
                     )}
                   </div>

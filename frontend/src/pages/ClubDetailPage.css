@@ -228,6 +228,212 @@
     font-size: 2.5rem;
   }
   .club-detail-hero {
-    height: 300px;
+    height: 260px;
+  }
+
+  .detail-nav-actions {
+    gap: 0.5rem;
+  }
+}
+
+/* ─── Detail Nav Actions (edit + share) ──────── */
+.detail-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ─── Verified Pill ──────────────────────────── */
+.hero-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.verified-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #1da1f2;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 2px solid #fff;
+  box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+  white-space: nowrap;
+}
+
+/* ─── Sidebar action links ───────────────────── */
+.sidebar-action-link {
+  display: block;
+  text-decoration: none;
+}
+
+.sidebar-action-link button,
+.sidebar-action-link .btn-large {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-whatsapp {
+  background: #25D366 !important;
+  color: #fff !important;
+  border-color: #25D366 !important;
+}
+
+.btn-whatsapp:hover {
+  background: #1ebe57 !important;
+}
+
+/* ─── Maps embed card ────────────────────────── */
+.maps-embed-card {
+  border: 3px solid var(--border-dark);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 4px 4px 0px var(--border-dark);
+}
+
+.maps-embed-card h4 {
+  padding: 0.75rem 1rem;
+  margin: 0;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--border-dark);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.maps-embed-link {
+  display: block;
+  text-decoration: none;
+}
+
+.maps-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  background: var(--bg-primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: background 0.15s;
+}
+
+.maps-placeholder:hover {
+  background: var(--accent-yellow);
+}
+
+/* ─── Club Events Section ────────────────────── */
+.club-events-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 3px solid var(--border-dark);
+}
+
+.club-events-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  border-bottom: 4px solid var(--border-dark);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.club-no-events {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem;
+  border: 2px dashed var(--border-dark);
+  border-radius: var(--border-radius);
+  text-align: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.club-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.club-event-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--border-dark);
+  box-shadow: 3px 3px 0px var(--border-dark);
+  border-radius: var(--border-radius);
+  transition: transform 0.15s;
+}
+
+.club-event-row:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px var(--border-dark);
+}
+
+.club-event-thumb {
+  width: 64px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 2px solid var(--border-dark);
+  flex-shrink: 0;
+}
+
+.club-event-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.club-event-info h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.club-event-date,
+.club-event-loc {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* ─── Mobile fixes ───────────────────────────── */
+@media (max-width: 480px) {
+  .club-event-thumb {
+    width: 50px;
+    height: 44px;
+  }
+
+  .club-events-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .detail-nav-row {
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    font-size: 0.85rem;
   }
 }
