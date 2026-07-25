@@ -340,7 +340,6 @@ const ClubManagerPage = () => {
                       })}
                     </div>
                   )}
-                  )}
                 </motion.div>
               )}
 
