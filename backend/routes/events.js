@@ -7,6 +7,9 @@ const { validateEventInput } = require('../middleware/validationMiddleware');
 const NodeCache = require('node-cache');
 const myCache = new NodeCache({ stdTTL: 120 });
 
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 // Get all events
 router.get('/', async (req, res) => {
     try {
@@ -233,6 +236,41 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
             .eq('id', ticketId);
 
         myCache.del(`tickets_${eventId}`);
+
+        // 5. Send automated confirmation email asynchronously
+        if (process.env.RESEND_API_KEY && req.user.email) {
+            // Fetch event details for the email
+            const { data: eventData } = await supabase
+                .from('events')
+                .select('title, date, location, clubs(name)')
+                .eq('id', eventId)
+                .single();
+
+            const clubName = eventData?.clubs?.name || 'ClubHub';
+            const eventTitle = eventData?.title || 'Your Event';
+            const eventDate = eventData?.date ? new Date(eventData.date).toLocaleString() : 'TBA';
+
+            resend.emails.send({
+                from: 'ClubHub <onboarding@resend.dev>',
+                to: req.user.email,
+                subject: `🎟️ Your Ticket: ${eventTitle}`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 20px; border: 4px solid #ccff00; border-radius: 8px;">
+                        <h1 style="color: #ccff00; text-transform: uppercase;">You're In!</h1>
+                        <p style="font-size: 16px;">Hi ${attendeeName},</p>
+                        <p style="font-size: 16px;">Your RSVP for <strong>${eventTitle}</strong> hosted by <strong>${clubName}</strong> is confirmed.</p>
+                        <div style="background: #1a1a1a; padding: 15px; margin: 20px 0; border-left: 4px solid #ff2e63;">
+                            <p style="margin: 5px 0;"><strong>Ticket Type:</strong> ${ticket.name}</p>
+                            <p style="margin: 5px 0;"><strong>Date:</strong> ${eventDate}</p>
+                            <p style="margin: 5px 0;"><strong>Location:</strong> ${eventData?.location || 'TBA'}</p>
+                        </div>
+                        <p style="font-size: 14px; color: #888;">Present this email at the entrance. See you there!</p>
+                        <p style="font-size: 14px; color: #888;">- The ClubHub Team</p>
+                    </div>
+                `
+            }).catch(err => console.error('Failed to send RSVP email:', err));
+        }
+
         res.status(201).json({ message: 'RSVP successful!', registration });
     } catch (err) {
         console.error('RSVP error:', err);

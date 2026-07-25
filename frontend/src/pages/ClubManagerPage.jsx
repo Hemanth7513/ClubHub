@@ -160,25 +160,31 @@ const ClubManagerPage = () => {
               {activeTab === 'overview' && (
                 <motion.div className="dashboard-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="stats-grid">
-                    <div className="stat-card glass-panel">
-                      <div className="stat-icon"><Users size={24} /></div>
+                    <div className="stat-card glass-panel" style={{ borderLeft: '6px solid var(--accent-cyan)' }}>
+                      <div className="stat-icon"><LayoutDashboard size={24} color="var(--accent-cyan)" /></div>
                       <div className="stat-info">
-                        <h4>My Clubs</h4>
+                        <h4>Total Clubs</h4>
                         <h2>{clubs.length}</h2>
                       </div>
                     </div>
-                    <div className="stat-card glass-panel">
-                      <div className="stat-icon"><CalendarIcon size={24} /></div>
+                    
+                    <div className="stat-card glass-panel" style={{ borderLeft: '6px solid var(--accent-pink)' }}>
+                      <div className="stat-icon"><CalendarIcon size={24} color="var(--accent-pink)" /></div>
                       <div className="stat-info">
-                        <h4>Upcoming Events</h4>
-                        <h2>{upcomingEvents.length}</h2>
+                        <h4>Total Events</h4>
+                        <h2>{events.length}</h2>
                       </div>
                     </div>
-                    <div className="stat-card glass-panel">
-                      <div className="stat-icon"><Activity size={24} /></div>
+                    
+                    <div className="stat-card glass-panel" style={{ borderLeft: '6px solid var(--accent-lime)' }}>
+                      <div className="stat-icon"><Users size={24} color="var(--accent-lime)" /></div>
                       <div className="stat-info">
-                        <h4>Past Events</h4>
-                        <h2>{pastEvents.length}</h2>
+                        <h4>Total RSVPs</h4>
+                        <h2>
+                          {events.reduce((sum, event) => 
+                            sum + (event.tickets ? event.tickets.reduce((tSum, t) => tSum + (t.sold || 0), 0) : 0), 0
+                          )}
+                        </h2>
                       </div>
                     </div>
                   </div>
