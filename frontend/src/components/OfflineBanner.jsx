@@ -20,9 +20,15 @@ const OfflineBanner = () => {
   }, []);
 
   return (
-    <AnimatePresence>
-      {!isOnline && (
-        <motion.div
+    <>
+      {/* Preload the image so it's available in browser cache when offline */}
+      <div style={{ display: 'none' }}>
+        <img src={mascotImg} alt="preload" />
+      </div>
+
+      <AnimatePresence>
+        {!isOnline && (
+          <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -88,7 +94,8 @@ const OfflineBanner = () => {
           </motion.p>
         </motion.div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 };
 
