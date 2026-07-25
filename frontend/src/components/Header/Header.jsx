@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert, Settings } from 'lucide-react';
+import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert, Settings, TicketIcon } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/logo.png';
