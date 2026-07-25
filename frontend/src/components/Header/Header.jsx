@@ -77,11 +77,8 @@ const Header = () => {
             ) : (
               <div className="auth-buttons">
                 <Link to="/login" className="login-btn" onClick={() => setIsMenuOpen(false)}>
-                  <LogIn size={18} /> Login
+                  <LogIn size={18} style={{ marginRight: '6px' }} /> Login
                 </Link>
-                <Button onClick={() => { navigate('/register'); setIsMenuOpen(false); }}>
-                  Register
-                </Button>
               </div>
             )}
           </div>

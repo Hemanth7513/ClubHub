@@ -149,11 +149,6 @@ const DirectoryPage = () => {
                     <Button variant="primary" size="large" onClick={scrollToDiscovery} className="btn-primary-hero">
                       Start Exploring <ArrowRight size={20} />
                     </Button>
-                    <Link to="/register">
-                      <Button variant="outline" size="large">
-                        Join Now
-                      </Button>
-                    </Link>
                   </motion.div>
                 </motion.div>
               </div>
