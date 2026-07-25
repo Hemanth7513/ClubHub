@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button/Button';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import API_BASE_URL from '../config';
 import './AddClubPage.css';
 
@@ -37,9 +35,7 @@ const AddClubPage = () => {
     let errors = {};
     if (!formData.name.trim()) errors.name = "Community name is required";
     if (!formData.category) errors.category = "Please select a category";
-    // Quill wraps empty text in <p><br></p>, so we check raw text length roughly
-    const rawDesc = formData.description.replace(/<[^>]*>?/gm, '');
-    if (rawDesc.length < 50) errors.description = "Description should be at least 50 characters";
+    if (formData.description.trim().length < 50) errors.description = "Description should be at least 50 characters";
     if (!formData.location.trim()) errors.location = "Location is required";
     if (!formData.contactInfo.trim()) errors.contactInfo = "Contact info is required";
     
@@ -168,17 +164,18 @@ const AddClubPage = () => {
             </div>
           </div>
 
-          <div className="form-group" style={{ color: 'black' }}>
-            <label htmlFor="description" style={{ color: 'white' }}>Description *</label>
-            <ReactQuill 
-              theme="snow" 
-              value={formData.description} 
-              onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
-              placeholder="What is your community about? What do you do?"
-              className={formErrors.description ? 'input-error quill-editor' : 'quill-editor'}
-              style={{ backgroundColor: 'white', borderRadius: '4px' }}
+          <div className="form-group">
+            <label htmlFor="description">Description *</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="What is your community about? What do you do? (Minimum 50 characters)"
+              className={formErrors.description ? 'input-error' : ''}
+              rows={8}
             />
-            {formErrors.description && <span className="error-text" style={{ marginTop: '5px', display: 'block' }}>{formErrors.description}</span>}
+            {formErrors.description && <span className="error-text">{formErrors.description}</span>}
           </div>
 
           <div className="form-row">
