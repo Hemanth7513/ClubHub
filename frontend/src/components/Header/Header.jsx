@@ -53,10 +53,10 @@ const Header = () => {
                 </div>
                 <div className="dropdown-menu">
                   <Link to="/dashboard" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <LayoutDashboard size={16} /> Dashboard
+                    <TicketIcon size={16} /> My Tickets
                   </Link>
                   <Link to="/manage-clubs" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <Users size={16} /> Manage Clubs
+                    <LayoutDashboard size={16} /> Organizer Dashboard
                   </Link>
                   <Link to="/add-club" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
                     <PlusCircle size={16} /> Add Club
