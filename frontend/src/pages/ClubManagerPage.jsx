@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Calendar as CalendarIcon, Activity, Settings,
   PlusCircle, LayoutDashboard, Pencil, Trash2, CheckCircle,
-  AlertCircle, TicketIcon, Clock
+  AlertCircle, TicketIcon, Clock, Scan
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../config';
 import Button from '../components/Button/Button';
+import TicketScanner from '../components/Scanner/TicketScanner';
 import './ClubManagerPage.css';
 
 /* ─── Small utility: is the event in the past? ─────── */
@@ -44,6 +45,7 @@ const ClubManagerPage = () => {
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'club'|'event', id, name }
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [selectedScannerEvent, setSelectedScannerEvent] = useState(null);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -129,6 +131,10 @@ const ClubManagerPage = () => {
               onClick={() => setActiveTab('events')}>
               <CalendarIcon size={18} /> Manage Events
               {upcomingEvents.length > 0 && <span className="sidebar-badge">{upcomingEvents.length}</span>}
+            </button>
+            <button className={`sidebar-link ${activeTab === 'scanner' ? 'active' : ''}`}
+              onClick={() => setActiveTab('scanner')}>
+              <Scan size={18} /> Ticket Scanner
             </button>
             <Link to="/settings" className="sidebar-link">
               <Settings size={18} /> Settings
@@ -332,6 +338,44 @@ const ClubManagerPage = () => {
                           </div>
                         );
                       })}
+                    </div>
+                  )}
+                  )}
+                </motion.div>
+              )}
+
+              {/* ── SCANNER TAB ──────────────────────── */}
+              {activeTab === 'scanner' && (
+                <motion.div className="dashboard-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  {!selectedScannerEvent ? (
+                    <div className="scanner-selector glass-panel">
+                      <h3 style={{ marginBottom: '1rem' }}>Select Event to Scan Tickets For</h3>
+                      <div className="event-scanner-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {upcomingEvents.length === 0 ? (
+                          <p style={{ color: 'var(--text-secondary)' }}>You have no upcoming events to scan tickets for.</p>
+                        ) : (
+                          upcomingEvents.map(event => (
+                            <button 
+                              key={event.id}
+                              className="brutalist-button" 
+                              onClick={() => setSelectedScannerEvent(event.id)}
+                              style={{ textAlign: 'left', padding: '15px' }}
+                            >
+                              <div style={{ fontWeight: 'bold' }}>{event.title}</div>
+                              <div style={{ fontSize: '0.85rem', color: '#fff', opacity: 0.8 }}>
+                                {new Date(event.date).toLocaleDateString()}
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="scanner-active-view">
+                      <button className="text-link" onClick={() => setSelectedScannerEvent(null)} style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        ← Back to Events List
+                      </button>
+                      <TicketScanner eventId={selectedScannerEvent} />
                     </div>
                   )}
                 </motion.div>

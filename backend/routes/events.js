@@ -9,6 +9,7 @@ const myCache = new NodeCache({ stdTTL: 120 });
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
+const QRCode = require('qrcode');
 
 // Get all events
 router.get('/', async (req, res) => {
@@ -249,6 +250,17 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
             const clubName = eventData?.clubs?.name || 'ClubHub';
             const eventTitle = eventData?.title || 'Your Event';
             const eventDate = eventData?.date ? new Date(eventData.date).toLocaleString() : 'TBA';
+            
+            // Generate QR Code from the Registration ID
+            let qrCodeDataUrl = '';
+            try {
+                qrCodeDataUrl = await QRCode.toDataURL(registration.id.toString(), {
+                    color: { dark: '#000000', light: '#ccff00' },
+                    margin: 2
+                });
+            } catch (err) {
+                console.error('QR Gen error:', err);
+            }
 
             resend.emails.send({
                 from: 'ClubHub <onboarding@resend.dev>',
@@ -259,6 +271,15 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
                         <h1 style="color: #ccff00; text-transform: uppercase;">You're In!</h1>
                         <p style="font-size: 16px;">Hi ${attendeeName},</p>
                         <p style="font-size: 16px;">Your RSVP for <strong>${eventTitle}</strong> hosted by <strong>${clubName}</strong> is confirmed.</p>
+                        
+                        ${qrCodeDataUrl ? `
+                        <div style="text-align: center; margin: 30px 0;">
+                            <p style="color: #ccff00; font-weight: bold; margin-bottom: 10px;">SCAN THIS AT THE DOOR</p>
+                            <img src="${qrCodeDataUrl}" alt="Ticket QR Code" style="border: 4px solid #fff; border-radius: 8px; width: 200px; height: 200px;" />
+                            <p style="color: #888; font-size: 12px; margin-top: 10px;">Ticket ID: ${registration.id}</p>
+                        </div>
+                        ` : ''}
+
                         <div style="background: #1a1a1a; padding: 15px; margin: 20px 0; border-left: 4px solid #ff2e63;">
                             <p style="margin: 5px 0;"><strong>Ticket Type:</strong> ${ticket.name}</p>
                             <p style="margin: 5px 0;"><strong>Date:</strong> ${eventDate}</p>
@@ -275,6 +296,51 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error('RSVP error:', err);
         res.status(500).json({ error: 'Failed to process RSVP' });
+    }
+});
+
+// Check-In (Verify Ticket)
+router.post('/:id/check-in', authenticateToken, async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const { registrationId } = req.body;
+        
+        if (!registrationId) return res.status(400).json({ error: 'Registration ID required' });
+
+        // 1. Ensure the user calling this owns the event
+        const { data: event, error: eventError } = await supabase
+            .from('events')
+            .select('user_id')
+            .eq('id', eventId)
+            .single();
+
+        if (eventError || !event) return res.status(404).json({ error: 'Event not found' });
+        if (event.user_id !== req.user.id) return res.status(403).json({ error: 'Not authorized to scan tickets for this event' });
+
+        // 2. Look up the registration
+        const { data: registration, error: regError } = await supabase
+            .from('event_registrations')
+            .select('*, users(email)')
+            .eq('id', registrationId)
+            .eq('event_id', eventId)
+            .single();
+
+        if (regError || !registration) {
+            return res.status(404).json({ error: 'Invalid Ticket! Registration not found for this event.' });
+        }
+
+        // If we want stateful check-ins later, we can update a checked_in column here.
+        // For now, returning the registration counts as "Verified".
+        
+        res.json({ 
+            message: 'Ticket Validated!', 
+            registration,
+            status: 'success'
+        });
+
+    } catch (err) {
+        console.error('Check-in error:', err);
+        res.status(500).json({ error: 'Failed to verify ticket' });
     }
 });
 

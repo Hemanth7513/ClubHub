@@ -1,0 +1,61 @@
+.ticket-scanner-container {
+    padding: 2rem;
+    text-align: center;
+    border-left: 8px solid var(--accent-cyan);
+}
+
+#reader {
+    background: #000;
+}
+
+#reader__dashboard_section_csr span {
+    color: #fff !important;
+}
+
+#reader__dashboard_section_swaplink {
+    color: var(--accent-lime) !important;
+    text-decoration: underline;
+}
+
+.scan-result-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 4px solid var(--border-dark);
+    border-radius: 12px;
+    background: var(--bg-dark);
+    margin-top: 1rem;
+    box-shadow: 6px 6px 0px var(--border-dark);
+}
+
+.scan-result-card.success {
+    border-color: var(--accent-lime);
+    box-shadow: 6px 6px 0px var(--accent-lime);
+}
+
+.scan-result-card.success h2 {
+    color: var(--accent-lime);
+    font-size: 2rem;
+    margin: 1rem 0;
+    text-transform: uppercase;
+}
+
+.scan-result-card.error {
+    border-color: var(--accent-pink);
+    box-shadow: 6px 6px 0px var(--accent-pink);
+}
+
+.scan-result-card.error h2 {
+    color: var(--accent-pink);
+    font-size: 2rem;
+    margin: 1rem 0;
+    text-transform: uppercase;
+}
+
+.attendee-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+}
