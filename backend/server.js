@@ -59,6 +59,7 @@ app.get('/', (req, res) => res.json({ status: 'ok', message: 'ClubHub API is liv
 // Debug env route
 app.get('/api/debug-env', (req, res) => {
     res.json({
+        envKeys: Object.keys(process.env),
         hasServiceKey: !!process.env.SUPABASE_SERVICE_KEY,
         serviceKeyLength: process.env.SUPABASE_SERVICE_KEY?.length || 0,
         serviceKeyPrefix: process.env.SUPABASE_SERVICE_KEY?.substring(0, 10),
