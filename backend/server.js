@@ -12,14 +12,16 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const requiredEnvs = [
     'SUPABASE_URL', 
     'SUPABASE_ANON_KEY', 
-    'JWT_SECRET',
-    'FRONTEND_URL'
+    'JWT_SECRET'
 ];
 for (const env of requiredEnvs) {
     if (!process.env[env]) {
         console.error(`FATAL ERROR: Missing required environment variable: ${env}`);
         process.exit(1);
     }
+}
+if (!process.env.FRONTEND_URL) {
+    console.warn(`WARNING: Missing FRONTEND_URL environment variable. Defaulting to production Vercel frontend.`);
 }
 
 const app = express();
@@ -33,7 +35,7 @@ app.use(helmet({
 }));
 
 // Strict CORS: No wildcards allowed.
-const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
+const allowedOrigins = [process.env.FRONTEND_URL || 'https://clubhub-pearl.vercel.app', 'http://localhost:5173'];
 
 app.use(cors({
     origin: allowedOrigins,
