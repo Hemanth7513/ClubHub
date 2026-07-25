@@ -56,19 +56,6 @@ app.use('/api/', limiter);
 // Health check
 app.get('/', (req, res) => res.json({ status: 'ok', message: 'ClubHub API is live' }));
 
-// Debug env route
-app.get('/api/debug-env', (req, res) => {
-    res.json({
-        envKeys: Object.keys(process.env),
-        hasServiceKey: !!process.env.SUPABASE_SERVICE_KEY,
-        serviceKeyLength: process.env.SUPABASE_SERVICE_KEY?.length || 0,
-        serviceKeyPrefix: process.env.SUPABASE_SERVICE_KEY?.substring(0, 10),
-        hasAnonKey: !!process.env.SUPABASE_ANON_KEY,
-        anonKeyLength: process.env.SUPABASE_ANON_KEY?.length || 0,
-        dbUrl: process.env.SUPABASE_URL
-    });
-});
-
 // Import Routes
 const authRoutes = require('./routes/auth');
 const clubRoutes = require('./routes/clubs');
