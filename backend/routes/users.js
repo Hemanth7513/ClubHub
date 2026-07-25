@@ -84,4 +84,21 @@ router.delete('/me', authenticateToken, async (req, res) => {
     }
 });
 
+// Get current user's RSVP'd tickets
+router.get('/tickets', authenticateToken, async (req, res) => {
+    try {
+        const { data: tickets, error } = await supabase
+            .from('event_registrations')
+            .select('id, attendee_name, created_at, events(id, title, date, location, image_url, clubs(name))')
+            .eq('user_id', req.user.id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.json(tickets);
+    } catch (err) {
+        console.error("Get user tickets error:", err);
+        res.status(500).json({ error: 'Failed to fetch user tickets' });
+    }
+});
+
 module.exports = router;

@@ -179,4 +179,65 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// RSVP to an event (Claim a ticket)
+router.post('/:id/rsvp', authenticateToken, async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const userId = req.user.id;
+        const { ticketId, attendeeName, phone } = req.body;
+
+        if (!ticketId || !attendeeName || !phone) {
+            return res.status(400).json({ error: 'Ticket ID, Name, and Phone are required.' });
+        }
+
+        // 1. Check if ticket exists and has capacity
+        const { data: ticket, error: ticketError } = await supabase
+            .from('tickets')
+            .select('*')
+            .eq('id', ticketId)
+            .single();
+
+        if (ticketError || !ticket) return res.status(404).json({ error: 'Ticket not found' });
+        if (ticket.sold >= ticket.capacity) return res.status(400).json({ error: 'This ticket type is sold out!' });
+
+        // 2. Check if user already RSVP'd to this event
+        const { data: existing, error: existError } = await supabase
+            .from('event_registrations')
+            .select('id')
+            .eq('event_id', eventId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (existing) {
+            return res.status(400).json({ error: 'You have already RSVP\'d to this event!' });
+        }
+
+        // 3. Create the registration
+        const { data: registration, error: regError } = await supabase
+            .from('event_registrations')
+            .insert([{
+                event_id: eventId,
+                user_id: userId,
+                attendee_name: attendeeName,
+                phone: phone
+            }])
+            .select()
+            .single();
+            
+        if (regError) throw regError;
+
+        // 4. Increment ticket sold count
+        await supabase
+            .from('tickets')
+            .update({ sold: ticket.sold + 1 })
+            .eq('id', ticketId);
+
+        myCache.del(`tickets_${eventId}`);
+        res.status(201).json({ message: 'RSVP successful!', registration });
+    } catch (err) {
+        console.error('RSVP error:', err);
+        res.status(500).json({ error: 'Failed to process RSVP' });
+    }
+});
+
 module.exports = router;

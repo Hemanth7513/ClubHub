@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert } from 'lucide-react';
 import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert, Settings } from 'lucide-react';
 import Button from '../Button/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -55,6 +54,9 @@ const Header = () => {
                 <div className="dropdown-menu">
                   <Link to="/dashboard" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
                     <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                  <Link to="/manage-clubs" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                    <Users size={16} /> Manage Clubs
                   </Link>
                   <Link to="/add-club" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
                     <PlusCircle size={16} /> Add Club

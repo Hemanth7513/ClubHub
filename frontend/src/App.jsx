@@ -27,6 +27,7 @@ const SupportPage = lazy(() => import('./pages/SupportPage'));
 const AddEventPage = lazy(() => import('./pages/AddEventPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ClubManagerPage = lazy(() => import('./pages/ClubManagerPage'));
 const MapPage = lazy(() => import('./pages/MapPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const EditClubPage = lazy(() => import('./pages/EditClubPage'));
@@ -52,9 +53,21 @@ function App() {
         <AnimatePresence mode="wait">
           <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}><div className="spinner" /></div>}>
             <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<PageTransition><DirectoryPage /></PageTransition>} />
-              <Route path="/map" element={<PageTransition><MapPage /></PageTransition>} />
-              <Route path="/club/:id" element={<PageTransition><ClubDetailPage /></PageTransition>} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <PageTransition><DirectoryPage /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/map" element={
+                <ProtectedRoute>
+                  <PageTransition><MapPage /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/club/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><ClubDetailPage /></PageTransition>
+                </ProtectedRoute>
+              } />
               <Route path="/add-club" element={
                 <ProtectedRoute>
                   <PageTransition><AddClubPage /></PageTransition>
@@ -64,7 +77,11 @@ function App() {
               <Route path="/register" element={<PageTransition><RegisterPage /></PageTransition>} />
               <Route path="/forgot-password" element={<PageTransition><ForgotPasswordPage /></PageTransition>} />
               <Route path="/reset-password" element={<PageTransition><ResetPasswordPage /></PageTransition>} />
-              <Route path="/events" element={<PageTransition><EventsPage /></PageTransition>} />
+              <Route path="/events" element={
+                <ProtectedRoute>
+                  <PageTransition><EventsPage /></PageTransition>
+                </ProtectedRoute>
+              } />
               <Route path="/support" element={<PageTransition><SupportPage /></PageTransition>} />
               <Route path="/settings" element={
                 <ProtectedRoute>
@@ -94,6 +111,11 @@ function App() {
               <Route path="/edit-event/:id" element={
                 <ProtectedRoute>
                   <PageTransition><EditEventPage /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/manage-clubs" element={
+                <ProtectedRoute>
+                  <PageTransition><ClubManagerPage /></PageTransition>
                 </ProtectedRoute>
               } />
               <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />

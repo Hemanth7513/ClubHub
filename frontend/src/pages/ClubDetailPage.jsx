@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Share2, CheckCircle, MapPin, Mail, Calendar,
-  Navigation, Pencil, CalendarDays, Clock, ExternalLink
+  Navigation, Pencil, CalendarDays, Clock, ExternalLink, Ticket
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
@@ -65,6 +65,43 @@ const ClubDetailPage = () => {
   };
 
   const isOwner = user && club && club.userId && club.userId === user.id;
+
+  const handleRSVP = async (event) => {
+    if (!user) {
+      alert("Please log in to RSVP.");
+      navigate('/login');
+      return;
+    }
+    
+    // We assume the first ticket is the default one for free RSVPs
+    const ticketId = event.tickets && event.tickets.length > 0 ? event.tickets[0].id : null;
+    if (!ticketId) {
+      alert("No tickets available for this event yet.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/events/${event.id}/rsvp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('clubhub_token')}`
+        },
+        body: JSON.stringify({
+          ticketId,
+          attendeeName: user.name,
+          phone: 'N/A' // Hardcoded for simplicity in this trial phase
+        })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to RSVP');
+      
+      alert("RSVP Successful! You can view your tickets in your Dashboard.");
+    } catch (err) {
+      alert(`RSVP Failed: ${err.message}`);
+    }
+  };
 
   if (loading) {
     return (
@@ -176,11 +213,9 @@ const ClubDetailPage = () => {
                         <span className="club-event-loc"><MapPin size={13} /> {event.location}</span>
                       )}
                     </div>
-                    <Link to={`/events`}>
-                      <Button variant="outline" size="small">
-                        <ExternalLink size={13} /> View
-                      </Button>
-                    </Link>
+                    <Button variant="primary" size="small" onClick={() => handleRSVP(event)}>
+                      <Ticket size={13} style={{ marginRight: '5px' }} /> RSVP
+                    </Button>
                   </div>
                 ))}
               </div>
