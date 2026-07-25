@@ -46,7 +46,11 @@ const LoginPage = () => {
       if (!res.ok) throw new Error(data?.error || 'Login failed');
 
       login(data.user, data.token);
-      navigate('/dashboard');
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
