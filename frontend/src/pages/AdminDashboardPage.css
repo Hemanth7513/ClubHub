@@ -4,6 +4,8 @@
 
 .admin-dashboard {
   padding: 6rem 0 4rem;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 /* ─── Loading ────────────────────────────────── */

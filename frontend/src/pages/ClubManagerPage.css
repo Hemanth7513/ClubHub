@@ -13,6 +13,8 @@
   grid-template-columns: 260px 1fr;
   gap: 2rem;
   align-items: start;
+  max-width: 1300px;
+  margin: 0 auto;
 }
 
 /* ─── Sidebar ─────────────────────────────────── */
@@ -91,6 +93,7 @@
   flex-direction: column;
   gap: 2rem;
   padding-bottom: 4rem;
+  max-width: 1000px;
 }
 
 .dashboard-header {
