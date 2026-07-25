@@ -25,10 +25,9 @@
 }
 
 .logo-img {
-  height: 150px;
+  height: 60px;
   width: auto;
   object-fit: contain;
-  margin: -35px 0; /* Absorbs the extra height so the navbar doesn't stretch */
 }
 
 .nav-links {
