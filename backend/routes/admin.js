@@ -83,4 +83,28 @@ router.put('/clubs/:id/verify', ...adminOnly, async (req, res) => {
     }
 });
 
+router.get('/events', ...adminOnly, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('events')
+            .select('*, clubs(name), users(name, email)')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch events' });
+    }
+});
+
+router.delete('/events/:id', ...adminOnly, async (req, res) => {
+    try {
+        securityLog(SECURITY_EVENTS.ADMIN_ACTION, { userId: req.user.id, action: 'delete_event', resource: req.params.id }, req);
+        const { error } = await supabase.from('events').delete().eq('id', req.params.id);
+        if (error) throw error;
+        res.json({ message: 'Event permanently removed.' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete event' });
+    }
+});
+
 module.exports = router;

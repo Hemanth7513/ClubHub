@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Trash2, Users, ShieldAlert, Calendar, CheckCircle,
-  Clock, BarChart2, AlertTriangle, RefreshCw
+  Clock, BarChart2, AlertTriangle, RefreshCw, Settings, LogOut, Ticket
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button/Button';
 import API_BASE_URL from '../config';
 import './AdminDashboardPage.css';
@@ -31,10 +32,12 @@ const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
 );
 
 const AdminDashboardPage = () => {
-  const { token } = useAuth();
+  const { token, user, logout } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ users: 0, clubs: 0, events: 0, revenue: 0 });
   const [users, setUsers] = useState([]);
   const [clubs, setClubs] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState('pending'); // 'pending' | 'clubs' | 'users'
@@ -47,15 +50,17 @@ const AdminDashboardPage = () => {
       else setRefreshing(true);
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      const [statsRes, usersRes, clubsRes] = await Promise.all([
+      const [statsRes, usersRes, clubsRes, eventsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/stats`, { headers }),
         fetch(`${API_BASE_URL}/admin/users`, { headers }),
-        fetch(`${API_BASE_URL}/admin/clubs`, { headers })
+        fetch(`${API_BASE_URL}/admin/clubs`, { headers }),
+        fetch(`${API_BASE_URL}/admin/events`, { headers })
       ]);
 
       if (statsRes.ok) setStats(await statsRes.json());
       if (usersRes.ok) setUsers(await usersRes.json());
       if (clubsRes.ok) setClubs(await clubsRes.json());
+      if (eventsRes.ok) setEvents(await eventsRes.json());
     } catch (err) {
       console.error('Admin fetch error:', err);
     } finally {
@@ -66,17 +71,26 @@ const AdminDashboardPage = () => {
 
   useEffect(() => { fetchAdminData(); }, [fetchAdminData]);
 
-  const handleDeleteClub = async () => {
+  const handleDeleteTarget = async () => {
     if (!deleteTarget) return;
     setDeleteLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/clubs/${deleteTarget.id}`, {
+      const url = deleteTarget.type === 'event'
+        ? `${API_BASE_URL}/admin/events/${deleteTarget.id}`
+        : `${API_BASE_URL}/admin/clubs/${deleteTarget.id}`;
+
+      const res = await fetch(url, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
-        setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
-        setStats(prev => ({ ...prev, clubs: Math.max(0, prev.clubs - 1) }));
+        if (deleteTarget.type === 'event') {
+          setEvents(prev => prev.filter(e => e.id !== deleteTarget.id));
+          setStats(prev => ({ ...prev, events: Math.max(0, prev.events - 1) }));
+        } else {
+          setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
+          setStats(prev => ({ ...prev, clubs: Math.max(0, prev.clubs - 1) }));
+        }
       }
     } catch (err) {
       console.error(err);
@@ -119,7 +133,8 @@ const AdminDashboardPage = () => {
 
   const tabs = [
     { id: 'pending', label: 'Pending Verification', icon: <Clock size={16} />, count: pendingClubs.length },
-    { id: 'clubs', label: 'All Clubs', icon: <Calendar size={16} />, count: clubs.length },
+    { id: 'clubs', label: 'All Clubs', icon: <Users size={16} />, count: clubs.length },
+    { id: 'events', label: 'All Events', icon: <Calendar size={16} />, count: events.length },
     { id: 'users', label: 'All Users', icon: <Users size={16} />, count: users.length },
   ];
 
@@ -129,14 +144,13 @@ const AdminDashboardPage = () => {
         {deleteTarget && (
           <ConfirmModal
             message={`Permanently delete "${deleteTarget.name}"? This cannot be undone.`}
-            onConfirm={handleDeleteClub}
+            onConfirm={handleDeleteTarget}
             onCancel={() => setDeleteTarget(null)}
             loading={deleteLoading}
           />
         )}
       </AnimatePresence>
 
-      {/* ── Header ──────────────────────────── */}
       <motion.div className="admin-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="admin-header-row">
           <div>
@@ -149,6 +163,28 @@ const AdminDashboardPage = () => {
           <Button variant="outline" size="small" onClick={() => fetchAdminData(true)} disabled={refreshing}>
             <RefreshCw size={15} className={refreshing ? 'spin' : ''} />
             {refreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* ── Admin Profile Section ───────────────── */}
+      <motion.div className="admin-profile-section glass-panel" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="admin-profile-details">
+          <div className="admin-profile-avatar">
+            {user?.name ? user.name[0].toUpperCase() : 'A'}
+          </div>
+          <div className="admin-profile-info">
+            <h3>{user?.name || 'Administrator'}</h3>
+            <p>{user?.email}</p>
+            <span className="badge badge-admin">{user?.role}</span>
+          </div>
+        </div>
+        <div className="admin-profile-actions">
+          <Button variant="outline" onClick={() => navigate('/settings')}>
+            <Settings size={16} style={{ marginRight: '6px' }} /> Settings
+          </Button>
+          <Button variant="outline" onClick={() => { logout(); navigate('/'); }}>
+            <LogOut size={16} style={{ marginRight: '6px' }} /> Logout
           </Button>
         </div>
       </motion.div>
@@ -240,7 +276,7 @@ const AdminDashboardPage = () => {
                     </Button>
                     <Button size="small" variant="outline"
                       style={{ borderColor: 'var(--accent-pink)', color: 'var(--accent-pink)' }}
-                      onClick={() => setDeleteTarget({ id: club.id, name: club.name })}>
+                      onClick={() => setDeleteTarget({ id: club.id, name: club.name, type: 'club' })}>
                       <Trash2 size={14} />
                     </Button>
                   </div>
@@ -285,7 +321,7 @@ const AdminDashboardPage = () => {
                         >
                           <CheckCircle size={14} /> {c.is_verified ? 'Unverify' : 'Verify'}
                         </button>
-                        <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: c.id, name: c.name })} title="Delete">
+                        <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: c.id, name: c.name, type: 'club' })} title="Delete">
                           <Trash2 size={14} />
                         </button>
                       </div>
@@ -315,7 +351,57 @@ const AdminDashboardPage = () => {
                       onClick={() => handleToggleVerify(c)}>
                       <CheckCircle size={13} /> {c.is_verified ? 'Unverify' : 'Verify'}
                     </button>
-                    <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: c.id, name: c.name })}>
+                    <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: c.id, name: c.name, type: 'club' })}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ALL EVENTS */}
+        {activeTab === 'events' && (
+          <>
+            <table className="admin-table admin-table-desktop">
+              <thead>
+                <tr>
+                  <th>Event Name</th>
+                  <th>Club</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.map(e => (
+                  <tr key={e.id}>
+                    <td style={{ fontWeight: 700 }}>{e.title}</td>
+                    <td>{e.clubs?.name || 'Unknown'}</td>
+                    <td>{new Date(e.date).toLocaleDateString()}</td>
+                    <td>
+                      <div className="admin-action-row">
+                        <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: e.id, name: e.title, type: 'event' })} title="Delete">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {events.length === 0 && <tr><td colSpan="4" className="admin-empty-cell">No events found</td></tr>}
+              </tbody>
+            </table>
+            
+            <div className="admin-card-list admin-card-mobile">
+              {events.map(e => (
+                <div key={e.id} className="admin-club-card glass-panel">
+                  <div className="admin-club-info">
+                    <h4>{e.title}</h4>
+                    <span className="admin-club-cat">{e.clubs?.name || 'Unknown'}</span>
+                    <span className="admin-club-cat"><Calendar size={12}/> {new Date(e.date).toLocaleDateString()}</span>
+                  </div>
+                  <div className="admin-club-actions">
+                    <button className="admin-delete-btn" onClick={() => setDeleteTarget({ id: e.id, name: e.title, type: 'event' })}>
                       <Trash2 size={14} />
                     </button>
                   </div>
