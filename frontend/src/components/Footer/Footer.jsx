@@ -30,6 +30,8 @@ const Footer = () => {
               <Link to="/support#help" onClick={() => window.scrollTo(0, 0)}>Help Center</Link>
               <Link to="/support#terms" onClick={() => window.scrollTo(0, 0)}>Terms of Service</Link>
               <Link to="/support#privacy" onClick={() => window.scrollTo(0, 0)}>Privacy Policy</Link>
+              <Link to="/support#refund" onClick={() => window.scrollTo(0, 0)}>Refund Policy</Link>
+              <Link to="/support#contact" onClick={() => window.scrollTo(0, 0)}>Contact Us</Link>
             </div>
           </div>
         </div>
