@@ -71,7 +71,10 @@ const AddClubPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          establishedYear: formData.establishedYear ? parseInt(formData.establishedYear) : null
+        })
       });
       if (!response.ok) {
         const data = await response.json();

@@ -13,7 +13,9 @@ const SettingsPage = () => {
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('profile');
-  const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   
   // Profile state
@@ -92,7 +94,7 @@ const SettingsPage = () => {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setProfileLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/auth/profile`, {
         method: 'PUT',
@@ -117,7 +119,7 @@ const SettingsPage = () => {
     } catch (err) {
       showFeedback(err.message, 'error');
     } finally {
-      setLoading(false);
+      setProfileLoading(false);
     }
   };
 
@@ -127,8 +129,12 @@ const SettingsPage = () => {
       showFeedback('New passwords do not match!', 'error');
       return;
     }
+    if (newPassword.length < 8) {
+      showFeedback('New password must be at least 8 characters.', 'error');
+      return;
+    }
     
-    setLoading(true);
+    setPasswordLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
         method: 'POST',
@@ -145,20 +151,20 @@ const SettingsPage = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      showFeedback('Password changed successfully!');
+      showFeedback('Password changed successfully! Please log in again.');
+      setTimeout(() => { logout(); navigate('/login'); }, 2000);
     } catch (err) {
       showFeedback(err.message, 'error');
     } finally {
-      setLoading(false);
+      setPasswordLoading(false);
     }
   };
 
   const handleDeleteAccount = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setDeleteLoading(true);
     try {
-      // First try the auth route; fall back to users/me
-      let res = await fetch(`${API_BASE_URL}/auth/delete-account`, {
+      const res = await fetch(`${API_BASE_URL}/auth/delete-account`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +174,13 @@ const SettingsPage = () => {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Account deletion failed');
+      if (!res.ok) {
+        // Friendly hint for OTP-only accounts
+        const msg = data.error?.includes('OTP')
+          ? 'OTP accounts cannot be deleted via password. Please contact support.'
+          : (data.error || 'Account deletion failed');
+        throw new Error(msg);
+      }
 
       setShowDeleteModal(false);
       logout();
@@ -176,7 +188,7 @@ const SettingsPage = () => {
     } catch (err) {
       showFeedback(err.message, 'error');
     } finally {
-      setLoading(false);
+      setDeleteLoading(false);
     }
   };
 
@@ -344,8 +356,8 @@ const SettingsPage = () => {
                     </label>
                   </div>
 
-                  <Button type="submit" variant="primary" disabled={loading}>
-                    {loading ? 'Saving Changes...' : 'Save Settings'}
+                  <Button type="submit" variant="primary" disabled={profileLoading}>
+                    {profileLoading ? 'Saving Changes...' : 'Save Settings'}
                   </Button>
                 </form>
               </motion.div>
@@ -467,7 +479,7 @@ const SettingsPage = () => {
                     />
                   </div>
 
-                  <Button type="submit" variant="primary" disabled={loading}>
+                  <Button type="submit" variant="primary" disabled={passwordLoading}>
                     Update Password <KeyRound size={16} style={{ marginLeft: '0.5rem' }} />
                   </Button>
                 </form>
@@ -513,8 +525,8 @@ const SettingsPage = () => {
                 <button type="button" className="cancel-modal-btn" onClick={() => setShowDeleteModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="confirm-delete-btn" disabled={loading}>
-                  {loading ? 'Deleting...' : 'Permanently Delete'}
+                <button type="submit" className="confirm-delete-btn" disabled={deleteLoading}>
+                  {deleteLoading ? 'Deleting...' : 'Permanently Delete'}
                 </button>
               </div>
             </form>

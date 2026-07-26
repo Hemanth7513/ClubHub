@@ -11,7 +11,7 @@ import API_BASE_URL from '../config';
 import './AdminDashboardPage.css';
 
 /* ─── Confirm delete modal ─────────────────── */
-const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
+const ConfirmModal = ({ message, onConfirm, onCancel, loading, error }) => (
   <div className="admin-confirm-overlay">
     <motion.div
       className="admin-confirm-modal glass-panel"
@@ -20,6 +20,7 @@ const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
     >
       <AlertTriangle size={36} style={{ color: 'var(--accent-pink)' }} />
       <p>{message}</p>
+      {error && <p style={{ color: 'var(--accent-pink)', fontSize: '0.9rem', fontWeight: 600, marginTop: '0.5rem' }}>{error}</p>}
       <div className="admin-confirm-actions">
         <Button variant="outline" onClick={onCancel} disabled={loading}>Cancel</Button>
         <Button variant="primary" onClick={onConfirm} disabled={loading}
@@ -43,6 +44,7 @@ const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState('pending'); // 'pending' | 'clubs' | 'users'
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   const fetchAdminData = useCallback(async (silent = false) => {
     try {
@@ -74,6 +76,7 @@ const AdminDashboardPage = () => {
   const handleDeleteTarget = async () => {
     if (!deleteTarget) return;
     setDeleteLoading(true);
+    setDeleteError(null);
     try {
       const url = deleteTarget.type === 'event'
         ? `${API_BASE_URL}/admin/events/${deleteTarget.id}`
@@ -83,20 +86,23 @@ const AdminDashboardPage = () => {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok) {
-        if (deleteTarget.type === 'event') {
-          setEvents(prev => prev.filter(e => e.id !== deleteTarget.id));
-          setStats(prev => ({ ...prev, events: Math.max(0, prev.events - 1) }));
-        } else {
-          setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
-          setStats(prev => ({ ...prev, clubs: Math.max(0, prev.clubs - 1) }));
-        }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to delete listing.');
       }
+      
+      if (deleteTarget.type === 'event') {
+        setEvents(prev => prev.filter(e => e.id !== deleteTarget.id));
+        setStats(prev => ({ ...prev, events: Math.max(0, prev.events - 1) }));
+      } else {
+        setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
+        setStats(prev => ({ ...prev, clubs: Math.max(0, prev.clubs - 1) }));
+      }
+      setDeleteTarget(null);
     } catch (err) {
-      console.error(err);
+      setDeleteError(err.message);
     } finally {
       setDeleteLoading(false);
-      setDeleteTarget(null);
     }
   };
 
@@ -145,8 +151,9 @@ const AdminDashboardPage = () => {
           <ConfirmModal
             message={`Permanently delete "${deleteTarget.name}"? This cannot be undone.`}
             onConfirm={handleDeleteTarget}
-            onCancel={() => setDeleteTarget(null)}
+            onCancel={() => { setDeleteTarget(null); setDeleteError(null); }}
             loading={deleteLoading}
+            error={deleteError}
           />
         )}
       </AnimatePresence>

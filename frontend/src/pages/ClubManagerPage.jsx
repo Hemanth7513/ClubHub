@@ -16,7 +16,7 @@ import './ClubManagerPage.css';
 const isEventPast = (dateStr) => new Date(dateStr) < new Date();
 
 /* ─── Confirm delete modal ──────────────────────────── */
-const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
+const ConfirmModal = ({ message, onConfirm, onCancel, loading, error }) => (
   <div className="confirm-overlay">
     <motion.div
       className="confirm-modal glass-panel"
@@ -25,6 +25,7 @@ const ConfirmModal = ({ message, onConfirm, onCancel, loading }) => (
     >
       <AlertCircle size={36} style={{ color: 'var(--accent-pink)' }} />
       <p>{message}</p>
+      {error && <p style={{ color: 'var(--accent-pink)', fontSize: '0.9rem', fontWeight: 600 }}>{error}</p>}
       <div className="confirm-actions">
         <Button variant="outline" onClick={onCancel} disabled={loading}>Cancel</Button>
         <Button variant="primary" onClick={onConfirm} disabled={loading}
@@ -45,6 +46,7 @@ const ClubManagerPage = () => {
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState(null); // { type: 'club'|'event', id, name }
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
   const [selectedScannerEvent, setSelectedScannerEvent] = useState(null);
 
   const fetchData = useCallback(async () => {
@@ -71,6 +73,7 @@ const ClubManagerPage = () => {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleteLoading(true);
+    setDeleteError(null);
     const endpoint = deleteTarget.type === 'club'
       ? `${API_BASE_URL}/clubs/${deleteTarget.id}`
       : `${API_BASE_URL}/events/${deleteTarget.id}`;
@@ -79,17 +82,20 @@ const ClubManagerPage = () => {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error('Delete failed');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Delete failed. Please try again.');
+      }
       if (deleteTarget.type === 'club') {
         setClubs(prev => prev.filter(c => c.id !== deleteTarget.id));
       } else {
         setEvents(prev => prev.filter(e => e.id !== deleteTarget.id));
       }
+      setDeleteTarget(null);
     } catch (err) {
-      console.error(err);
+      setDeleteError(err.message);
     } finally {
       setDeleteLoading(false);
-      setDeleteTarget(null);
     }
   };
 
@@ -104,8 +110,9 @@ const ClubManagerPage = () => {
           <ConfirmModal
             message={`Delete "${deleteTarget.name}"? This action cannot be undone.`}
             onConfirm={handleDelete}
-            onCancel={() => setDeleteTarget(null)}
+            onCancel={() => { setDeleteTarget(null); setDeleteError(null); }}
             loading={deleteLoading}
+            error={deleteError}
           />
         )}
       </AnimatePresence>

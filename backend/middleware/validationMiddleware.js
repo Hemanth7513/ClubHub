@@ -15,31 +15,25 @@ const BIO_MAX_LENGTH = 500;
 const validateAuthInput = (req, res, next) => {
     const { email, password, name } = req.body;
 
-    if (email !== undefined) {
-        if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
-            return res.status(400).json({ error: 'A valid email address is required.' });
-        }
+    if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
+        return res.status(400).json({ error: 'A valid email address is required.' });
     }
 
-    if (password !== undefined) {
-        if (typeof password !== 'string' || password.length < PASSWORD_MIN_LENGTH) {
-            return res.status(400).json({
-                error: `Password must be at least ${PASSWORD_MIN_LENGTH} characters long.`
-            });
-        }
-        // Reject passwords that are only spaces
-        if (password.trim().length === 0) {
-            return res.status(400).json({ error: 'Password cannot be blank.' });
-        }
+    if (!password || typeof password !== 'string' || password.length < PASSWORD_MIN_LENGTH) {
+        return res.status(400).json({
+            error: `Password must be at least ${PASSWORD_MIN_LENGTH} characters long.`
+        });
+    }
+    // Reject passwords that are only spaces
+    if (password.trim().length === 0) {
+        return res.status(400).json({ error: 'Password cannot be blank.' });
     }
 
-    if (name !== undefined) {
-        if (typeof name !== 'string' || name.trim().length === 0) {
-            return res.status(400).json({ error: 'Name is required.' });
-        }
-        if (name.length > NAME_MAX_LENGTH) {
-            return res.status(400).json({ error: `Name must be under ${NAME_MAX_LENGTH} characters.` });
-        }
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+        return res.status(400).json({ error: 'Name is required.' });
+    }
+    if (name.length > NAME_MAX_LENGTH) {
+        return res.status(400).json({ error: `Name must be under ${NAME_MAX_LENGTH} characters.` });
     }
 
     next();

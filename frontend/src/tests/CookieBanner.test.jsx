@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import CookieBanner from '../../components/CookieBanner/CookieBanner';
+import CookieBanner from '../components/CookieBanner/CookieBanner';
 
 // Mock setTimeout for instant banner display in tests
 vi.useFakeTimers();

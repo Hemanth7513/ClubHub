@@ -96,7 +96,11 @@ const LoginPage = () => {
       if (!res.ok) throw new Error(data.error || 'Invalid OTP');
       
       login(data.user, data.token);
-      navigate('/');
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.message);
     } finally {

@@ -17,7 +17,7 @@ const EventsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   
-  const categories = ['All', 'Gala', 'Workshop', 'Sports', 'Nightlife'];
+  const categories = ['All', 'Gala', 'Workshop', 'Sports', 'Nightlife', 'Meetup', 'Conference', 'Exhibition', 'Fundraiser'];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -86,13 +86,22 @@ const EventsPage = () => {
         </Link>
       </motion.div>
 
-      {events.length === 0 ? (
+      {filteredEvents.length === 0 ? (
         <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center', marginTop: '2rem' }}>
-          <h3>No events found</h3>
-          <p>Be the first to post an event for your community!</p>
-          <Link to="/add-event" style={{ marginTop: '2rem', display: 'inline-block' }}>
-            <Button variant="outline">Post First Event</Button>
-          </Link>
+          {events.length === 0 ? (
+            <>
+              <h3>No events found</h3>
+              <p>Be the first to post an event for your community!</p>
+              <Link to="/add-event" style={{ marginTop: '2rem', display: 'inline-block' }}>
+                <Button variant="outline">Post First Event</Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <h3>No events in this category</h3>
+              <p>Try selecting a different filter above.</p>
+            </>
+          )}
         </div>
       ) : (
         <>

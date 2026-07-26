@@ -44,8 +44,8 @@ const EditEventPage = () => {
         if (!eventRes.ok) throw new Error('Event not found');
         const event = await eventRes.json();
 
-        // Only the creator can edit
-        if (event.user_id && event.user_id !== user.id) {
+        // Only the creator can edit (coerce to string to handle UUID type differences)
+        if (event.user_id && String(event.user_id) !== String(user.id)) {
           setUnauthorized(true);
           return;
         }

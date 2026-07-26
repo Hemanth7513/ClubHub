@@ -46,8 +46,8 @@ const EditClubPage = () => {
         if (!res.ok) throw new Error('Club not found');
         const club = await res.json();
 
-        // Check ownership
-        if (club.userId && club.userId !== user.id) {
+        // Check ownership (coerce to string to handle UUID/number type differences)
+        if (club.userId && String(club.userId) !== String(user.id)) {
           setUnauthorized(true);
           return;
         }
@@ -98,7 +98,10 @@ const EditClubPage = () => {
       const res = await fetch(`${API_BASE_URL}/clubs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          establishedYear: formData.establishedYear ? parseInt(formData.establishedYear) : null
+        })
       });
       if (!res.ok) {
         const data = await res.json();

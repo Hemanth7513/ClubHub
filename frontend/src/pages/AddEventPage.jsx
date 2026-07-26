@@ -87,7 +87,7 @@ const AddEventPage = () => {
 
       // 2. If ticket setup is enabled, create the ticket tier
       if (showTicket && ticket.name.trim()) {
-        await fetch(`${API_BASE_URL}/events/${event.id}/tickets`, {
+        const ticketRes = await fetch(`${API_BASE_URL}/events/${event.id}/tickets`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({
@@ -96,6 +96,11 @@ const AddEventPage = () => {
             capacity: parseInt(ticket.capacity) || 100
           })
         });
+        if (!ticketRes.ok) {
+          const ticketData = await ticketRes.json().catch(() => ({}));
+          // Event was created — warn but don't block
+          console.warn('Ticket creation failed:', ticketData.error);
+        }
       }
 
       setSuccess(true);

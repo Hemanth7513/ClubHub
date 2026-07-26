@@ -10,6 +10,7 @@ import Button from '../components/Button/Button';
 import { useAuth } from '../context/AuthContext';
 import { Helmet } from 'react-helmet-async';
 import API_BASE_URL from '../config';
+import TicketModal from '../components/Ticketing/TicketModal';
 import './ClubDetailPage.css';
 
 const ClubDetailPage = () => {
@@ -22,6 +23,8 @@ const ClubDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,41 +71,14 @@ const ClubDetailPage = () => {
   const isOwner = user && club && club.userId && club.userId === user.id;
   const { token } = useAuth();
 
-  const handleRSVP = async (event) => {
+  const handleOpenTicketModal = (event) => {
     if (!user) {
       alert("Please log in to RSVP.");
       navigate('/login');
       return;
     }
-    
-    // We assume the first ticket is the default one for free RSVPs
-    const ticketId = event.tickets && event.tickets.length > 0 ? event.tickets[0].id : null;
-    if (!ticketId) {
-      alert("No tickets available for this event yet.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/events/${event.id}/rsvp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ticketId,
-          attendeeName: user.name,
-          phone: 'N/A' // Hardcoded for simplicity in this trial phase
-        })
-      });
-      
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to RSVP');
-      
-      alert("RSVP Successful! You can view your tickets in your Dashboard.");
-    } catch (err) {
-      alert(`RSVP Failed: ${err.message}`);
-    }
+    setSelectedEvent(event);
+    setIsModalOpen(true);
   };
 
   if (loading) {
@@ -232,7 +208,7 @@ const ClubDetailPage = () => {
                         <span className="club-event-loc"><MapPin size={13} /> {event.location}</span>
                       )}
                     </div>
-                    <Button variant="primary" size="small" onClick={() => handleRSVP(event)}>
+                    <Button variant="primary" size="small" onClick={() => handleOpenTicketModal(event)}>
                       <Ticket size={13} style={{ marginRight: '5px' }} /> RSVP
                     </Button>
                   </div>
@@ -346,6 +322,14 @@ const ClubDetailPage = () => {
           )}
         </motion.div>
       </div>
+
+      {selectedEvent && (
+        <TicketModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          event={selectedEvent} 
+        />
+      )}
     </div>
   );
 };

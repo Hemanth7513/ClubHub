@@ -149,8 +149,16 @@ router.put('/:id', authenticateToken, validateClubInput, async (req, res) => {
 
         const { name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl } = req.body;
 
-        let latitude = null;
-        let longitude = null;
+        // Fetch existing lat/lng so we preserve them if geocoding fails
+        const { data: existingClub } = await supabase
+            .from('clubs')
+            .select('latitude, longitude')
+            .eq('id', req.params.id)
+            .single();
+
+        let latitude = existingClub?.latitude ?? null;
+        let longitude = existingClub?.longitude ?? null;
+
         if (location) {
             try {
                 const geoRes = await geocoder.geocode(location);
@@ -159,7 +167,7 @@ router.put('/:id', authenticateToken, validateClubInput, async (req, res) => {
                     longitude = geoRes[0].longitude;
                 }
             } catch (err) {
-                console.error("Geocoding failed:", err);
+                console.error("Geocoding failed (preserving existing coords):", err);
             }
         }
 

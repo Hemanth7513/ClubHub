@@ -346,7 +346,7 @@ router.post('/:id/check-in', authenticateToken, async (req, res) => {
             .single();
 
         if (eventError || !event) return res.status(404).json({ error: 'Event not found' });
-        if (event.user_id !== req.user.id) return res.status(403).json({ error: 'Not authorized to scan tickets for this event' });
+        if (String(event.user_id) !== String(req.user.id)) return res.status(403).json({ error: 'Not authorized to scan tickets for this event' });
 
         // 2. Look up the registration
         const { data: registration, error: regError } = await supabase

@@ -9,6 +9,7 @@ const RegisterPage = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -17,6 +18,7 @@ const RegisterPage = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
@@ -27,8 +29,9 @@ const RegisterPage = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
-      
-      navigate('/login');
+
+      setSuccess('Account created! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -52,6 +55,7 @@ const RegisterPage = () => {
           </div>
 
           {error && <div className="auth-error">{error}</div>}
+          {success && <div className="auth-error" style={{ background: 'var(--accent-lime)', color: '#1a1a1a', borderColor: 'var(--border-dark)' }}>{success}</div>}
 
           <form onSubmit={handleRegister} className="auth-form">
             <div className="input-group">
@@ -94,7 +98,7 @@ const RegisterPage = () => {
                 </button>
               </div>
             </div>
-            <button type="submit" className="auth-submit" disabled={loading}>
+            <button type="submit" className="auth-submit" disabled={loading || !!success}>
               {loading ? 'Creating Account...' : (<>Create Account <ArrowRight size={18} /></>)}
             </button>
           </form>
