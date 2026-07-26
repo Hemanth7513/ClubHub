@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Globe, ArrowRight } from 'lucide-react';
 import './DiscoveryWheel.css';
 
 const DiscoveryWheel = React.memo(({ categories, clubs, onSelect }) => {
@@ -34,7 +34,7 @@ const DiscoveryWheel = React.memo(({ categories, clubs, onSelect }) => {
   return (
     <div className="discovery-wheel-outer">
       <div className="discovery-wheel-container-3d">
-        <motion.div 
+        <motion.div
           className="discovery-wheel-track-3d"
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -43,21 +43,18 @@ const DiscoveryWheel = React.memo(({ categories, clubs, onSelect }) => {
         >
           <AnimatePresence initial={false}>
             {categories.map((cat, i) => {
-              // Calculate relative position based on a circle
               const diff = (i - currentIndex + categories.length) % categories.length;
-              // Map diff to -2, -1, 0, 1, 2 depending on length
               let offset = diff;
               if (offset > Math.floor(categories.length / 2)) {
                 offset -= categories.length;
               }
 
-              // Visual properties based on offset
               const isCenter = offset === 0;
               const zIndex = 100 - Math.abs(offset);
-              const scale = isCenter ? 1 : Math.max(0.7, 1 - Math.abs(offset) * 0.15);
-              const translateX = `${offset * 75}%`; // 75% of card width for good overlap
-              const rotateY = `${-offset * 15}deg`; // slightly turn inwards
-              const opacity = Math.abs(offset) > 2 ? 0 : isCenter ? 1 : 0.6;
+              const scale = isCenter ? 1 : Math.max(0.72, 1 - Math.abs(offset) * 0.14);
+              const translateX = `${offset * 74}%`;
+              const rotateY = `${-offset * 14}deg`;
+              const opacity = Math.abs(offset) > 2 ? 0 : isCenter ? 1 : 0.55;
               const pointerEvents = Math.abs(offset) > 2 ? 'none' : 'auto';
 
               return (
@@ -66,37 +63,52 @@ const DiscoveryWheel = React.memo(({ categories, clubs, onSelect }) => {
                   className={`wheel-card-3d ${isCenter ? 'active' : ''}`}
                   onClick={() => isCenter ? onSelect(cat.name) : setCurrentIndex(i)}
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ 
-                    x: translateX, 
-                    scale, 
-                    rotateY, 
-                    zIndex, 
+                  animate={{
+                    x: translateX,
+                    scale,
+                    rotateY,
+                    zIndex,
                     opacity,
-                    y: isCenter ? [0, -5, 0] : 0
+                    y: isCenter ? [0, -5, 0] : 0,
                   }}
-                  transition={{ 
-                    duration: 0.4, 
-                    ease: "easeInOut",
-                    y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                  transition={{
+                    duration: 0.4,
+                    ease: 'easeInOut',
+                    y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
                   }}
-                  style={{ 
+                  style={{
                     '--accent': cat.color,
-                    pointerEvents
+                    pointerEvents,
                   }}
                   whileHover={isCenter ? { scale: 1.02, y: -10, transition: { duration: 0.2 } } : {}}
                   whileTap={isCenter ? { scale: 0.98 } : {}}
                 >
-                  <div className="wheel-card-inner glass-panel">
-                    <div className="wheel-icon-box">
-                      <span className="wheel-icon">{cat.icon}</span>
+                  <div className="wheel-card-inner">
+                    {/* Card body */}
+                    <div className="wheel-card-body">
+                      <div className="wheel-icon-box">
+                        <span className="wheel-icon">{cat.icon}</span>
+                      </div>
+                      <h3>{cat.name}</h3>
+                      <p>{cat.desc}</p>
                     </div>
-                    <h3>{cat.name}</h3>
-                    <p>{cat.desc}</p>
+
+                    {/* Footer */}
                     <div className="wheel-footer">
                       <span className="count-badge">
                         {categoryCounts[cat.name]} Orgs
                       </span>
-                      <Globe size={18} />
+                      {isCenter ? (
+                        <motion.span
+                          className="explore-cta"
+                          initial={{ opacity: 0, x: 6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                        >
+                          Explore <ArrowRight size={13} />
+                        </motion.span>
+                      ) : (
+                        <Globe size={16} />
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -105,9 +117,20 @@ const DiscoveryWheel = React.memo(({ categories, clubs, onSelect }) => {
           </AnimatePresence>
         </motion.div>
       </div>
-      
+
+      {/* Dot navigation */}
       <div className="wheel-hint">
-        <span>Swipe or Click to Explore</span>
+        <div className="wheel-dots">
+          {categories.map((cat, i) => (
+            <button
+              key={cat.name}
+              className={`wheel-dot ${i === currentIndex ? 'active' : ''}`}
+              onClick={() => setCurrentIndex(i)}
+              aria-label={`Go to ${cat.name}`}
+            />
+          ))}
+        </div>
+        <span>Swipe or click to explore</span>
       </div>
     </div>
   );
