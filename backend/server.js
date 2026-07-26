@@ -67,7 +67,6 @@ const clubRoutes = require('./routes/clubs');
 const eventRoutes = require('./routes/events');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
-const paymentRoutes = require('./routes/payment');
 const searchRoutes = require('./routes/search');
 
 // Mount Routes
@@ -76,7 +75,6 @@ app.use('/api/clubs', clubRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/payment', paymentRoutes);
 app.use('/api/search', searchRoutes);
 
 // Global Error Handler — never expose stack traces in production (Check 4)
