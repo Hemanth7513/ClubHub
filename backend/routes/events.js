@@ -119,7 +119,7 @@ router.post('/:id/tickets', authenticateToken, async (req, res) => {
 });
 
 // Update event (protected, owner only)
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, validateEventInput, async (req, res) => {
     try {
         const { data: event, error: fetchError } = await supabase
             .from('events')
@@ -194,7 +194,7 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'Ticket ID, Name, and Phone are required.' });
         }
 
-        // 1. Check if ticket exists and has capacity
+        // 1. Check if ticket exists (RPC function handles capacity check atomically later, but we can do a quick fail-fast check here)
         const { data: ticket, error: ticketError } = await supabase
             .from('tickets')
             .select('*')
@@ -230,11 +230,16 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
             
         if (regError) throw regError;
 
-        // 4. Increment ticket sold count
-        await supabase
-            .from('tickets')
-            .update({ sold: ticket.sold + 1 })
-            .eq('id', ticketId);
+        // 4. Atomically increment ticket sold count using RPC
+        const { data: updatedTicket, error: incrementError } = await supabase.rpc('increment_ticket_sold', {
+            p_ticket_id: ticketId
+        });
+
+        if (incrementError || !updatedTicket || updatedTicket.length === 0) {
+            // Rollback registration since ticket is sold out
+            await supabase.from('event_registrations').delete().eq('id', registration.id);
+            return res.status(400).json({ error: 'Sorry, this ticket type just sold out!' });
+        }
 
         myCache.del(`tickets_${eventId}`);
 
@@ -331,8 +336,17 @@ router.post('/:id/check-in', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Invalid Ticket! Registration not found for this event.' });
         }
 
-        // If we want stateful check-ins later, we can update a checked_in column here.
-        // For now, returning the registration counts as "Verified".
+        if (registration.checked_in) {
+            return res.status(400).json({ error: 'Ticket Already Scanned! This ticket has already been used for entry.' });
+        }
+
+        // 3. Update checked_in status
+        const { error: updateError } = await supabase
+            .from('event_registrations')
+            .update({ checked_in: true })
+            .eq('id', registrationId);
+
+        if (updateError) throw updateError;
         
         res.json({ 
             message: 'Ticket Validated!', 

@@ -133,7 +133,7 @@ router.post('/', authenticateToken, validateClubInput, async (req, res) => {
 });
 
 // Update club (protected, owner only)
-router.put('/:id', authenticateToken, async (req, res) => {
+router.put('/:id', authenticateToken, validateClubInput, async (req, res) => {
     try {
         const { data: club, error: fetchError } = await supabase
             .from('clubs')

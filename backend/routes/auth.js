@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
-const { validateAuthInput, validatePasswordReset, sanitizeStrings } = require('../middleware/validationMiddleware');
+const { validateAuthInput, validatePasswordReset } = require('../middleware/validationMiddleware');
 const { securityLog, SECURITY_EVENTS } = require('../utils/logger');
 const { sendOtpEmail, sendPasswordResetEmail } = require('../utils/email');
 
@@ -207,7 +207,7 @@ router.post('/verify-otp', async (req, res) => {
  * Check 2 & 4: Generic response always — never reveal if email is taken.
  * Check 7: Server-side validation via validateAuthInput middleware.
  */
-router.post('/register', sanitizeStrings, validateAuthInput, async (req, res) => {
+router.post('/register', validateAuthInput, async (req, res) => {
     try {
         const { email, password, name } = req.body;
         const normalizedEmail = email.toLowerCase();
@@ -273,7 +273,7 @@ router.post('/register', sanitizeStrings, validateAuthInput, async (req, res) =>
  *          even when no user is found (using DUMMY_HASH).
  * Check 8: Log all failed/successful login events.
  */
-router.post('/login', loginLimiter, sanitizeStrings, async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -327,7 +327,7 @@ router.post('/login', loginLimiter, sanitizeStrings, async (req, res) => {
 const { OAuth2Client } = require('google-auth-library');
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-router.post('/google', async (req, res) => {
+router.post('/google', loginLimiter, async (req, res) => {
     try {
         const { token: googleToken } = req.body;
 
@@ -390,7 +390,7 @@ router.post('/google', async (req, res) => {
  * Issues a time-limited (15 min), single-use password reset token.
  * Always returns the SAME generic response — never confirms if email exists.
  */
-router.post('/forgot-password', resetLimiter, sanitizeStrings, async (req, res) => {
+router.post('/forgot-password', resetLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required.' });
@@ -447,7 +447,7 @@ router.post('/forgot-password', resetLimiter, sanitizeStrings, async (req, res) 
  * Validates the reset token, enforces expiry, single-use, and
  * invalidates ALL existing sessions on completion (Check 3 & 5).
  */
-router.post('/reset-password', resetLimiter, sanitizeStrings, validatePasswordReset, async (req, res) => {
+router.post('/reset-password', resetLimiter, validatePasswordReset, async (req, res) => {
     try {
         const { token, newPassword } = req.body;
 
@@ -580,7 +580,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 });
 
 // Update user profile
-router.put('/profile', authenticateToken, sanitizeStrings, async (req, res) => {
+router.put('/profile', authenticateToken, async (req, res) => {
     try {
         const { name, bio, avatarUrl, themePreference, notificationsEnabled } = req.body;
 
@@ -619,7 +619,7 @@ router.put('/profile', authenticateToken, sanitizeStrings, async (req, res) => {
 /**
  * Increments token_version on success, invalidating all other sessions.
  */
-router.post('/change-password', authenticateToken, sanitizeStrings, async (req, res) => {
+router.post('/change-password', authenticateToken, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
 

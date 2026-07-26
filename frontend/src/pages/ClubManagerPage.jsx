@@ -299,33 +299,33 @@ const ClubManagerPage = () => {
                         const totalCap = tickets.reduce((s, t) => s + (t.capacity || 0), 0);
 
                         return (
-                          <div key={event.id} className={`admin-event-card glass-panel ${past ? 'event-past' : ''}`}>
+                          <div key={event.id} className={'admin-event-card glass-panel ' + (past ? 'event-past' : '')}>
                             <img src={event.image_url || '/placeholder.jpg'} alt={event.title}
                               className="admin-event-img" onError={e => e.target.src = '/placeholder.jpg'} />
                             <div className="admin-event-info">
                               <div className="admin-event-title-row">
                                 <h4>{event.title}</h4>
-                                <span className={`event-status-badge ${past ? 'badge-past' : 'badge-upcoming'}`}>
+                                <span className={'event-status-badge ' + (past ? 'badge-past' : 'badge-upcoming')}>
                                   {past ? <><Clock size={12} /> Past</> : <><CheckCircle size={12} /> Upcoming</>}
                                 </span>
                               </div>
                               <p className="admin-event-meta">
                                 {new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                {event.clubs?.name && ` • ${event.clubs.name}`}
+                                {event.clubs?.name && (' • ' + event.clubs.name)}
                               </p>
                               {tickets.length > 0 && (
                                 <div className="ticket-stat">
                                   <TicketIcon size={13} />
                                   <span>{totalSold} / {totalCap} tickets sold</span>
                                   <div className="ticket-bar">
-                                    <div className="ticket-bar-fill" style={{ width: `${totalCap ? (totalSold / totalCap) * 100 : 0}%` }} />
+                                    <div className="ticket-bar-fill" style={{ width: (totalCap ? (totalSold / totalCap) * 100 : 0) + '%' }} />
                                   </div>
                                 </div>
                               )}
                             </div>
                             <div className="admin-event-actions">
                               {!past && (
-                                <Button variant="outline" size="small" onClick={() => navigate(`/edit-event/${event.id}`)}>
+                                <Button variant="outline" size="small" onClick={() => navigate('/edit-event/' + event.id)}>
                                   <Pencil size={14} /> Edit
                                 </Button>
                               )}

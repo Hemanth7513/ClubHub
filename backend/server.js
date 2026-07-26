@@ -47,6 +47,9 @@ app.use(cors({
 // Limit request body to 10kb — prevents large-payload DoS attacks (Check 7)
 app.use(express.json({ limit: '10kb' }));
 
+// Sanitize all incoming string bodies globally
+app.use(sanitizeStrings);
+
 
 // Rate limiting
 const limiter = rateLimit({

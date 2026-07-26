@@ -95,7 +95,8 @@ CREATE TABLE event_registrations (
   phone TEXT NOT NULL,
   college_id TEXT,
   dietary_preference TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  checked_in BOOLEAN DEFAULT FALSE
 );
 
 -- Performance Indexes
@@ -138,3 +139,22 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- ==========================================
+-- TICKET SALES RPC FUNCTION
+-- ==========================================
+
+-- Atomically increment ticket sales to prevent TOCTOU race conditions
+CREATE OR REPLACE FUNCTION increment_ticket_sold(p_ticket_id BIGINT)
+RETURNS SETOF tickets
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  UPDATE tickets
+  SET sold = sold + 1
+  WHERE id = p_ticket_id AND sold < capacity
+  RETURNING *;
+END;
+$$;
