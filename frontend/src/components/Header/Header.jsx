@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert, Settings, TicketIcon } from 'lucide-react';
 import Button from '../Button/Button';
-import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
+import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/images/logo.png';
 import './Header.css';
 
 const Header = () => {
-  const { user, isLoaded } = useUser();
+  const { user, logout, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+    navigate('/');
+  };
 
   return (
     <header className="header sticky-header">
@@ -34,36 +40,54 @@ const Header = () => {
               <HelpCircle size={18} /> Support
             </Link>
 
-            {!isLoaded ? (
+            {loading ? (
               <div className="auth-buttons" style={{ opacity: 0 }}>
+                {/* Invisible placeholder to prevent layout shift */}
                 <Button>Loading</Button>
               </div>
-            ) : (
-              <>
-                <SignedIn>
-                  <div className="user-dropdown-container" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    {user?.publicMetadata?.role === 'admin' ? (
+            ) : user ? (
+              <div className="user-dropdown-container">
+                <div className="user-profile">
+                  <User size={18} />
+                  <span className="user-name">{user.name}</span>
+                </div>
+                <div className="dropdown-menu">
+                  {user.role === 'admin' ? (
+                    <>
                       <Link to="/admin" className="dropdown-item admin-item" onClick={() => setIsMenuOpen(false)}>
-                        <ShieldAlert size={16} /> Admin
+                        <ShieldAlert size={16} /> Admin Dashboard
                       </Link>
-                    ) : (
+                      <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <Settings size={16} /> Settings
+                      </Link>
+                    </>
+                  ) : (
+                    <>
                       <Link to="/dashboard" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
                         <TicketIcon size={16} /> My Tickets
                       </Link>
-                    )}
-                    <UserButton />
-                  </div>
-                </SignedIn>
-                <SignedOut>
-                  <div className="auth-buttons">
-                    <SignInButton mode="modal">
-                      <button className="login-btn">
-                        <LogIn size={18} style={{ marginRight: '6px' }} /> Login
-                      </button>
-                    </SignInButton>
-                  </div>
-                </SignedOut>
-              </>
+                      <Link to="/manage-clubs" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <LayoutDashboard size={16} /> Organizer Dashboard
+                      </Link>
+                      <Link to="/add-club" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <PlusCircle size={16} /> Add Club
+                      </Link>
+                      <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <Settings size={16} /> Settings
+                      </Link>
+                    </>
+                  )}
+                  <button onClick={handleLogout} className="dropdown-item logout-item">
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="auth-buttons">
+                <Link to="/login" className="login-btn" onClick={() => setIsMenuOpen(false)}>
+                  <LogIn size={18} style={{ marginRight: '6px' }} /> Login
+                </Link>
+              </div>
             )}
           </div>
         </nav>
