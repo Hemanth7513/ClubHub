@@ -42,12 +42,27 @@ const SupportPage = () => {
   const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    if (location.hash === '#terms') setActiveSection('terms');
-    else if (location.hash === '#privacy') setActiveSection('privacy');
-    else if (location.hash === '#refund') setActiveSection('refund');
-    else if (location.hash === '#contact') setActiveSection('contact');
-    else setActiveSection('help');
+    if (location.hash) {
+      const section = location.hash.replace('#', '');
+      if (['terms', 'privacy', 'refund', 'contact', 'help'].includes(section)) {
+        setActiveSection(section);
+        
+        // If on a mobile/tablet layout, scroll smoothly down to the content pane
+        if (window.innerWidth <= 900) {
+          setTimeout(() => {
+            const mainContainer = document.querySelector('.support-main');
+            if (mainContainer) {
+              mainContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        } else {
+          window.scrollTo(0, 0);
+        }
+      }
+    } else {
+      setActiveSection('help');
+      window.scrollTo(0, 0);
+    }
   }, [location.hash]);
 
   const renderHelp = () => (
