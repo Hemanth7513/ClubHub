@@ -78,7 +78,6 @@ const SupportPage = () => {
     <div className="support-content-section">
       <h2>Terms of Service</h2>
       <div className="legal-text">
-        <p style={{ color: 'var(--text-light)', marginBottom: '1.5rem' }}>Last updated: October 24, 2026</p>
         
         <h3>1. Acceptance of Agreement</h3>
         <p>By accessing or using the ClubHub platform (referred to as "the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
@@ -99,7 +98,6 @@ const SupportPage = () => {
     <div className="support-content-section">
       <h2>Privacy Policy</h2>
       <div className="legal-text">
-        <p style={{ color: 'var(--text-light)', marginBottom: '1.5rem' }}>Last updated: October 24, 2026</p>
         
         <h3>1. Information We Collect</h3>
         <p>To provide a secure experience, we collect basic registration data, including your name, email address, and encrypted passwords. For event ticket purchases, attendee details (name, email, and phone) are stored securely.</p>
@@ -117,7 +115,6 @@ const SupportPage = () => {
     <div className="support-content-section">
       <h2>Cancellation & Refund Policy</h2>
       <div className="legal-text">
-        <p style={{ color: 'var(--text-light)', marginBottom: '1.5rem' }}>Last updated: October 24, 2026</p>
         
         <h3>1. Cancellation Terms</h3>
         <p>Cancellation requests for event tickets may be initiated up to 24 hours prior to the scheduled start of the respective event. Requests submitted within the 24-hour window before the event are not eligible for cancellations.</p>
