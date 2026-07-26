@@ -12,7 +12,6 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const requiredEnvs = [
     'SUPABASE_URL', 
     'SUPABASE_ANON_KEY', 
-    'SUPABASE_SERVICE_KEY',
     'JWT_SECRET',
     'ADMIN_EMAIL'
 ];
@@ -21,6 +20,9 @@ for (const env of requiredEnvs) {
         console.error(`FATAL ERROR: Missing required environment variable: ${env}`);
         process.exit(1);
     }
+}
+if (!process.env.SUPABASE_SERVICE_KEY) {
+    console.warn(`WARNING: Missing SUPABASE_SERVICE_KEY. The backend will fall back to SUPABASE_ANON_KEY.`);
 }
 if (!process.env.FRONTEND_URL) {
     console.warn(`WARNING: Missing FRONTEND_URL environment variable. Defaulting to production Vercel frontend.`);
