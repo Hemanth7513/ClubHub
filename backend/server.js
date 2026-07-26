@@ -12,7 +12,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const requiredEnvs = [
     'SUPABASE_URL', 
     'SUPABASE_ANON_KEY', 
-    'JWT_SECRET'
+    'SUPABASE_SERVICE_KEY',
+    'JWT_SECRET',
+    'ADMIN_EMAIL'
 ];
 for (const env of requiredEnvs) {
     if (!process.env[env]) {

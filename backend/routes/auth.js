@@ -57,6 +57,13 @@ const resetLimiter = rateLimit({
     message: { error: 'Too many reset attempts. Please try again later.' },
 });
 
+/** Dedicated verify OTP limiter: max 5 requests per 15 minutes */
+const verifyOtpLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Too many verification attempts. Please try again in 15 minutes.' },
+});
+
 // ─────────────────────────────────────────────────────────────
 //  HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -97,41 +104,10 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-        // 1. Ensure user exists (auto-register if not)
-        let { data: user, error: userError } = await supabase
-            .from('users')
-            .select('id')
-            .eq('email', normalizedEmail)
-            .single();
+        // Store OTP directly in memory cache (otpCache) instead of database profiles.bio
+        otpCache.set(normalizedEmail, { code: otpCode, expiresAt });
 
-        if (userError || !user) {
-            const name = normalizedEmail.split('@')[0];
-            const role = normalizedEmail === (process.env.ADMIN_EMAIL || 'hemaxxth@gmail.com').toLowerCase() ? 'admin' : 'user';
-            
-            const { data: newUser, error: createError } = await supabase
-                .from('users')
-                .insert([{ id: crypto.randomUUID(), email: normalizedEmail, name, role, token_version: 0 }])
-                .select()
-                .single();
-
-            if (createError) throw createError;
-            user = newUser;
-        }
-
-        // 2. Ensure profile exists and store OTP JSON in bio
-        const otpData = JSON.stringify({ code: otpCode, expiresAt });
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
-                user_id: user.id,
-                bio: otpData,
-                theme_preference: 'dark',
-                notifications_enabled: true
-            }, { onConflict: 'user_id' });
-
-        if (profileError) throw profileError;
-
-        // 3. Send email
+        // Send email
         const emailSent = await sendOtpEmail(normalizedEmail, otpCode);
         if (!emailSent) {
             return res.status(500).json({ error: 'Failed to send email' });
@@ -146,45 +122,51 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
 });
 
 // Verify OTP
-router.post('/verify-otp', async (req, res) => {
+router.post('/verify-otp', verifyOtpLimiter, async (req, res) => {
     try {
         const { email, otp } = req.body;
         if (!email || !otp) return res.status(400).json({ error: 'Email and OTP are required' });
 
         const normalizedEmail = email.toLowerCase();
 
-        // 1. Fetch user and their profile
-        const { data: user, error: userError } = await supabase
-            .from('users')
-            .select('id, email, name, role, token_version, profiles(bio)')
-            .eq('email', normalizedEmail)
-            .single();
-
-        if (userError || !user || !user.profiles) {
-            securityLog(SECURITY_EVENTS.OTP_FAILED, { email: normalizedEmail }, req);
-            return res.status(401).json({ error: 'Invalid or expired OTP' });
-        }
-
-        // 2. Parse and validate OTP from profile.bio
-        let otpData;
-        try {
-            otpData = JSON.parse(user.profiles.bio);
-        } catch (e) {
-            // Bio does not contain valid JSON OTP data
-            securityLog(SECURITY_EVENTS.OTP_FAILED, { email: normalizedEmail }, req);
-            return res.status(401).json({ error: 'Invalid or expired OTP' });
-        }
+        // 1. Fetch OTP from memory cache
+        const otpData = otpCache.get(normalizedEmail);
 
         if (!otpData || otpData.code !== otp || Date.now() > otpData.expiresAt) {
             securityLog(SECURITY_EVENTS.OTP_FAILED, { email: normalizedEmail }, req);
             return res.status(401).json({ error: 'Invalid or expired OTP' });
         }
 
-        // 3. OTP verified: Clear the OTP from bio
-        await supabase
-            .from('profiles')
-            .update({ bio: '' })
-            .eq('user_id', user.id);
+        // OTP verified: Clear from cache
+        otpCache.del(normalizedEmail);
+
+        // 2. Fetch or create user now that email ownership is verified
+        let { data: user, error: userError } = await supabase
+            .from('users')
+            .select('id, email, name, role, token_version')
+            .eq('email', normalizedEmail)
+            .single();
+
+        if (userError || !user) {
+            const name = normalizedEmail.split('@')[0];
+            const role = normalizedEmail === (process.env.ADMIN_EMAIL).toLowerCase() ? 'admin' : 'user';
+            
+            const { data: newUser, error: createError } = await supabase
+                .from('users')
+                .insert([{ id: crypto.randomUUID(), email: normalizedEmail, name, role, token_version: 0 }])
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            user = newUser;
+
+            await supabase.from('profiles').insert([{
+                user_id: user.id,
+                bio: '',
+                theme_preference: 'dark',
+                notifications_enabled: true
+            }]);
+        }
 
         securityLog(SECURITY_EVENTS.OTP_VERIFIED, { email: normalizedEmail, userId: user.id }, req);
 
@@ -229,7 +211,7 @@ router.post('/register', validateAuthInput, async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const role = normalizedEmail === (process.env.ADMIN_EMAIL || 'hemaxxth@gmail.com').toLowerCase() ? 'admin' : 'user';
+        const role = normalizedEmail === (process.env.ADMIN_EMAIL).toLowerCase() ? 'admin' : 'user';
 
         const { data: newUser, error: userError } = await supabase
             .from('users')
@@ -320,67 +302,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────
-//  GOOGLE OAUTH
-// ─────────────────────────────────────────────────────────────
 
-const { OAuth2Client } = require('google-auth-library');
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-router.post('/google', loginLimiter, async (req, res) => {
-    try {
-        const { token: googleToken } = req.body;
-
-        const ticket = await googleClient.verifyIdToken({
-            idToken: googleToken,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-
-        const email = payload.email.toLowerCase();
-        const name = payload.name;
-        const google_id = payload.sub;
-
-        let { data: user, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', email)
-            .single();
-
-        if (userError || !user) {
-            const role = email.toLowerCase() === (process.env.ADMIN_EMAIL || 'hemaxxth@gmail.com').toLowerCase() ? 'admin' : 'user';
-            const { data: newUser, error: createError } = await supabase
-                .from('users')
-                .insert([{ id: crypto.randomUUID(), email, name, google_id, role, token_version: 0 }])
-                .select()
-                .single();
-
-            if (createError) throw createError;
-            user = newUser;
-
-            await supabase.from('profiles').insert([{
-                user_id: user.id,
-                bio: '',
-                avatar_url: payload.picture || '',
-                theme_preference: 'dark',
-                notifications_enabled: true,
-            }]);
-        } else if (!user.google_id) {
-            await supabase.from('users').update({ google_id }).eq('id', user.id);
-        }
-
-        securityLog(SECURITY_EVENTS.GOOGLE_LOGIN, { email, userId: user.id }, req);
-
-        const token = signToken(user);
-        res.json({
-            token,
-            user: { id: user.id, email: user.email, name: user.name, role: user.role || 'user', avatarUrl: payload.picture },
-        });
-    } catch (err) {
-        console.error('Google Auth error:', err);
-        res.status(500).json({ error: 'Google login failed' });
-    }
-});
 
 // ─────────────────────────────────────────────────────────────
 //  FORGOT PASSWORD (Check 5)
@@ -634,6 +556,10 @@ router.post('/change-password', authenticateToken, async (req, res) => {
             .single();
 
         if (error || !user) return res.status(404).json({ error: 'User not found' });
+
+        if (!user.password) {
+            return res.status(400).json({ error: 'This account uses OTP or Google login. Password changes not supported.' });
+        }
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Incorrect current password' });

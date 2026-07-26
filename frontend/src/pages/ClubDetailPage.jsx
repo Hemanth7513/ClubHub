@@ -66,6 +66,7 @@ const ClubDetailPage = () => {
   };
 
   const isOwner = user && club && club.userId && club.userId === user.id;
+  const { token } = useAuth();
 
   const handleRSVP = async (event) => {
     if (!user) {
@@ -86,7 +87,7 @@ const ClubDetailPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('clubhub_token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           ticketId,
@@ -291,7 +292,9 @@ const ClubDetailPage = () => {
                     ? `mailto:${club.contactInfo}`
                     : club.contactInfo.match(/^\d/)
                     ? `tel:${club.contactInfo}`
-                    : club.contactInfo
+                    : club.contactInfo.startsWith('http://') || club.contactInfo.startsWith('https://')
+                    ? club.contactInfo
+                    : `https://${club.contactInfo}`
                 }
                 target="_blank"
                 rel="noopener noreferrer"

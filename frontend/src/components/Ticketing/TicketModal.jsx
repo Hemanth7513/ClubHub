@@ -57,14 +57,27 @@ const TicketModal = ({ isOpen, onClose, event }) => {
       setLoading(true);
       setStatus('processing');
       
-      // Temporary mock checkout since Razorpay is removed for now
-      setTimeout(() => {
-        setStatus('success');
-        setLoading(false);
-      }, 1500);
+      const res = await fetch(`${API_BASE_URL}/events/${event.id}/rsvp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ticketId: ticketData.id,
+          attendeeName,
+          phone
+        })
+      });
 
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+      setStatus('success');
+      setLoading(false);
     } catch (err) {
       console.error(err);
+      alert(err.message);
       setStatus('error');
       setLoading(false);
     }

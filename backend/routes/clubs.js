@@ -143,7 +143,7 @@ router.put('/:id', authenticateToken, validateClubInput, async (req, res) => {
 
         if (fetchError || !club) return res.status(404).json({ error: 'Club not found' });
 
-        if (club.user_id && club.user_id.toString() !== req.user.id.toString()) {
+        if ((!club.user_id || club.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'You are not authorized to edit this club' });
         }
 
@@ -195,7 +195,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
             
         if (fetchError || !club) return res.status(404).json({ error: 'Club not found' });
         
-        if (club.user_id && club.user_id.toString() !== req.user.id.toString()) {
+        if ((!club.user_id || club.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'You are not authorized to delete this club' });
         }
         

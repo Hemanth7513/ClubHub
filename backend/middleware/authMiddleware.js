@@ -23,28 +23,26 @@ const authenticateToken = async (req, res, next) => {
         return res.status(403).json({ error: 'Invalid or expired token' });
     }
 
-    // Token version check — invalidates tokens issued before password change
-    if (decoded.tokenVersion !== undefined) {
-        const { data: user, error } = await supabase
-            .from('users')
-            .select('token_version')
-            .eq('id', decoded.id)
-            .single();
+    // Token version and role check — invalidates tokens and revalidates permissions
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('token_version, role')
+        .eq('id', decoded.id)
+        .single();
 
-        if (error || !user) {
-            return res.status(403).json({ error: 'Invalid or expired token' });
-        }
-
-        if (user.token_version !== decoded.tokenVersion) {
-            securityLog(SECURITY_EVENTS.UNAUTHORIZED_ACCESS, {
-                userId: decoded.id,
-                reason: 'stale_token_version',
-            }, req);
-            return res.status(403).json({ error: 'Session expired. Please log in again.' });
-        }
+    if (error || !user) {
+        return res.status(403).json({ error: 'Invalid or expired token' });
     }
 
-    req.user = decoded;
+    if (decoded.tokenVersion !== undefined && user.token_version !== decoded.tokenVersion) {
+        securityLog(SECURITY_EVENTS.UNAUTHORIZED_ACCESS, {
+            userId: decoded.id,
+            reason: 'stale_token_version',
+        }, req);
+        return res.status(403).json({ error: 'Session expired. Please log in again.' });
+    }
+
+    req.user = { ...decoded, role: user.role || 'user' };
     next();
 };
 

@@ -68,21 +68,6 @@ router.get('/me', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete own account
-router.delete('/me', authenticateToken, async (req, res) => {
-    try {
-        const { error } = await supabase
-            .from('users')
-            .delete()
-            .eq('id', req.user.id);
-
-        if (error) throw error;
-        res.json({ message: 'Account deleted successfully.' });
-    } catch (err) {
-        console.error("Delete account error:", err);
-        res.status(500).json({ error: 'Failed to delete account' });
-    }
-});
 
 // Get current user's RSVP'd tickets
 router.get('/tickets', authenticateToken, async (req, res) => {

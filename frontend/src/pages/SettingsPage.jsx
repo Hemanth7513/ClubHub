@@ -167,14 +167,6 @@ const SettingsPage = () => {
         body: JSON.stringify({ password: deleteConfirmPassword })
       });
 
-      // If auth route doesn't exist, use users/me
-      if (res.status === 404) {
-        res = await fetch(`${API_BASE_URL}/users/me`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-      }
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Account deletion failed');
 
