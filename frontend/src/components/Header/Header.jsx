@@ -52,23 +52,31 @@ const Header = () => {
                   <span className="user-name">{user.name}</span>
                 </div>
                 <div className="dropdown-menu">
-                  <Link to="/dashboard" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <TicketIcon size={16} /> My Tickets
-                  </Link>
-                  <Link to="/manage-clubs" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <LayoutDashboard size={16} /> Organizer Dashboard
-                  </Link>
-                  <Link to="/add-club" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <PlusCircle size={16} /> Add Club
-                  </Link>
-                  {user.role === 'admin' && (
-                    <Link to="/admin" className="dropdown-item admin-item" onClick={() => setIsMenuOpen(false)}>
-                      <ShieldAlert size={16} /> Owner Panel
-                    </Link>
+                  {user.role === 'admin' ? (
+                    <>
+                      <Link to="/admin" className="dropdown-item admin-item" onClick={() => setIsMenuOpen(false)}>
+                        <ShieldAlert size={16} /> Admin Dashboard
+                      </Link>
+                      <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <Settings size={16} /> Settings
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/dashboard" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <TicketIcon size={16} /> My Tickets
+                      </Link>
+                      <Link to="/manage-clubs" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <LayoutDashboard size={16} /> Organizer Dashboard
+                      </Link>
+                      <Link to="/add-club" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <PlusCircle size={16} /> Add Club
+                      </Link>
+                      <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
+                        <Settings size={16} /> Settings
+                      </Link>
+                    </>
                   )}
-                  <Link to="/settings" className="dropdown-item" onClick={() => setIsMenuOpen(false)}>
-                    <Settings size={16} /> Settings
-                  </Link>
                   <button onClick={handleLogout} className="dropdown-item logout-item">
                     <LogOut size={16} /> Logout
                   </button>
