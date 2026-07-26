@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, Mail, Lock, ArrowRight, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
 import API_BASE_URL from '../config';
 import './AuthPages.css';
 
@@ -96,25 +95,6 @@ const LoginPage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Invalid OTP');
       
-      login(data.user, data.token);
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLoginSuccess = async (tokenResponse) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenResponse.credential }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Google login failed');
       login(data.user, data.token);
       navigate('/');
     } catch (err) {
@@ -216,21 +196,7 @@ const LoginPage = () => {
             )}
           </AnimatePresence>
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0' }}>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-            <span style={{ margin: '0 1rem', color: 'var(--text-light)', fontSize: '0.9rem' }}>or</span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-          </div>
 
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <GoogleLogin
-              onSuccess={handleGoogleLoginSuccess}
-              onError={() => setError('Google Login Failed')}
-              theme="filled_black"
-              shape="pill"
-              text="continue_with"
-            />
-          </div>
           <p className="auth-footer" style={{ marginTop: '1.5rem' }}>
             New here? <Link to="/register">Create an account</Link>
           </p>
