@@ -10,6 +10,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import API_BASE_URL from '../config';
 import Button from '../components/Button/Button';
 import TicketScanner from '../components/Scanner/TicketScanner';
+import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './ClubManagerPage.css';
 
 /* ─── Small utility: is the event in the past? ─────── */
@@ -166,7 +167,11 @@ const ClubManagerPage = () => {
           </motion.div>
 
           {loading ? (
-            <div className="spinner" style={{ margin: '4rem auto' }} />
+            <div className="events-grid" style={{ marginTop: '2rem' }}>
+              <SkeletonCard index={0} />
+              <SkeletonCard index={1} />
+              <SkeletonCard index={2} />
+            </div>
           ) : (
             <>
               {/* ── OVERVIEW TAB ──────────────────────── */}

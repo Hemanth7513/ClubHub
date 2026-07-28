@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button/Button';
 import API_BASE_URL from '../config';
+import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './AdminDashboardPage.css';
 
 /* ─── Confirm delete modal ─────────────────── */
@@ -130,9 +131,12 @@ const AdminDashboardPage = () => {
 
   if (loading) {
     return (
-      <div className="admin-loading">
-        <div className="spinner" />
-        <p>Loading admin data...</p>
+      <div className="admin-dashboard container" style={{ paddingTop: '6rem' }}>
+        <div className="events-grid">
+          <SkeletonCard index={0} />
+          <SkeletonCard index={1} />
+          <SkeletonCard index={2} />
+        </div>
       </div>
     );
   }

@@ -5,6 +5,7 @@ import { Ticket, Search, Calendar, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import API_BASE_URL from '../config';
 import Button from '../components/Button/Button';
+import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -67,7 +68,11 @@ const DashboardPage = () => {
           <h2><Ticket size={24} style={{ display: 'inline', marginRight: 10 }} /> My RSVPs</h2>
           
           {loading ? (
-            <div className="spinner" style={{ margin: '3rem auto' }}></div>
+            <div className="tickets-grid">
+              <SkeletonCard index={0} />
+              <SkeletonCard index={1} />
+              <SkeletonCard index={2} />
+            </div>
           ) : tickets.length === 0 ? (
             <div className="empty-tickets glass-panel">
               <Ticket size={48} opacity={0.3} />
