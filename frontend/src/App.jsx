@@ -91,22 +91,7 @@ function App() {
       <ScrollProgress />
       <Floaties />
       <OfflineBanner />
-      {serverWaking && (
-        <div style={{
-          backgroundColor: '#ff2e63', 
-          color: '#ffffff', 
-          textAlign: 'center', 
-          padding: '10px', 
-          position: 'sticky',
-          top: 0,
-          zIndex: 10000,
-          fontSize: '0.9rem',
-          fontWeight: 'bold',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
-        }}>
-          Hold tight! 🚀 The backend server is waking up from sleep. This usually takes around 30-50 seconds.
-        </div>
-      )}
+
       <Header />
       <main>
         <AnimatePresence mode="wait">
