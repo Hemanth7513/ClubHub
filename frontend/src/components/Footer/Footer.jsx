@@ -2,6 +2,7 @@ import React from 'react';
 import './Footer.css';
 
 import { Link } from 'react-router-dom';
+import { Instagram } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -32,6 +33,12 @@ const Footer = () => {
               <Link to="/support#privacy" onClick={() => window.scrollTo(0, 0)}>Privacy Policy</Link>
               <Link to="/support#refund" onClick={() => window.scrollTo(0, 0)}>Refund Policy</Link>
               <Link to="/support#contact" onClick={() => window.scrollTo(0, 0)}>Contact Us</Link>
+            </div>
+            <div className="footer-group">
+              <h4>Connect</h4>
+              <a href="https://www.instagram.com/clubhub.vja/" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Instagram size={18} /> Instagram
+              </a>
             </div>
           </div>
         </div>
