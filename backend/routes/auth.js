@@ -7,7 +7,7 @@ const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validateAuthInput, validatePasswordReset } = require('../middleware/validationMiddleware');
 const { securityLog, SECURITY_EVENTS } = require('../utils/logger');
-const { sendOtpEmail, sendPasswordResetEmail } = require('../utils/email');
+const { sendOtpEmail, sendPasswordResetEmail, sendWelcomeEmail } = require('../utils/email');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET env var is missing.');
@@ -166,6 +166,9 @@ router.post('/verify-otp', verifyOtpLimiter, async (req, res) => {
                 theme_preference: 'dark',
                 notifications_enabled: true
             }]);
+
+            // Send welcome email asynchronously
+            sendWelcomeEmail(user.email, user.name).catch(console.error);
         }
 
         securityLog(SECURITY_EVENTS.OTP_VERIFIED, { email: normalizedEmail, userId: user.id }, req);
@@ -235,6 +238,9 @@ router.post('/register', validateAuthInput, async (req, res) => {
             theme_preference: 'dark',
             notifications_enabled: true,
         }]);
+
+        // Send welcome email asynchronously
+        sendWelcomeEmail(newUser.email, newUser.name).catch(console.error);
 
         res.status(201).json({
             message: 'If this email is not already registered, your account has been created.',
