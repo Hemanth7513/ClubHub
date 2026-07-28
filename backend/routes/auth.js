@@ -95,6 +95,27 @@ const signToken = (user) => jwt.sign(
 // ─────────────────────────────────────────────────────────────
 
 // Request OTP
+// Check email availability
+router.get('/check-email', async (req, res) => {
+    try {
+        const { email } = req.query;
+        if (!email) return res.json({ exists: false });
+
+        const { data, error } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', email.toLowerCase())
+            .limit(1);
+
+        if (error) throw error;
+        res.json({ exists: data && data.length > 0 });
+    } catch (err) {
+        console.error("Check email error:", err);
+        res.status(500).json({ error: 'Failed to check email' });
+    }
+});
+
+// Request OTP
 router.post('/request-otp', otpLimiter, async (req, res) => {
     try {
         const { email } = req.body;

@@ -11,6 +11,17 @@ import API_BASE_URL from '../config';
 import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './AdminDashboardPage.css';
 
+const CATEGORIES = [
+  'Social & Recreation Clubs',
+  'Service Clubs',
+  'NGOs & Social Organizations',
+  'Sports & Activity Clubs',
+  'Cultural & Literary Clubs',
+  'Professional & Networking',
+  'Student & Tech Groups',
+  'Nightlife & Entertainment'
+];
+
 /* ─── Confirm delete modal ─────────────────── */
 const ConfirmModal = ({ message, onConfirm, onCancel, loading, error }) => (
   <div className="admin-confirm-overlay">
@@ -104,6 +115,26 @@ const AdminDashboardPage = () => {
       setDeleteError(err.message);
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  const handleUpdateCategory = async (clubId, newCategory) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/clubs/${clubId}/category`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ category: newCategory })
+      });
+      if (res.ok) {
+        setClubs(prev => prev.map(c => c.id === clubId ? { ...c, category: newCategory } : c));
+      } else {
+        console.error('Failed to update category');
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -315,7 +346,18 @@ const AdminDashboardPage = () => {
                 {clubs.map(c => (
                   <tr key={c.id}>
                     <td style={{ fontWeight: 700 }}>{c.name}</td>
-                    <td>{c.category}</td>
+                    <td>
+                      <select 
+                        value={c.category} 
+                        onChange={(e) => handleUpdateCategory(c.id, e.target.value)}
+                        className="admin-category-select"
+                        style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-dark)', background: 'var(--bg-dark)' }}
+                      >
+                        {CATEGORIES.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </td>
                     <td>{c.users ? (c.users.name || c.users.email) : '—'}</td>
                     <td>
                       {c.is_verified

@@ -60,6 +60,26 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Check if a club name exists
+router.get('/check-name', async (req, res) => {
+    try {
+        const { name } = req.query;
+        if (!name) return res.json({ exists: false });
+
+        const { data, error } = await supabase
+            .from('clubs')
+            .select('id')
+            .ilike('name', name)
+            .limit(1);
+
+        if (error) throw error;
+        res.json({ exists: data && data.length > 0 });
+    } catch (err) {
+        console.error("Check name error:", err);
+        res.status(500).json({ error: 'Failed to check name' });
+    }
+});
+
 // Get single club details
 router.get('/:id', async (req, res) => {
     try {

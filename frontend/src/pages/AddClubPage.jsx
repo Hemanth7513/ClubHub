@@ -42,10 +42,40 @@ const AddClubPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [nameError, setNameError] = useState(null);
+  const [checkingName, setCheckingName] = useState(false);
+
+  React.useEffect(() => {
+    if (!formData.name.trim()) {
+      setNameError(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setCheckingName(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/clubs/check-name?name=${encodeURIComponent(formData.name)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.exists) {
+            setNameError('This community name is already registered. Please choose another.');
+          } else {
+            setNameError(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check name', err);
+      } finally {
+        setCheckingName(false);
+      }
+    }, 500); // 500ms debounce
+    return () => clearTimeout(timer);
+  }, [formData.name]);
 
   const validateForm = () => {
     const errors = {};
     if (!formData.name.trim()) errors.name = 'Community name is required';
+    else if (nameError) errors.name = nameError;
+    
     if (!formData.category) errors.category = 'Please select a category';
     if (formData.description.trim().length < 50) errors.description = 'Description must be at least 50 characters';
     if (!formData.location.trim()) errors.location = 'Location is required';
@@ -145,9 +175,10 @@ const AddClubPage = () => {
                 type="text" id="name" name="name"
                 value={formData.name} onChange={handleChange}
                 placeholder="e.g., GDG Vijayawada"
-                className={formErrors.name ? 'input-error' : ''}
+                className={formErrors.name || nameError ? 'input-error' : ''}
               />
-              {formErrors.name && <span className="error-text">{formErrors.name}</span>}
+              {checkingName && <span className="helper-text" style={{color: 'var(--text-secondary)'}}>Checking availability...</span>}
+              {(formErrors.name || nameError) && <span className="error-text">{formErrors.name || nameError}</span>}
             </div>
             <div className="form-group">
               <label htmlFor="category">Category *</label>
@@ -233,12 +264,16 @@ const AddClubPage = () => {
             />
           </div>
 
-          {/* Actions */}
+          {/* Submit Button */}
           <div className="form-actions">
             <Button type="button" variant="outline" onClick={() => navigate('/manage-clubs')}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" disabled={loading || success}>
+            <Button 
+              type="submit" 
+              variant="primary" 
+              disabled={loading || checkingName || !!nameError || success}
+            >
               {loading ? 'Creating...' : 'Create Community'}
             </Button>
           </div>

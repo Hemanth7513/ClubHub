@@ -153,10 +153,12 @@ h1, h2, h3, h4 {
 }
 
 .glass-panel {
-  background: var(--bg-secondary);
-  border: 3px solid var(--border-dark);
-  border-radius: var(--border-radius);
-  box-shadow: var(--brutal-shadow);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: transform var(--transition-speed), box-shadow var(--transition-speed);
 }
 
@@ -246,8 +248,9 @@ button {
 }
 
 .glass-panel:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 10px 10px 0px var(--border-dark);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .text-gradient-animated {

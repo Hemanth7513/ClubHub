@@ -66,6 +66,25 @@ router.delete('/clubs/:id', ...adminOnly, async (req, res) => {
     }
 });
 
+router.put('/clubs/:id/category', ...adminOnly, async (req, res) => {
+    try {
+        const { category } = req.body;
+        if (!category) return res.status(400).json({ error: 'Category is required' });
+        
+        securityLog(SECURITY_EVENTS.ADMIN_ACTION, { userId: req.user.id, action: 'update_club_category', resource: req.params.id }, req);
+        const { data, error } = await supabase
+            .from('clubs')
+            .update({ category })
+            .eq('id', req.params.id)
+            .select()
+            .single();
+        if (error) throw error;
+        res.json({ message: 'Club category updated.', club: data });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update club category' });
+    }
+});
+
 router.put('/clubs/:id/verify', ...adminOnly, async (req, res) => {
     try {
         const { is_verified } = req.body;

@@ -33,18 +33,17 @@ const ClubCard = React.memo(({ club, index }) => {
       whileHover={{ y: -10, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      <div className="club-card-image" style={{ position: 'relative', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {club.imageUrl && club.imageUrl.startsWith('http') ? (
+      <div className="club-card-image" style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: '#ffffff', fontSize: '4rem', fontWeight: '900', opacity: 0.4 }}>{club.name.charAt(0).toUpperCase()}</span>
+        
+        {(club.imageUrl || club.image_url) && (
           <img 
-            src={club.imageUrl} 
+            src={club.imageUrl || club.image_url} 
             alt={club.name}
             loading="lazy"
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
+            onError={(e) => { e.target.style.display = 'none'; }}
           />
-        ) : (
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <span style={{ color: '#ffffff', fontSize: '4rem', fontWeight: '900', opacity: 0.4 }}>{club.name.charAt(0).toUpperCase()}</span>
-          </div>
         )}
       </div>
 
