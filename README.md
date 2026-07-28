@@ -11,7 +11,7 @@ ClubHub is a premium, high-engagement community discovery platform designed for 
 ## 🛠️ Tech Stack
 - **Frontend**: React 18, Vite, React Router, Framer Motion, Leaflet.
 - **Backend**: Node.js, Express, Supabase (PostgreSQL), JWT.
-
+see
 ## ⚙️ Quick Start
 
 ### 1. Backend Setup

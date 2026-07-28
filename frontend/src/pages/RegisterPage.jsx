@@ -89,7 +89,7 @@ const RegisterPage = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   required 
-                  minLength={6}
+                  minLength={8}
                   maxLength={100}
                   style={{ width: '100%', paddingRight: '40px' }}
                 />

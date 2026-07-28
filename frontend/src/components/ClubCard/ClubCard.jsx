@@ -72,7 +72,7 @@ const ClubCard = React.memo(({ club, index }) => {
               <Button variant="primary" className="w-full">View Details</Button>
             </motion.div>
           </Link>
-          {club.googleMapsUrl && (
+          {club.googleMapsUrl && club.googleMapsUrl.startsWith('https://') && (
             <a 
               href={club.googleMapsUrl} 
               target="_blank" 

@@ -99,6 +99,10 @@ router.post('/', authenticateToken, validateClubInput, async (req, res) => {
     try {
         const { name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl } = req.body;
         
+        if (googleMapsUrl && !googleMapsUrl.startsWith('https://')) {
+            return res.status(400).json({ error: 'googleMapsUrl must be a secure HTTPS link' });
+        }
+        
         let latitude = null;
         let longitude = null;
         if (location) {
@@ -148,6 +152,10 @@ router.put('/:id', authenticateToken, validateClubInput, async (req, res) => {
         }
 
         const { name, category, description, location, contactInfo, imageUrl, establishedYear, googleMapsUrl } = req.body;
+
+        if (googleMapsUrl && !googleMapsUrl.startsWith('https://')) {
+            return res.status(400).json({ error: 'googleMapsUrl must be a secure HTTPS link' });
+        }
 
         // Fetch existing lat/lng so we preserve them if geocoding fails
         const { data: existingClub } = await supabase

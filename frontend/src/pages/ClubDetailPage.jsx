@@ -283,7 +283,7 @@ const ClubDetailPage = () => {
             )}
 
             {/* Get Directions */}
-            {club.googleMapsUrl && (
+            {club.googleMapsUrl && club.googleMapsUrl.startsWith('https://') && (
               <a href={club.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="sidebar-action-link">
                 <Button variant="outline" className="btn-large">
                   <Navigation size={18} /> Get Directions
@@ -308,7 +308,7 @@ const ClubDetailPage = () => {
           </div>
 
           {/* Google Maps Embed */}
-          {club.googleMapsUrl && (
+          {club.googleMapsUrl && club.googleMapsUrl.startsWith('https://') && (
             <div className="maps-embed-card">
               <h4><MapPin size={16} /> Location</h4>
               <a href={club.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="maps-embed-link">

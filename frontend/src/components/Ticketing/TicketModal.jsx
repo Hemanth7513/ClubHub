@@ -128,11 +128,6 @@ const TicketModal = ({ isOpen, onClose, event }) => {
                     <p className="text-sm" style={{color: 'var(--text-light)', marginBottom: '1rem'}}>
                        {ticketData.capacity - ticketData.sold} left
                     </p>
-                    <div className="quantity-controls">
-                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={loading}>-</button>
-                      <span className="qty-display">{quantity}</span>
-                      <button onClick={() => setQuantity(Math.min(10, Math.min(quantity + 1, ticketData.capacity - ticketData.sold)))} disabled={loading}>+</button>
-                    </div>
                   </div>
 
                   <div className="registration-form" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -169,31 +164,21 @@ const TicketModal = ({ isOpen, onClose, event }) => {
                     />
                   </div>
 
-                  <div className="price-breakdown" style={{ marginTop: '1.5rem' }}>
-                    <div className="breakdown-row">
-                      <span>Tickets ({quantity} x ₹{TICKET_PRICE})</span>
-                      <span>₹{TICKET_PRICE * quantity}</span>
+                  {TICKET_PRICE > 0 && (
+                    <div className="price-breakdown" style={{ marginTop: '1.5rem', color: 'var(--accent-pink)' }}>
+                      <p>Note: Paid tickets currently require external payment processing which is under development.</p>
                     </div>
-                    <div className="breakdown-row fee-row">
-                      <span>Platform Fee (5%)</span>
-                      <span>₹{platformFee.toFixed(2)}</span>
-                    </div>
-                    <hr className="divider" />
-                    <div className="breakdown-row total-row">
-                      <span>Total Amount</span>
-                      <span>₹{totalAmount.toFixed(2)}</span>
-                    </div>
-                  </div>
+                  )}
 
                   <Button 
                     variant="primary" 
                     size="large" 
                     className="w-full checkout-btn"
                     onClick={handleCheckout}
-                    disabled={loading || ticketData.sold >= ticketData.capacity}
+                    disabled={loading || ticketData.sold >= ticketData.capacity || TICKET_PRICE > 0}
                     style={{ marginTop: '1.5rem' }}
                   >
-                    {loading ? 'Processing...' : (ticketData.sold >= ticketData.capacity ? 'Sold Out' : `Pay ₹${totalAmount.toFixed(2)}`)}
+                    {loading ? 'Processing...' : (ticketData.sold >= ticketData.capacity ? 'Sold Out' : (TICKET_PRICE > 0 ? 'Unavailable (Paid)' : 'Confirm RSVP'))}
                   </Button>
                 </>
               )}

@@ -1,10 +1,4 @@
--- Drop existing tables to prevent conflicts and ensure clean alignment
-DROP TABLE IF EXISTS orders CASCADE;
-DROP TABLE IF EXISTS tickets CASCADE;
-DROP TABLE IF EXISTS events CASCADE;
-DROP TABLE IF EXISTS clubs CASCADE;
-DROP TABLE IF EXISTS profiles CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
+-- Removed DROP TABLE statements for production safety
 
 -- Create Users Table (Now using UUID to match Supabase Auth)
 CREATE TABLE users (

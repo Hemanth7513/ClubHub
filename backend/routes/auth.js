@@ -101,7 +101,7 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
         if (!email) return res.status(400).json({ error: 'Email is required' });
 
         const normalizedEmail = email.toLowerCase();
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpCode = crypto.randomInt(100000, 1000000).toString();
         const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
         // Store OTP directly in memory cache (otpCache) instead of database profiles.bio

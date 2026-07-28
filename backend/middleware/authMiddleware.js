@@ -34,7 +34,7 @@ const authenticateToken = async (req, res, next) => {
         return res.status(403).json({ error: 'Invalid or expired token' });
     }
 
-    if (decoded.tokenVersion !== undefined && user.token_version !== decoded.tokenVersion) {
+    if ((decoded.tokenVersion ?? 0) !== user.token_version) {
         securityLog(SECURITY_EVENTS.UNAUTHORIZED_ACCESS, {
             userId: decoded.id,
             reason: 'stale_token_version',

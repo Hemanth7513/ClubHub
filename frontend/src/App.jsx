@@ -13,6 +13,8 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import OfflineBanner from './components/OfflineBanner';
+import SplashScreen from './components/SplashScreen/SplashScreen';
+import API_BASE_URL from './config';
 import './index.css';
 
 // Lazy loaded pages to reduce initial bundle size
@@ -43,12 +45,68 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  const [serverWaking, setServerWaking] = React.useState(false);
+
+  // Ping backend on load to wake it up and show banner if it's sleeping
+  React.useEffect(() => {
+    let timeout;
+    const pingServer = async () => {
+      // If server takes more than 2.5 seconds to respond, it's likely sleeping (cold start)
+      timeout = setTimeout(() => {
+        setServerWaking(true);
+      }, 2500);
+      
+      try {
+        await fetch(`${API_BASE_URL}/`); // The root health check endpoint
+        clearTimeout(timeout);
+        setServerWaking(false);
+      } catch (e) {
+        clearTimeout(timeout);
+        setServerWaking(false);
+      }
+    };
+    pingServer();
+  }, []);
+
+  const [showSplash, setShowSplash] = React.useState(false);
+
+  React.useEffect(() => {
+    const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
+    if (!hasSeenSplash) {
+      setShowSplash(true);
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        sessionStorage.setItem('hasSeenSplash', 'true');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <div className="app-container">
+      <AnimatePresence>
+        {showSplash && <SplashScreen key="splash" />}
+      </AnimatePresence>
       <div className="mesh-bg" />
       <ScrollProgress />
       <Floaties />
       <OfflineBanner />
+      {serverWaking && (
+        <div style={{
+          backgroundColor: '#ff2e63', 
+          color: '#ffffff', 
+          textAlign: 'center', 
+          padding: '10px', 
+          position: 'sticky',
+          top: 0,
+          zIndex: 10000,
+          fontSize: '0.9rem',
+          fontWeight: 'bold',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+        }}>
+          Hold tight! 🚀 The backend server is waking up from sleep. This usually takes around 30-50 seconds.
+        </div>
+      )}
       <Header />
       <main>
         <AnimatePresence mode="wait">

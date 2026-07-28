@@ -147,7 +147,7 @@ router.put('/:id', authenticateToken, validateEventInput, async (req, res) => {
     try {
         const { data: event, error: fetchError } = await supabase
             .from('events')
-            .select('user_id')
+            .select('user_id, club_id')
             .eq('id', req.params.id)
             .single();
 
@@ -158,6 +158,19 @@ router.put('/:id', authenticateToken, validateEventInput, async (req, res) => {
         }
 
         const { clubId, title, description, date, location, imageUrl, category } = req.body;
+
+        if (clubId && String(clubId) !== String(event.club_id)) {
+            const { data: club, error: clubFetchError } = await supabase
+                .from('clubs')
+                .select('user_id')
+                .eq('id', clubId)
+                .single();
+
+            if (clubFetchError || !club) return res.status(404).json({ error: 'Target club not found' });
+            if ((!club.user_id || club.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
+                return res.status(403).json({ error: 'You are not authorized to attach events to this club' });
+            }
+        }
 
         const { data, error } = await supabase
             .from('events')
@@ -226,6 +239,8 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
             .single();
 
         if (ticketError || !ticket) return res.status(404).json({ error: 'Ticket not found' });
+        if (String(ticket.event_id) !== String(eventId)) return res.status(400).json({ error: 'Ticket does not belong to this event' });
+        if (parseFloat(ticket.price_inr) > 0) return res.status(400).json({ error: 'Paid tickets require a payment gateway integration' });
         if (ticket.sold >= ticket.capacity) return res.status(400).json({ error: 'This ticket type is sold out!' });
 
         // 2. Check if user already RSVP'd to this event
@@ -269,6 +284,15 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
 
         // 5. Send automated confirmation email asynchronously
         if (process.env.RESEND_API_KEY && req.user.email) {
+            const escapeHtml = (unsafe) => {
+                return (unsafe || '').toString()
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            };
+
             // Fetch event details for the email
             const { data: eventData } = await supabase
                 .from('events')
@@ -276,8 +300,11 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
                 .eq('id', eventId)
                 .single();
 
-            const clubName = eventData?.clubs?.name || 'ClubHub';
-            const eventTitle = eventData?.title || 'Your Event';
+            const safeClubName = escapeHtml(eventData?.clubs?.name || 'ClubHub');
+            const safeEventTitle = escapeHtml(eventData?.title || 'Your Event');
+            const safeEventLocation = escapeHtml(eventData?.location || 'TBA');
+            const safeAttendeeName = escapeHtml(attendeeName);
+            const safeTicketName = escapeHtml(ticket.name);
             const eventDate = eventData?.date ? new Date(eventData.date).toLocaleString() : 'TBA';
             
             // Generate QR Code from the Registration ID
@@ -295,12 +322,12 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
                 resend.emails.send({
                     from: 'ClubHub <onboarding@resend.dev>',
                     to: req.user.email,
-                    subject: `🎟️ Your Ticket: ${eventTitle}`,
+                    subject: `🎟️ Your Ticket: ${safeEventTitle}`,
                     html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #000; color: #fff; padding: 20px; border: 4px solid #ccff00; border-radius: 8px;">
                             <h1 style="color: #ccff00; text-transform: uppercase;">You're In!</h1>
-                            <p style="font-size: 16px;">Hi ${attendeeName},</p>
-                            <p style="font-size: 16px;">Your RSVP for <strong>${eventTitle}</strong> hosted by <strong>${clubName}</strong> is confirmed.</p>
+                            <p style="font-size: 16px;">Hi ${safeAttendeeName},</p>
+                            <p style="font-size: 16px;">Your RSVP for <strong>${safeEventTitle}</strong> hosted by <strong>${safeClubName}</strong> is confirmed.</p>
                             
                             ${qrCodeDataUrl ? `
                             <div style="text-align: center; margin: 30px 0;">
@@ -311,9 +338,9 @@ router.post('/:id/rsvp', authenticateToken, async (req, res) => {
                             ` : ''}
 
                             <div style="background: #1a1a1a; padding: 15px; margin: 20px 0; border-left: 4px solid #ff2e63;">
-                                <p style="margin: 5px 0;"><strong>Ticket Type:</strong> ${ticket.name}</p>
+                                <p style="margin: 5px 0;"><strong>Ticket Type:</strong> ${safeTicketName}</p>
                                 <p style="margin: 5px 0;"><strong>Date:</strong> ${eventDate}</p>
-                                <p style="margin: 5px 0;"><strong>Location:</strong> ${eventData?.location || 'TBA'}</p>
+                                <p style="margin: 5px 0;"><strong>Location:</strong> ${safeEventLocation}</p>
                             </div>
                             <p style="font-size: 14px; color: #888;">Present this email at the entrance. See you there!</p>
                             <p style="font-size: 14px; color: #888;">- The ClubHub Team</p>

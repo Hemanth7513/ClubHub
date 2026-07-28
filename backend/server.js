@@ -22,7 +22,12 @@ for (const env of requiredEnvs) {
     }
 }
 if (!process.env.SUPABASE_SERVICE_KEY) {
-    console.warn(`WARNING: Missing SUPABASE_SERVICE_KEY. The backend will fall back to SUPABASE_ANON_KEY.`);
+    if (process.env.NODE_ENV === 'production') {
+        console.error(`FATAL ERROR: Missing SUPABASE_SERVICE_KEY in production.`);
+        process.exit(1);
+    } else {
+        console.warn(`WARNING: Missing SUPABASE_SERVICE_KEY. The backend will fall back to SUPABASE_ANON_KEY.`);
+    }
 }
 if (!process.env.FRONTEND_URL) {
     console.warn(`WARNING: Missing FRONTEND_URL environment variable. Defaulting to production Vercel frontend.`);

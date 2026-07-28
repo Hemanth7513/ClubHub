@@ -58,7 +58,7 @@ const sendTicketEmail = async (userEmail, userName, ticketDetails, orderDetails)
 const sendOtpEmail = async (userEmail, otpCode) => {
     try {
         if (!process.env.RESEND_API_KEY) {
-            console.warn("No RESEND_API_KEY provided. Skipping email delivery. OTP:", otpCode);
+            console.warn("No RESEND_API_KEY provided. Skipping email delivery.");
             return true; // Return true in dev so we don't break the flow
         }
 
@@ -101,7 +101,7 @@ const sendOtpEmail = async (userEmail, otpCode) => {
 const sendPasswordResetEmail = async (userEmail, resetLink) => {
     try {
         if (!process.env.RESEND_API_KEY) {
-            console.warn("No RESEND_API_KEY provided. Password reset link:", resetLink);
+            console.warn("No RESEND_API_KEY provided. Skipping email delivery.");
             return true;
         }
 
