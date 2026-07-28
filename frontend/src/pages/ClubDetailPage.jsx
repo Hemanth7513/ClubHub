@@ -143,11 +143,17 @@ const ClubDetailPage = () => {
         initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, type: 'spring' }}
       >
-        <img
-          src={club.imageUrl || 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80'}
-          alt={club.name} className="hero-image"
-          onError={e => e.target.src = 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80'}
-        />
+        {club.imageUrl && club.imageUrl.startsWith('http') ? (
+          <img
+            src={club.imageUrl}
+            alt={club.name} className="hero-image"
+            onError={e => e.target.style.display = 'none'}
+          />
+        ) : (
+          <div className="hero-image" style={{ background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <span style={{ color: '#ffffff', fontSize: '10rem', fontWeight: '900', opacity: 0.4 }}>{club.name.charAt(0).toUpperCase()}</span>
+          </div>
+        )}
         <div className="hero-overlay">
           <div className="hero-title">
             <h1>{club.name}</h1>
