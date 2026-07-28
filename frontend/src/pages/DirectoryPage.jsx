@@ -70,7 +70,9 @@ const DirectoryPage = () => {
   const handleBackToDiscovery = () => {
     setSelectedCategory(null);
     setSearchQuery('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      scrollToDiscovery();
+    }, 100);
   };
 
   const filteredClubs = useMemo(() => {
