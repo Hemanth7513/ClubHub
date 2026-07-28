@@ -11,7 +11,9 @@ import './DashboardPage.css';
 const DashboardPage = () => {
   const { user, token } = useAuth();
   const [tickets, setTickets] = useState([]);
+  const [feedEvents, setFeedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingFeed, setLoadingFeed] = useState(true);
 
   const fetchTickets = useCallback(async () => {
     if (!token) return;
@@ -28,7 +30,25 @@ const DashboardPage = () => {
     }
   }, [token]);
 
-  useEffect(() => { fetchTickets(); }, [fetchTickets]);
+  const fetchFeed = useCallback(async () => {
+    if (!token) return;
+    setLoadingFeed(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/follows/feed/events`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) setFeedEvents(await res.json());
+    } catch (err) {
+      console.error('Fetch feed error:', err);
+    } finally {
+      setLoadingFeed(false);
+    }
+  }, [token]);
+
+  useEffect(() => { 
+    fetchTickets(); 
+    fetchFeed();
+  }, [fetchTickets, fetchFeed]);
 
   return (
     <div className="user-dashboard-page">
@@ -61,6 +81,49 @@ const DashboardPage = () => {
               <p>See what's happening around you this week.</p>
             </Link>
           </div>
+        </section>
+
+        {/* My Feed */}
+        <section className="feed-section">
+          <h2><Calendar size={24} style={{ display: 'inline', marginRight: 10 }} /> My Feed</h2>
+          
+          {loadingFeed ? (
+            <div className="tickets-grid">
+              <SkeletonCard index={0} />
+              <SkeletonCard index={1} />
+            </div>
+          ) : feedEvents.length === 0 ? (
+            <div className="empty-tickets glass-panel">
+              <Search size={48} opacity={0.3} />
+              <h3>Your feed is empty</h3>
+              <p>Follow some clubs to see their upcoming events here!</p>
+              <Link to="/">
+                <Button>Find Clubs</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="tickets-grid">
+              {feedEvents.map(event => (
+                <Link to={`/club/${event.club_id}`} key={event.id} style={{textDecoration: 'none', color: 'inherit'}}>
+                  <motion.div className="ticket-card glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    {event.image_url && (
+                      <div className="ticket-image" style={{ backgroundImage: `url(${event.image_url})` }} />
+                    )}
+                    <div className="ticket-content">
+                      <div className="ticket-header">
+                        <span className="ticket-club">{event.clubs.name}</span>
+                      </div>
+                      <h3>{event.title}</h3>
+                      <div className="ticket-details">
+                        <span><Calendar size={14} /> {new Date(event.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        {event.location && <span><MapPin size={14} /> {event.location}</span>}
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* My Tickets */}

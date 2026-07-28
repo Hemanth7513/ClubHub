@@ -11,6 +11,8 @@ import API_BASE_URL from '../config';
 import Button from '../components/Button/Button';
 import TicketScanner from '../components/Scanner/TicketScanner';
 import SkeletonCard from '../components/Loaders/SkeletonCard';
+import TeamManager from '../components/Team/TeamManager';
+import ClubAnalytics from '../components/Analytics/ClubAnalytics';
 import './ClubManagerPage.css';
 
 /* ─── Small utility: is the event in the past? ─────── */
@@ -130,6 +132,10 @@ const ClubManagerPage = () => {
               onClick={() => setActiveTab('overview')}>
               <LayoutDashboard size={18} /> Overview
             </button>
+            <button className={`sidebar-link ${activeTab === 'analytics' ? 'active' : ''}`}
+              onClick={() => setActiveTab('analytics')}>
+              <Activity size={18} /> Analytics
+            </button>
             <button className={`sidebar-link ${activeTab === 'clubs' ? 'active' : ''}`}
               onClick={() => setActiveTab('clubs')}>
               <Users size={18} /> My Clubs
@@ -144,6 +150,12 @@ const ClubManagerPage = () => {
               onClick={() => setActiveTab('scanner')}>
               <Scan size={18} /> Ticket Scanner
             </button>
+            {clubs.some(c => c.isOwner) && (
+              <button className={`sidebar-link ${activeTab === 'team' ? 'active' : ''}`}
+                onClick={() => setActiveTab('team')}>
+                <Users size={18} /> Manage Teams
+              </button>
+            )}
             <Link to="/settings" className="sidebar-link">
               <Settings size={18} /> Settings
             </Link>
@@ -266,19 +278,30 @@ const ClubManagerPage = () => {
                               {club.isVerified && (
                                 <span className="verified-badge"><CheckCircle size={14} /> Verified</span>
                               )}
+                              <span className={`role-badge ${club.role || 'member'}`} style={{
+                                fontSize: '0.7rem', padding: '2px 6px', border: '1px solid currentColor',
+                                borderRadius: '4px', marginLeft: '8px', display: 'inline-block', verticalAlign: 'middle',
+                                color: club.isOwner ? 'var(--accent-yellow)' : club.role === 'editor' ? 'var(--accent-cyan)' : 'var(--accent-green)'
+                              }}>
+                                {(club.role || 'member').toUpperCase()}
+                              </span>
                             </div>
                             <span className="manage-club-cat">{club.category}</span>
                             {club.location && <span className="manage-club-loc"><MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} /> {club.location}</span>}
                           </div>
                           <div className="manage-card-actions">
-                            <Button variant="outline" size="small" onClick={() => navigate(`/edit-club/${club.id}`)}>
-                              <Pencil size={14} /> Edit
-                            </Button>
-                            <Button size="small" variant="outline"
-                              style={{ borderColor: 'var(--accent-pink)', color: 'var(--accent-pink)' }}
-                              onClick={() => setDeleteTarget({ type: 'club', id: club.id, name: club.name })}>
-                              <Trash2 size={14} /> Delete
-                            </Button>
+                            {(club.isOwner || club.role === 'editor') && (
+                              <Button variant="outline" size="small" onClick={() => navigate(`/edit-club/${club.id}`)}>
+                                <Pencil size={14} /> Edit
+                              </Button>
+                            )}
+                            {club.isOwner && (
+                              <Button size="small" variant="outline"
+                                style={{ borderColor: 'var(--accent-pink)', color: 'var(--accent-pink)' }}
+                                onClick={() => setDeleteTarget({ type: 'club', id: club.id, name: club.name })}>
+                                <Trash2 size={14} /> Delete
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -389,6 +412,18 @@ const ClubManagerPage = () => {
                       <TicketScanner eventId={selectedScannerEvent} />
                     </div>
                   )}
+                </motion.div>
+              )}
+
+              {/* ── ANALYTICS TAB ─────────────────────── */}
+              {activeTab === 'analytics' && (
+                <ClubAnalytics clubs={clubs} />
+              )}
+
+              {/* ── TEAM TAB ──────────────────────────── */}
+              {activeTab === 'team' && (
+                <motion.div className="dashboard-tab" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <TeamManager clubs={clubs.filter(c => c.isOwner)} token={token} />
                 </motion.div>
               )}
             </>

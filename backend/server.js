@@ -77,6 +77,11 @@ const eventRoutes = require('./routes/events');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
 const searchRoutes = require('./routes/search');
+const reviewRoutes = require('./routes/reviews');
+const followRoutes = require('./routes/follows');
+const memberRoutes = require('./routes/members');
+const commentRoutes = require('./routes/comments');
+const analyticsRoutes = require('./routes/analytics');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -85,6 +90,11 @@ app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/follows', followRoutes);
+app.use('/api/members', memberRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Global Error Handler — never expose stack traces in production (Check 4)
 app.use((err, req, res, next) => {

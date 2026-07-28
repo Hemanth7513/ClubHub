@@ -11,6 +11,8 @@ import { useAuth } from '../context/AuthContext';
 import { Helmet } from 'react-helmet-async';
 import API_BASE_URL from '../config';
 import TicketModal from '../components/Ticketing/TicketModal';
+import ReviewsSection from '../components/Reviews/ReviewsSection';
+import FollowButton from '../components/FollowButton/FollowButton';
 import './ClubDetailPage.css';
 
 const ClubDetailPage = () => {
@@ -47,6 +49,8 @@ const ClubDetailPage = () => {
             e => String(e.club_id) === String(id) && new Date(e.date) >= now
           );
           setEvents(clubEvents);
+          // Track the view (fire and forget)
+          fetch(`${API_BASE_URL}/analytics/club/${id}/view`, { method: 'POST' }).catch(() => {});
         }
       } catch (err) {
         setError(err.message);
@@ -129,6 +133,9 @@ const ClubDetailPage = () => {
             <Button variant="outline" size="small" onClick={() => navigate(`/edit-club/${club.id}`)}>
               <Pencil size={15} /> Edit Club
             </Button>
+          )}
+          {!isOwner && club && (
+            <FollowButton clubId={club.id} />
           )}
           <button onClick={handleShare} className="share-btn-round"
             title={copied ? 'Link copied!' : 'Share this club'} aria-label="Share club">
@@ -214,14 +221,16 @@ const ClubDetailPage = () => {
                         <span className="club-event-loc"><MapPin size={13} /> {event.location}</span>
                       )}
                     </div>
-                    <Button variant="primary" size="small" onClick={() => handleOpenTicketModal(event)}>
-                      <Ticket size={13} style={{ marginRight: '5px' }} /> RSVP
+                    <Button variant="primary" size="small" onClick={() => navigate(`/events/${event.id}`)}>
+                      <Ticket size={13} style={{ marginRight: '5px' }} /> View Event
                     </Button>
                   </div>
                 ))}
               </div>
             )}
           </div>
+          
+          <ReviewsSection clubId={id} />
         </motion.div>
 
         {/* Right: Info Card + Actions + Maps */}
@@ -329,13 +338,6 @@ const ClubDetailPage = () => {
         </motion.div>
       </div>
 
-      {selectedEvent && (
-        <TicketModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          event={selectedEvent} 
-        />
-      )}
     </div>
   );
 };

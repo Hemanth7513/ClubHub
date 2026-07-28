@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, TicketIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button/Button';
+import RichTextEditor from '../components/RichTextEditor/RichTextEditor';
 import API_BASE_URL from '../config';
 import './AddClubPage.css';
 import './AddEventPage.css';
@@ -195,9 +196,15 @@ const AddEventPage = () => {
           {/* Description */}
           <div className="form-group">
             <label htmlFor="description">Description *</label>
-            <textarea id="description" name="description" value={formData.description}
-              onChange={handleChange} rows={5} placeholder="What's happening at this event? Who should attend?"
-              className={formErrors.description ? 'input-error' : ''} />
+            <RichTextEditor
+              value={formData.description}
+              onChange={(val) => {
+                setFormData(prev => ({ ...prev, description: val }));
+                if (formErrors.description) setFormErrors(prev => ({ ...prev, description: null }));
+              }}
+              placeholder="What's happening at this event? Who should attend?"
+              minHeight={160}
+            />
             {formErrors.description && <span className="error-text">{formErrors.description}</span>}
           </div>
 

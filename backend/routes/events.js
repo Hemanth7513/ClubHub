@@ -69,19 +69,51 @@ router.get('/:id/tickets', async (req, res) => {
     }
 });
 
+// Helpers to verify permissions
+const hasClubPermission = async (clubId, userId, userRole, allowedRoles = ['editor', 'moderator']) => {
+    if (userRole === 'admin') return true;
+    
+    const { data: club } = await supabase
+        .from('clubs')
+        .select('user_id')
+        .eq('id', clubId)
+        .single();
+        
+    if (!club) return false;
+    if (club.user_id && club.user_id.toString() === userId.toString()) return true;
+    
+    const { data: member } = await supabase
+        .from('club_members')
+        .select('role')
+        .eq('club_id', clubId)
+        .eq('user_id', userId)
+        .maybeSingle();
+        
+    return member && allowedRoles.includes(member.role);
+};
+
+const hasEventPermission = async (eventId, userId, userRole, allowedRoles = ['editor', 'moderator']) => {
+    if (userRole === 'admin') return true;
+    
+    const { data: event } = await supabase
+        .from('events')
+        .select('club_id, user_id')
+        .eq('id', eventId)
+        .single();
+        
+    if (!event) return false;
+    if (event.user_id && event.user_id.toString() === userId.toString()) return true;
+    
+    return hasClubPermission(event.club_id, userId, userRole, allowedRoles);
+};
+
 // Create a new event
 router.post('/', authenticateToken, validateEventInput, async (req, res) => {
     const { clubId, title, description, date, location, imageUrl, category } = req.body;
     try {
-        // Verify club ownership before adding an event
-        const { data: club, error: clubFetchError } = await supabase
-            .from('clubs')
-            .select('user_id')
-            .eq('id', clubId)
-            .single();
-
-        if (clubFetchError || !club) return res.status(404).json({ error: 'Club not found' });
-        if ((!club.user_id || club.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
+        // Verify club ownership or member permissions before adding an event
+        const authorized = await hasClubPermission(clubId, req.user.id, req.user.role);
+        if (!authorized) {
             return res.status(403).json({ error: 'You are not authorized to add events to this club' });
         }
 
@@ -103,21 +135,15 @@ router.post('/', authenticateToken, validateEventInput, async (req, res) => {
     }
 });
 
-// Create a ticket for an event (owner only)
+// Create a ticket for an event (owner and editors/moderators only)
 router.post('/:id/tickets', authenticateToken, async (req, res) => {
     try {
         const { name, price_inr, capacity } = req.body;
         if (!name) return res.status(400).json({ error: 'Ticket name is required' });
 
-        // Verify event ownership before creating tickets
-        const { data: event, error: eventFetchError } = await supabase
-            .from('events')
-            .select('user_id')
-            .eq('id', req.params.id)
-            .single();
-
-        if (eventFetchError || !event) return res.status(404).json({ error: 'Event not found' });
-        if ((!event.user_id || event.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
+        // Verify event ownership or member permissions before creating tickets
+        const authorized = await hasEventPermission(req.params.id, req.user.id, req.user.role);
+        if (!authorized) {
             return res.status(403).json({ error: 'You are not authorized to create tickets for this event' });
         }
 
@@ -142,33 +168,22 @@ router.post('/:id/tickets', authenticateToken, async (req, res) => {
     }
 });
 
-// Update event (protected, owner only)
+// Update event (protected, owner and editors/moderators only)
 router.put('/:id', authenticateToken, validateEventInput, async (req, res) => {
     try {
-        const { data: event, error: fetchError } = await supabase
-            .from('events')
-            .select('user_id, club_id')
-            .eq('id', req.params.id)
-            .single();
-
-        if (fetchError || !event) return res.status(404).json({ error: 'Event not found' });
-
-        if ((!event.user_id || event.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
+        // Verify event ownership or member permissions before updating
+        const authorized = await hasEventPermission(req.params.id, req.user.id, req.user.role);
+        if (!authorized) {
             return res.status(403).json({ error: 'You are not authorized to edit this event' });
         }
 
         const { clubId, title, description, date, location, imageUrl, category } = req.body;
 
-        if (clubId && String(clubId) !== String(event.club_id)) {
-            const { data: club, error: clubFetchError } = await supabase
-                .from('clubs')
-                .select('user_id')
-                .eq('id', clubId)
-                .single();
-
-            if (clubFetchError || !club) return res.status(404).json({ error: 'Target club not found' });
-            if ((!club.user_id || club.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
-                return res.status(403).json({ error: 'You are not authorized to attach events to this club' });
+        // If moving to another club, verify permissions on target club as well
+        if (clubId) {
+            const hasTargetPermission = await hasClubPermission(clubId, req.user.id, req.user.role);
+            if (!hasTargetPermission) {
+                return res.status(403).json({ error: 'You are not authorized to attach events to the target club' });
             }
         }
 
@@ -191,18 +206,12 @@ router.put('/:id', authenticateToken, validateEventInput, async (req, res) => {
     }
 });
 
-// Delete event (protected, owner only)
+// Delete event (protected, owner and editors/moderators only)
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
-        const { data: event, error: fetchError } = await supabase
-            .from('events')
-            .select('user_id')
-            .eq('id', req.params.id)
-            .single();
-            
-        if (fetchError || !event) return res.status(404).json({ error: 'Event not found' });
-        
-        if ((!event.user_id || event.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
+        // Verify event ownership or member permissions before deleting
+        const authorized = await hasEventPermission(req.params.id, req.user.id, req.user.role);
+        if (!authorized) {
             return res.status(403).json({ error: 'You are not authorized to delete this event' });
         }
         
@@ -365,15 +374,9 @@ router.post('/:id/check-in', authenticateToken, async (req, res) => {
         
         if (!registrationId) return res.status(400).json({ error: 'Registration ID required' });
 
-        // 1. Ensure the user calling this owns the event
-        const { data: event, error: eventError } = await supabase
-            .from('events')
-            .select('user_id')
-            .eq('id', eventId)
-            .single();
-
-        if (eventError || !event) return res.status(404).json({ error: 'Event not found' });
-        if (String(event.user_id) !== String(req.user.id)) return res.status(403).json({ error: 'Not authorized to scan tickets for this event' });
+        // 1. Ensure the user calling this has event permissions
+        const authorized = await hasEventPermission(eventId, req.user.id, req.user.role);
+        if (!authorized) return res.status(403).json({ error: 'Not authorized to scan tickets for this event' });
 
         // 2. Look up the registration
         const { data: registration, error: regError } = await supabase

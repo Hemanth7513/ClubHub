@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button/Button';
+import RichTextEditor from '../components/RichTextEditor/RichTextEditor';
 import API_BASE_URL from '../config';
 import './AddClubPage.css';
 
@@ -165,14 +166,15 @@ const AddClubPage = () => {
           {/* Description */}
           <div className="form-group">
             <label htmlFor="description">Description *</label>
-            <textarea
-              id="description" name="description"
-              value={formData.description} onChange={handleChange}
+            <RichTextEditor
+              value={formData.description}
+              onChange={(val) => {
+                setFormData(prev => ({ ...prev, description: val }));
+                if (formErrors.description) setFormErrors(prev => ({ ...prev, description: null }));
+              }}
               placeholder="What is your community about? What do you do? (Minimum 50 characters)"
-              className={formErrors.description ? 'input-error' : ''}
-              rows={7}
+              minHeight={200}
             />
-            <span className="char-hint">{formData.description.trim().length} / 50 min</span>
             {formErrors.description && <span className="error-text">{formErrors.description}</span>}
           </div>
 

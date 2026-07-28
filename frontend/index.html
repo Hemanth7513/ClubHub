@@ -22,6 +22,15 @@
     <meta property="twitter:title" content="Vijayawada ClubHub" />
     <meta property="twitter:description" content="The digital heartbeat of Vijayawada's social fabric." />
     
+    <!-- Early Backend Wakeup Ping (Cold Start Mitigation) -->
+    <script>
+      (function() {
+        // Fallback for dev mode where ENV vars might not be in HTML
+        var backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://clubhub-backend-vja.onrender.com';
+        fetch(backendUrl + '/').catch(function(){}); // Silent fail, fire and forget
+      })();
+    </script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     

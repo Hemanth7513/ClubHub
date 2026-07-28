@@ -147,7 +147,24 @@ router.put('/:id', authenticateToken, validateClubInput, async (req, res) => {
 
         if (fetchError || !club) return res.status(404).json({ error: 'Club not found' });
 
-        if ((!club.user_id || club.user_id.toString() !== req.user.id.toString()) && req.user.role !== 'admin') {
+        let hasPermission = false;
+        if (req.user.role === 'admin') {
+            hasPermission = true;
+        } else if (club.user_id && club.user_id.toString() === req.user.id.toString()) {
+            hasPermission = true;
+        } else {
+            const { data: member } = await supabase
+                .from('club_members')
+                .select('role')
+                .eq('club_id', req.params.id)
+                .eq('user_id', req.user.id)
+                .maybeSingle();
+            if (member && member.role === 'editor') {
+                hasPermission = true;
+            }
+        }
+
+        if (!hasPermission) {
             return res.status(403).json({ error: 'You are not authorized to edit this club' });
         }
 

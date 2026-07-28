@@ -30,6 +30,7 @@ const SupportPage = lazy(() => import('./pages/SupportPage'));
 const AddEventPage = lazy(() => import('./pages/AddEventPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
 const ClubManagerPage = lazy(() => import('./pages/ClubManagerPage'));
 const MapPage = lazy(() => import('./pages/MapPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
@@ -120,6 +121,11 @@ function App() {
               <Route path="/events" element={
                 <ProtectedRoute>
                   <PageTransition><EventsPage /></PageTransition>
+                </ProtectedRoute>
+              } />
+              <Route path="/events/:id" element={
+                <ProtectedRoute>
+                  <PageTransition><EventDetailPage /></PageTransition>
                 </ProtectedRoute>
               } />
               <Route path="/support" element={<PageTransition><SupportPage /></PageTransition>} />

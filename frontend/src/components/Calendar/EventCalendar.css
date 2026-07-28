@@ -1,0 +1,174 @@
+.custom-calendar-container {
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-title {
+  display: flex;
+  align-items: center;
+}
+
+.calendar-title h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.calendar-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.brutalist-button-square {
+  background: var(--bg-surface);
+  border: 3px solid var(--border-dark);
+  box-shadow: 3px 3px 0 var(--border-dark);
+  color: var(--text-main);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.brutalist-button-square:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--border-dark);
+  background: var(--accent-cyan);
+  color: #000;
+}
+
+.brutalist-button-square:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--border-dark);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-dark);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.weekday {
+  color: var(--text-muted);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  background: var(--glass-border);
+  border: 2px solid var(--border-dark);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendar-day {
+  background: var(--bg-surface);
+  min-height: 100px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.calendar-day.day-padding {
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.day-number {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  align-self: flex-start;
+}
+
+.calendar-day.today .day-number {
+  color: var(--accent-pink);
+  background: var(--border-dark);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.day-events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  max-height: 70px;
+  flex-grow: 1;
+}
+
+.calendar-event-pill {
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.calendar-event-pill:hover {
+  background: var(--accent-yellow);
+  color: #000;
+  transform: translateY(-1px);
+}
+
+.event-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.calendar-day.has-events {
+  background: rgba(204, 255, 0, 0.03);
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 80px;
+  }
+  
+  .event-pill-title {
+    display: none;
+  }
+  
+  .calendar-event-pill {
+    justify-content: center;
+    padding: 6px;
+  }
+  
+  .event-pill-dot {
+    width: 8px;
+    height: 8px;
+    margin: 0;
+  }
+}

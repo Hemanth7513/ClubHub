@@ -1,0 +1,13 @@
+.follow-btn {
+  transition: all 0.3s ease;
+}
+
+.follow-btn.following {
+  background-color: transparent;
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.follow-btn.following:hover {
+  background-color: rgba(16, 185, 129, 0.1);
+}

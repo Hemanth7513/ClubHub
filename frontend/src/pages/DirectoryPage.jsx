@@ -7,6 +7,7 @@ import MissionPlot from '../components/MissionPlot/MissionPlot';
 import DiscoveryWheel from '../components/DiscoveryWheel/DiscoveryWheel';
 import SearchBar from '../components/SearchBar/SearchBar';
 import { Link, useLocation } from 'react-router-dom';
+import Fuse from 'fuse.js';
 import API_BASE_URL from '../config';
 import SkeletonCard from '../components/Loaders/SkeletonCard';
 import './DirectoryPage.css';
@@ -28,6 +29,8 @@ const DirectoryPage = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [visibleCount, setVisibleCount] = useState(9);
+  const CLUBS_PER_PAGE = 9;
   
 
   const discoveryRef = useRef(null);
@@ -55,13 +58,22 @@ const DirectoryPage = () => {
 
   const fetchClubs = async () => {
     try {
-      setLoading(true);
+      const cachedClubs = localStorage.getItem('clubsCache');
+      if (cachedClubs) {
+        setClubs(JSON.parse(cachedClubs));
+        setLoading(false); // Optimistic UI: show stale data immediately
+      } else {
+        setLoading(true);
+      }
+      
       const res = await fetch(`${API_BASE_URL}/clubs`);
       if (!res.ok) throw new Error('Failed to fetch clubs');
-      setClubs(await res.json());
+      const data = await res.json();
+      setClubs(data);
+      localStorage.setItem('clubsCache', JSON.stringify(data));
       setError(null);
     } catch (err) {
-      setError('Unable to load clubs.');
+      if (clubs.length === 0) setError('Unable to load clubs.');
     } finally {
       setLoading(false);
     }
@@ -76,17 +88,34 @@ const DirectoryPage = () => {
   };
 
   const filteredClubs = useMemo(() => {
-    return clubs.filter(c => {
-      if (selectedCategory && c.category !== selectedCategory) return false;
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        return c.name.toLowerCase().includes(q) || 
-               c.category.toLowerCase().includes(q) || 
-               (c.description && c.description.toLowerCase().includes(q));
-      }
-      return true;
-    });
+    let result = clubs;
+
+    if (selectedCategory) {
+      result = result.filter(c => c.category === selectedCategory);
+    }
+
+    if (searchQuery.trim()) {
+      const fuse = new Fuse(result, {
+        keys: ['name', 'category', 'description'],
+        threshold: 0.3,
+        ignoreLocation: true
+      });
+      result = fuse.search(searchQuery).map(res => res.item);
+    }
+
+    return result;
   }, [clubs, selectedCategory, searchQuery]);
+
+  const displayedClubs = filteredClubs.slice(0, visibleCount);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + CLUBS_PER_PAGE);
+  };
+
+  // Reset pagination when filter or search changes
+  useEffect(() => {
+    setVisibleCount(CLUBS_PER_PAGE);
+  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="directory-page">
@@ -173,16 +202,23 @@ const DirectoryPage = () => {
                     ))}
                   </div>
                 ) : searchQuery ? (
-                  <div className="clubs-grid stagger-in mt-4">
-                    {filteredClubs.length > 0 ? filteredClubs.map((club, i) => (
-                      <ClubCard key={club.id} club={club} index={i} />
-                    )) : (
-                      <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
-                        <h3>No matches found</h3>
-                        <p>Try a different search term or explore categories.</p>
+                  <>
+                    <div className="clubs-grid stagger-in mt-4">
+                      {displayedClubs.length > 0 ? displayedClubs.map((club, i) => (
+                        <ClubCard key={club.id} club={club} index={i} />
+                      )) : (
+                        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
+                          <h3>No matches found</h3>
+                          <p>Try a different search term or explore categories.</p>
+                        </div>
+                      )}
+                    </div>
+                    {filteredClubs.length > visibleCount && (
+                      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                        <Button variant="outline" onClick={handleLoadMore}>Load More Results</Button>
                       </div>
                     )}
-                  </div>
+                  </>
                 ) : (
                   <DiscoveryWheel 
                     categories={CATEGORIES} 
@@ -233,7 +269,7 @@ const DirectoryPage = () => {
                   <div className="category-accent-bar" style={{ background: CATEGORIES.find(c => c.name === selectedCategory)?.color }} />
                 </div>
                 <div className="clubs-grid stagger-in">
-                  {filteredClubs.length > 0 ? filteredClubs.map((club, i) => (
+                  {displayedClubs.length > 0 ? displayedClubs.map((club, i) => (
                     <ClubCard key={club.id} club={club} index={i} />
                   )) : (
                     <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
@@ -242,6 +278,11 @@ const DirectoryPage = () => {
                     </div>
                   )}
                 </div>
+                {filteredClubs.length > visibleCount && (
+                  <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                    <Button variant="outline" onClick={handleLoadMore}>Load More Clubs</Button>
+                  </div>
+                )}
               </div>
           </motion.div>
         )}

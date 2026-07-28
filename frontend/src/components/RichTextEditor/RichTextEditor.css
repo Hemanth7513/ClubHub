@@ -1,0 +1,80 @@
+/* Override Quill's Snow theme to match ClubHub's brutalist dark theme */
+.rich-editor-wrapper .ql-toolbar.ql-snow {
+  background: var(--bg-secondary);
+  border: 3px solid var(--border-dark) !important;
+  border-bottom: 2px solid var(--border-dark) !important;
+  border-radius: 8px 8px 0 0;
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.rich-editor-wrapper .ql-container.ql-snow {
+  border: 3px solid var(--border-dark) !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px;
+  background: var(--bg-surface);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.rich-editor-wrapper .ql-editor {
+  min-height: var(--editor-min-height, 200px);
+  color: var(--text-main);
+  line-height: 1.7;
+}
+
+.rich-editor-wrapper .ql-editor.ql-blank::before {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Toolbar button overrides */
+.rich-editor-wrapper .ql-snow .ql-stroke {
+  stroke: var(--text-secondary) !important;
+}
+
+.rich-editor-wrapper .ql-snow .ql-fill {
+  fill: var(--text-secondary) !important;
+}
+
+.rich-editor-wrapper .ql-snow .ql-picker-label {
+  color: var(--text-secondary) !important;
+}
+
+.rich-editor-wrapper .ql-snow .ql-picker-options {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-dark);
+  color: var(--text-main);
+}
+
+.rich-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-stroke,
+.rich-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  stroke: var(--accent-cyan) !important;
+}
+
+.rich-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-fill,
+.rich-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: var(--accent-cyan) !important;
+}
+
+/* Rich text content display (read-mode) */
+.rich-text-content h2 { font-size: 1.5rem; margin: 1.2rem 0 0.6rem; }
+.rich-text-content h3 { font-size: 1.2rem; margin: 1rem 0 0.5rem; }
+.rich-text-content p { margin-bottom: 0.75rem; }
+.rich-text-content ul, .rich-text-content ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+.rich-text-content li { margin-bottom: 0.3rem; }
+.rich-text-content blockquote {
+  border-left: 4px solid var(--accent-cyan);
+  padding-left: 1rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 1rem 0;
+}
+.rich-text-content a {
+  color: var(--accent-cyan);
+  text-decoration: underline;
+}
+.rich-text-content strong { font-weight: 700; }
+.rich-text-content em { font-style: italic; }
