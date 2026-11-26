@@ -27,16 +27,9 @@ const EventDetailPage = () => {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE_URL}/events`);
-        if (!res.ok) throw new Error('Failed to fetch events');
-        const allEvents = await res.json();
-        
-        // Find the event by ID since the backend currently returns all events
-        // (A dedicated /events/:id route would be better, but this works for now)
-        const foundEvent = allEvents.find(e => String(e.id) === String(id));
-        if (!foundEvent) {
-          throw new Error('Event not found');
-        }
+        const res = await fetch(`${API_BASE_URL}/events/${id}`);
+        if (!res.ok) throw new Error(res.status === 404 ? 'Event not found' : 'Failed to fetch event');
+        const foundEvent = await res.json();
         setEvent(foundEvent);
       } catch (err) {
         setError(err.message);
@@ -88,9 +81,7 @@ const EventDetailPage = () => {
   const currentUrl = window.location.href;
   const ogImageUrl = event.image_url || 'https://clubhub-vja.vercel.app/favicon.png';
 
-  // Check if current user is the owner of the club hosting the event
-  // For simplicity, we only show edit if user is admin (or we'd need to fetch club owners)
-  const isAdmin = user?.role === 'admin';
+  const canEdit = user?.role === 'admin' || (event.user_id && user?.id === event.user_id);
 
   return (
     <div className="container event-detail-page">
@@ -104,11 +95,11 @@ const EventDetailPage = () => {
 
       {/* Nav Row */}
       <div className="detail-nav-row" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/events" className="back-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: 'var(--text-main)', fontWeight: '600' }}>
+        <Link to="/events" className="back-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', color: 'var(--text-primary)', fontWeight: '600' }}>
           <ArrowLeft size={20} /> Back to Events
         </Link>
         <div className="detail-nav-actions" style={{ display: 'flex', gap: '1rem' }}>
-          {isAdmin && (
+          {canEdit && (
             <Button variant="outline" size="small" onClick={() => navigate(`/edit-event/${event.id}`)}>
               Edit Event
             </Button>

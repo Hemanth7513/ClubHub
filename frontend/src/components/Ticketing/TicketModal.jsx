@@ -13,6 +13,7 @@ const TicketModal = ({ isOpen, onClose, event }) => {
   const [status, setStatus] = useState('idle'); // idle, processing, success, error
   const [ticketData, setTicketData] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
   
   // Registration Form State
   const [attendeeName, setAttendeeName] = useState('');
@@ -22,6 +23,8 @@ const TicketModal = ({ isOpen, onClose, event }) => {
 
   React.useEffect(() => {
     if (isOpen && event) {
+      setStatus('idle');
+      setErrorMsg('');
       const fetchTicket = async () => {
         try {
           setFetchLoading(true);
@@ -48,13 +51,14 @@ const TicketModal = ({ isOpen, onClose, event }) => {
   const totalAmount = (TICKET_PRICE * quantity) + platformFee;
 
   const handleCheckout = async () => {
-    if (!attendeeName || !phone) {
-      alert("Please fill in your Name and Phone Number.");
+    if (!attendeeName.trim() || !phone.trim()) {
+      setErrorMsg('Please fill in your Name and Phone Number.');
       return;
     }
 
     try {
       setLoading(true);
+      setErrorMsg('');
       setStatus('processing');
       
       const res = await fetch(`${API_BASE_URL}/events/${event.id}/rsvp`, {
@@ -77,7 +81,7 @@ const TicketModal = ({ isOpen, onClose, event }) => {
       setLoading(false);
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      setErrorMsg(err.message);
       setStatus('error');
       setLoading(false);
     }
@@ -109,13 +113,18 @@ const TicketModal = ({ isOpen, onClose, event }) => {
             <div className="modal-error">
               <AlertTriangle size={64} color="var(--accent-pink)" />
               <h2>Registration Failed</h2>
-              <p>Something went wrong during the transaction. Please try again.</p>
-              <Button onClick={() => setStatus('idle')} variant="outline" className="mt-4">Retry</Button>
+              <p>{errorMsg || 'Something went wrong during the transaction. Please try again.'}</p>
+              <Button onClick={() => { setStatus('idle'); setErrorMsg(''); }} variant="outline" className="mt-4">Retry</Button>
             </div>
           ) : (
             <>
               <h2>Secure Your Spot</h2>
               <h3 className="event-title-preview">{event.title}</h3>
+              {errorMsg && (
+                <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '0.65rem 1rem', borderRadius: '8px', border: '1.5px solid #b91c1c', marginBottom: '1rem', fontSize: '0.88rem', fontWeight: 600 }}>
+                  {errorMsg}
+                </div>
+              )}
               
               {fetchLoading ? (
                 <p>Loading ticket info...</p>

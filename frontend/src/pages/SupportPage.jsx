@@ -28,7 +28,7 @@ const FAQ = [
   },
   {
     q: "How can I update my club's information?",
-    a: "Currently, you can reach out to our support team at support@clubhub.com to request updates. We are also rolling out a 'Club Dashboard' feature very soon for self-service updates."
+    a: "Sign in and open the Organizer Dashboard from your profile menu to edit your club details, manage team members, host events, and track page views."
   },
   {
     q: "Who can I contact for technical issues?",
@@ -68,7 +68,7 @@ const SupportPage = () => {
   const renderHelp = () => (
     <div className="support-content-section">
       <h2>Help Center</h2>
-      <p style={{ color: 'var(--text-light)', marginBottom: '1.5rem' }}>Find answers to frequently asked questions about the ClubHub directory and event pass platform.</p>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Find answers to frequently asked questions about the ClubHub directory and event pass platform.</p>
       <div className="faq-list">
         {FAQ.map((item, i) => (
           <button 

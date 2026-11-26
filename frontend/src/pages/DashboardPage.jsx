@@ -104,14 +104,14 @@ const DashboardPage = () => {
           ) : (
             <div className="tickets-grid">
               {feedEvents.map(event => (
-                <Link to={`/club/${event.club_id}`} key={event.id} style={{textDecoration: 'none', color: 'inherit'}}>
+                <Link to={`/events/${event.id}`} key={event.id} style={{textDecoration: 'none', color: 'inherit'}}>
                   <motion.div className="ticket-card glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     {event.image_url && (
                       <div className="ticket-image" style={{ backgroundImage: `url(${event.image_url})` }} />
                     )}
                     <div className="ticket-content">
                       <div className="ticket-header">
-                        <span className="ticket-club">{event.clubs.name}</span>
+                        <span className="ticket-club">{event.clubs?.name || 'ClubHub'}</span>
                       </div>
                       <h3>{event.title}</h3>
                       <div className="ticket-details">
