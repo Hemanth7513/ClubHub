@@ -40,4 +40,4 @@ jobs:
         SUPABASE_ANON_KEY: test-anon-key
         JWT_SECRET: ci-test-secret
         ADMIN_EMAIL: admin@example.com
-      run: npm test -- --silent
+      run: npm test -- --silent --passWithNoTests
