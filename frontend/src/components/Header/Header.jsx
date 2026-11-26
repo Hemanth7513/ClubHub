@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, PlusCircle, LogIn, LogOut, User, Menu, X, Calendar, HelpCircle, LayoutDashboard, MapPin, ShieldAlert, Settings, TicketIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -48,11 +48,15 @@ const Header = () => {
               </div>
             ) : user ? (
               <div className="user-dropdown-container">
-                <div className="user-profile">
-                  <User size={18} />
+                <div className={`user-profile ${user.role === 'admin' ? 'is-admin' : ''}`}>
+                  {user.role === 'admin' ? <ShieldAlert size={18} className="admin-shield-icon" /> : <User size={18} />}
                   <span className="user-name">{user.name}</span>
+                  {user.role === 'admin' && <span className="role-badge-admin">ADMIN</span>}
                 </div>
                 <div className="dropdown-menu">
+                  <div className="dropdown-role-header">
+                    {user.role === 'admin' ? 'Superadmin Console' : 'Member Account'}
+                  </div>
                   {user.role === 'admin' ? (
                     <>
                       <Link to="/admin" className="dropdown-item admin-item" onClick={() => setIsMenuOpen(false)}>

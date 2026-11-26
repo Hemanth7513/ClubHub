@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Plus, GlassWater, Trophy, Users, Globe2, Briefcase, Landmark, BookOpen, Laptop } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, GlassWater, Trophy, Users, Globe2, Briefcase, Landmark, BookOpen, Laptop, BadgeCheck } from 'lucide-react';
 import ClubCard from '../components/ClubCard/ClubCard';
 import Button from '../components/Button/Button';
 import MissionPlot from '../components/MissionPlot/MissionPlot';
@@ -24,11 +24,20 @@ const CATEGORIES = [
 ];
 
 const DirectoryPage = () => {
-  const [clubs, setClubs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [clubs, setClubs] = useState(() => {
+    try {
+      const cached = localStorage.getItem('clubsCache');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(() => !localStorage.getItem('clubsCache'));
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('az'); // 'az' | 'newest'
   const [visibleCount, setVisibleCount] = useState(9);
   const CLUBS_PER_PAGE = 9;
   
@@ -42,9 +51,24 @@ const DirectoryPage = () => {
     discoveryRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => { 
-    fetchClubs(); 
+  const fetchClubs = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/clubs`);
+      if (!res.ok) throw new Error('Failed to fetch clubs');
+      const data = await res.json();
+      setClubs(data);
+      localStorage.setItem('clubsCache', JSON.stringify(data));
+      setError(null);
+    } catch {
+      if (!localStorage.getItem('clubsCache')) setError('Unable to load clubs.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchClubs();
+  }, [fetchClubs]);
 
   useEffect(() => {
     if (location.hash === '#categories' && !loading) {
@@ -53,31 +77,6 @@ const DirectoryPage = () => {
       window.scrollTo(0, 0);
     }
   }, [location.hash, loading]);
-
-
-
-  const fetchClubs = async () => {
-    try {
-      const cachedClubs = localStorage.getItem('clubsCache');
-      if (cachedClubs) {
-        setClubs(JSON.parse(cachedClubs));
-        setLoading(false); // Optimistic UI: show stale data immediately
-      } else {
-        setLoading(true);
-      }
-      
-      const res = await fetch(`${API_BASE_URL}/clubs`);
-      if (!res.ok) throw new Error('Failed to fetch clubs');
-      const data = await res.json();
-      setClubs(data);
-      localStorage.setItem('clubsCache', JSON.stringify(data));
-      setError(null);
-    } catch (err) {
-      if (clubs.length === 0) setError('Unable to load clubs.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleBackToDiscovery = () => {
     setSelectedCategory(null);
@@ -94,6 +93,10 @@ const DirectoryPage = () => {
       result = result.filter(c => c.category === selectedCategory);
     }
 
+    if (verifiedOnly) {
+      result = result.filter(c => Boolean(c.isVerified ?? c.is_verified));
+    }
+
     if (searchQuery.trim()) {
       const fuse = new Fuse(result, {
         keys: ['name', 'category', 'description'],
@@ -103,19 +106,69 @@ const DirectoryPage = () => {
       result = fuse.search(searchQuery).map(res => res.item);
     }
 
-    return result;
-  }, [clubs, selectedCategory, searchQuery]);
+    const sorted = [...result];
+    if (sortBy === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+    } else {
+      sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
+
+    return sorted;
+  }, [clubs, selectedCategory, verifiedOnly, searchQuery, sortBy]);
 
   const displayedClubs = filteredClubs.slice(0, visibleCount);
+
+  const handleResetFilters = () => {
+    setVerifiedOnly(false);
+    setSortBy('az');
+    setSearchQuery('');
+  };
+
+  const renderFilterToolbar = (layoutPrefix) => (
+    <div className="directory-filter-toolbar">
+      <div className="filter-pills-group" role="group" aria-label="Sort and filter hubs">
+        {[
+          { id: 'az', label: 'A–Z' },
+          { id: 'newest', label: 'Newest' },
+        ].map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            className={`filter-pill ${sortBy === opt.id ? 'is-active' : ''}`}
+            onClick={() => setSortBy(opt.id)}
+          >
+            {sortBy === opt.id && (
+              <motion.span
+                layoutId={`activeSortPill-${layoutPrefix}`}
+                className="filter-pill-bg"
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
+            )}
+            <span className="filter-pill-label">{opt.label}</span>
+          </button>
+        ))}
+
+        <button
+          type="button"
+          className={`filter-pill ${verifiedOnly ? 'is-active is-verified' : ''}`}
+          onClick={() => setVerifiedOnly(v => !v)}
+          aria-pressed={verifiedOnly}
+        >
+          <span className="filter-pill-label">
+            <BadgeCheck size={14} /> Verified Only
+          </span>
+        </button>
+      </div>
+
+      <span className="filter-count-badge">
+        Showing {displayedClubs.length} of {filteredClubs.length} hubs
+      </span>
+    </div>
+  );
 
   const handleLoadMore = () => {
     setVisibleCount(prev => prev + CLUBS_PER_PAGE);
   };
-
-  // Reset pagination when filter or search changes
-  useEffect(() => {
-    setVisibleCount(CLUBS_PER_PAGE);
-  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="directory-page">
@@ -203,16 +256,26 @@ const DirectoryPage = () => {
                   </div>
                 ) : searchQuery ? (
                   <>
-                    <div className="clubs-grid stagger-in mt-4">
-                      {displayedClubs.length > 0 ? displayedClubs.map((club, i) => (
-                        <ClubCard key={club.id} club={club} index={i} />
-                      )) : (
-                        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
-                          <h3>No matches found</h3>
-                          <p>Try a different search term or explore categories.</p>
-                        </div>
-                      )}
-                    </div>
+                    {renderFilterToolbar('search')}
+                    <motion.div layout className="clubs-grid mt-4">
+                      <AnimatePresence mode="popLayout">
+                        {displayedClubs.length > 0 ? displayedClubs.map((club, i) => (
+                          <ClubCard key={club.id} club={club} index={i} />
+                        )) : (
+                          <motion.div
+                            key="empty-search"
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="empty-filter-state"
+                          >
+                            <h3>No matches found</h3>
+                            <p>Try a different search term or reset your active filters.</p>
+                            <Button variant="outline" onClick={handleResetFilters}>Reset Filters</Button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                     {filteredClubs.length > visibleCount && (
                       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                         <Button variant="outline" onClick={handleLoadMore}>Load More Results</Button>
@@ -268,16 +331,26 @@ const DirectoryPage = () => {
                   <h1 className="title-xl">{selectedCategory}</h1>
                   <div className="category-accent-bar" style={{ background: CATEGORIES.find(c => c.name === selectedCategory)?.color }} />
                 </div>
-                <div className="clubs-grid stagger-in">
-                  {displayedClubs.length > 0 ? displayedClubs.map((club, i) => (
-                    <ClubCard key={club.id} club={club} index={i} />
-                  )) : (
-                    <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
-                      <h3>No matches found</h3>
-                      <p>Try a different search term.</p>
-                    </div>
-                  )}
-                </div>
+                {renderFilterToolbar('category')}
+                <motion.div layout className="clubs-grid">
+                  <AnimatePresence mode="popLayout">
+                    {displayedClubs.length > 0 ? displayedClubs.map((club, i) => (
+                      <ClubCard key={club.id} club={club} index={i} />
+                    )) : (
+                      <motion.div
+                        key="empty-category"
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="empty-filter-state"
+                      >
+                        <h3>No matching hubs</h3>
+                        <p>No clubs match your current filter in this category.</p>
+                        <Button variant="outline" onClick={handleResetFilters}>Reset Filters</Button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
                 {filteredClubs.length > visibleCount && (
                   <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                     <Button variant="outline" onClick={handleLoadMore}>Load More Clubs</Button>

@@ -4,26 +4,33 @@ const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validateEventInput } = require('../middleware/validationMiddleware');
 
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({ stdTTL: 120 });
+const { eventsCache: myCache } = require('../utils/cache');
 
 const { Resend } = require('resend');
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const QRCode = require('qrcode');
 
-// Get all events
+// Get all events (optionally filtered by clubId)
 router.get('/', async (req, res) => {
     try {
-        const cachedData = myCache.get('events_all');
+        const { clubId } = req.query;
+        const cacheKey = clubId ? `events_club_${clubId}` : 'events_all';
+        const cachedData = myCache.get(cacheKey);
         if (cachedData) return res.json(cachedData);
 
-        const { data, error } = await supabase
+        let query = supabase
             .from('events')
             .select('*, clubs(name), tickets(id, name, price_inr, capacity, sold)')
             .order('date', { ascending: true });
+
+        if (clubId) {
+            query = query.eq('club_id', clubId);
+        }
+
+        const { data, error } = await query;
         
         if (error) throw error;
-        myCache.set('events_all', data);
+        myCache.set(cacheKey, data);
         res.json(data);
     } catch (err) {
         console.error('Fetch events error:', err);

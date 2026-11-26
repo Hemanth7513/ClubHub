@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, ArrowRight, Plus, Share2, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,12 +12,19 @@ import API_BASE_URL from '../config';
 
 const EventsPage = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState(() => {
+    try {
+      const cached = localStorage.getItem('eventsCache');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(() => !localStorage.getItem('eventsCache'));
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent] = useState(null);
   const [copiedEventId, setCopiedEventId] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
   
@@ -37,21 +44,8 @@ const EventsPage = () => {
     }
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchEvents();
-  }, []);
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
-      const cachedEvents = localStorage.getItem('eventsCache');
-      if (cachedEvents) {
-        setEvents(JSON.parse(cachedEvents));
-        setLoading(false); // Optimistic UI: show stale data immediately
-      } else {
-        setLoading(true);
-      }
-      
       const res = await fetch(`${API_BASE_URL}/events`);
       if (!res.ok) throw new Error('Failed to fetch events');
       const data = await res.json();
@@ -59,11 +53,16 @@ const EventsPage = () => {
       localStorage.setItem('eventsCache', JSON.stringify(data));
       setError(null);
     } catch (err) {
-      if (events.length === 0) setError(err.message);
+      if (!localStorage.getItem('eventsCache')) setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    fetchEvents();
+  }, [fetchEvents]);
 
   const filteredEvents = filter === 'All' 
     ? events 

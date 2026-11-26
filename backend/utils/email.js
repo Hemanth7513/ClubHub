@@ -2,6 +2,16 @@ const { Resend } = require('resend');
 
 // Initialize Resend with the API key from environment variables
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_key');
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://clubhub-pearl.vercel.app';
+
+const escapeHtml = (unsafe) => {
+    return (unsafe ?? '').toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+};
 
 const sendTicketEmail = async (userEmail, userName, ticketDetails, orderDetails) => {
     try {
@@ -16,15 +26,15 @@ const sendTicketEmail = async (userEmail, userName, ticketDetails, orderDetails)
                     <h1 style="color: #ffffff; margin: 0; font-size: 24px;">ClubHub Ticket</h1>
                 </div>
                 <div style="padding: 30px;">
-                    <h2 style="color: #333333; margin-top: 0;">Hello ${userName || 'Member'},</h2>
+                    <h2 style="color: #333333; margin-top: 0;">Hello ${escapeHtml(userName || 'Member')},</h2>
                     <p style="color: #555555; font-size: 16px;">Thank you for your purchase! Your payment has been successfully processed.</p>
                     
                     <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
                         <h3 style="margin-top: 0; color: #333333;">Order Summary</h3>
-                        <p style="margin: 5px 0; color: #555555;"><strong>Ticket Type:</strong> ${ticketDetails.name}</p>
-                        <p style="margin: 5px 0; color: #555555;"><strong>Quantity:</strong> ${orderDetails.quantity}</p>
-                        <p style="margin: 5px 0; color: #555555;"><strong>Total Paid:</strong> ₹${orderDetails.total_amount_inr}</p>
-                        <p style="margin: 5px 0; color: #555555;"><strong>Payment ID:</strong> ${orderDetails.razorpay_payment_id}</p>
+                        <p style="margin: 5px 0; color: #555555;"><strong>Ticket Type:</strong> ${escapeHtml(ticketDetails.name)}</p>
+                        <p style="margin: 5px 0; color: #555555;"><strong>Quantity:</strong> ${escapeHtml(orderDetails.quantity)}</p>
+                        <p style="margin: 5px 0; color: #555555;"><strong>Total Paid:</strong> ₹${escapeHtml(orderDetails.total_amount_inr)}</p>
+                        <p style="margin: 5px 0; color: #555555;"><strong>Payment ID:</strong> ${escapeHtml(orderDetails.razorpay_payment_id)}</p>
                     </div>
 
                     <p style="color: #555555; font-size: 14px;">Please present this email or the Payment ID at the venue for entry.</p>
@@ -156,7 +166,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                     <h1 style="color: #ccff00; margin: 0; font-size: 32px; letter-spacing: 2px;">CLUBHUB</h1>
                 </div>
                 <div style="padding: 40px 30px; background-color: #ffffff;">
-                    <h2 style="color: #1a1a1a; margin-top: 0; font-size: 24px;">Welcome to the inner circle, ${userName || 'there'}! 👋</h2>
+                    <h2 style="color: #1a1a1a; margin-top: 0; font-size: 24px;">Welcome to the inner circle, ${escapeHtml(userName || 'there')}! 👋</h2>
                     <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
                         You are officially in. ClubHub is your all-access pass to the most vibrant social, professional, and cultural communities in Vijayawada.
                     </p>
@@ -171,7 +181,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                     </div>
 
                     <div style="text-align: center; margin-top: 40px;">
-                        <a href="https://clubhub-n6f2.onrender.com/" style="display: inline-block; background-color: #ccff00; color: #000000; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Start Exploring</a>
+                        <a href="${FRONTEND_URL}" style="display: inline-block; background-color: #ccff00; color: #000000; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Start Exploring</a>
                     </div>
                 </div>
                 <div style="background-color: #000000; padding: 20px; text-align: center;">

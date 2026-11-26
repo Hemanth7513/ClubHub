@@ -243,3 +243,17 @@ CREATE TABLE club_analytics (
 
 CREATE INDEX IF NOT EXISTS idx_club_analytics_club_id ON club_analytics(club_id);
 CREATE INDEX IF NOT EXISTS idx_club_analytics_date ON club_analytics(view_date);
+
+-- Atomically increment daily club page views
+CREATE OR REPLACE FUNCTION increment_club_view(p_club_id BIGINT, p_view_date DATE)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  INSERT INTO club_analytics (club_id, view_date, page_views)
+  VALUES (p_club_id, p_view_date, 1)
+  ON CONFLICT (club_id, view_date)
+  DO UPDATE SET page_views = club_analytics.page_views + 1;
+END;
+$$;

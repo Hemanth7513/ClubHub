@@ -17,12 +17,12 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'https://via.placeholder.com/192x192/ff2e63/ffffff?text=CH',
+            src: '/favicon.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'https://via.placeholder.com/512x512/ff2e63/ffffff?text=CH',
+            src: '/favicon.png',
             sizes: '512x512',
             type: 'image/png'
           }

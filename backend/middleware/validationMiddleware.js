@@ -95,6 +95,9 @@ const validateClubInput = (req, res, next) => {
     if (!category || category.trim().length === 0) {
         return res.status(400).json({ error: 'Category is required' });
     }
+    if (req.body.imageUrl && typeof req.body.imageUrl === 'string' && !req.body.imageUrl.startsWith('https://')) {
+        return res.status(400).json({ error: 'imageUrl must be a secure HTTPS link' });
+    }
 
     next();
 };
@@ -113,6 +116,9 @@ const validateEventInput = (req, res, next) => {
     }
     if (!date) {
         return res.status(400).json({ error: 'Event date is required' });
+    }
+    if (req.body.imageUrl && typeof req.body.imageUrl === 'string' && !req.body.imageUrl.startsWith('https://')) {
+        return res.status(400).json({ error: 'imageUrl must be a secure HTTPS link' });
     }
 
     next();

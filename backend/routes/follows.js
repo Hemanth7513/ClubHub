@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../supabase');
+const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 // Get whether the current user follows a specific club

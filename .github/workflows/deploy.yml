@@ -33,8 +33,11 @@ jobs:
     - name: Install Backend Dependencies
       working-directory: ./backend
       run: npm install
-    - name: Run Backend Lint/Test
+    - name: Run Backend Tests
       working-directory: ./backend
-      run: |
-        # Add test command here if available
-        echo "Backend check passed"
+      env:
+        SUPABASE_URL: https://example.supabase.co
+        SUPABASE_ANON_KEY: test-anon-key
+        JWT_SECRET: ci-test-secret
+        ADMIN_EMAIL: admin@example.com
+      run: npm test -- --silent

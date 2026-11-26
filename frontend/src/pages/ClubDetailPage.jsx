@@ -34,7 +34,7 @@ const ClubDetailPage = () => {
         setLoading(true);
         const [clubRes, eventsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/clubs/${id}`),
-          fetch(`${API_BASE_URL}/events`)
+          fetch(`${API_BASE_URL}/events?clubId=${encodeURIComponent(id)}`)
         ]);
 
         if (!clubRes.ok) throw new Error(clubRes.status === 404 ? 'Club not found' : 'Failed to load club');

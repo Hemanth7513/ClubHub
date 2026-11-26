@@ -182,3 +182,170 @@
 .auth-footer a:hover {
   border-bottom-color: var(--accent-pink);
 }
+
+/* ─── Portal & Method Switchers ─────────────────────────────────────── */
+.auth-card.is-superadmin {
+  border-color: var(--border-dark);
+  box-shadow: 12px 12px 0px var(--accent-pink);
+}
+
+.auth-card.is-superadmin .auth-eyebrow {
+  color: var(--accent-violet);
+}
+
+.portal-switcher {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px;
+  background: var(--bg-primary);
+  border: 2.5px solid var(--border-dark);
+  border-radius: 99px;
+  margin-bottom: 1.75rem;
+}
+
+.portal-pill {
+  position: relative;
+  padding: 0.55rem 0.75rem;
+  border-radius: 99px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.portal-pill-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-yellow);
+  border: 2px solid var(--border-dark);
+  border-radius: 99px;
+  z-index: 0;
+}
+
+.portal-pill-bg.is-admin-bg {
+  background: var(--border-dark);
+}
+
+.portal-pill.is-admin-tab.is-active .portal-pill-label {
+  color: #ffffff;
+}
+
+.portal-pill-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.auth-method-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.auth-method-tab {
+  position: relative;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 2px solid var(--border-dark);
+  background: #ffffff;
+  color: var(--text-primary);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.auth-method-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-cyan);
+  z-index: 0;
+}
+
+.auth-method-label {
+  position: relative;
+  z-index: 1;
+}
+
+.password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrap input {
+  padding-right: 46px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  padding: 4px;
+}
+
+.forgot-link-row {
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.forgot-link-row a {
+  font-size: 0.85rem;
+  color: var(--accent-pink);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.otp-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.otp-change-email-btn {
+  background: none;
+  border: none;
+  color: var(--accent-pink);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.otp-code-input {
+  letter-spacing: 6px;
+  font-size: 1.25rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.auth-submit.is-admin-submit {
+  background: var(--border-dark);
+  color: #ffffff;
+}
+
+.auth-submit.is-admin-submit:hover:not(:disabled) {
+  background: var(--accent-pink);
+  color: #ffffff;
+}

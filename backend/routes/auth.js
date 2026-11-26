@@ -303,13 +303,12 @@ router.post('/login', loginLimiter, async (req, res) => {
         // same time (~60-100ms), so attackers cannot enumerate accounts
         // by measuring response latency.
         // ──────────────────────────────────────────────────────────
-        // If user exists but has no password, they signed up via OTP/Google
+        const hashToCompare = user?.password || DUMMY_HASH;
+        const isMatch = await bcrypt.compare(password, hashToCompare);
+
         if (user && !user.password) {
             return res.status(401).json({ error: 'This account uses OTP or Google login. Please use the Email OTP tab or Google sign-in.' });
         }
-
-        const hashToCompare = user?.password || DUMMY_HASH;
-        const isMatch = await bcrypt.compare(password, hashToCompare);
 
         if (error || !user || !isMatch) {
             securityLog(SECURITY_EVENTS.LOGIN_FAILED, { email: email.toLowerCase() }, req);
@@ -532,6 +531,10 @@ router.get('/me', authenticateToken, async (req, res) => {
 router.put('/profile', authenticateToken, async (req, res) => {
     try {
         const { name, bio, avatarUrl, themePreference, notificationsEnabled } = req.body;
+
+        if (avatarUrl && typeof avatarUrl === 'string' && !avatarUrl.startsWith('https://')) {
+            return res.status(400).json({ error: 'avatarUrl must be a secure HTTPS link.' });
+        }
 
         if (name) {
             if (name.length > 100) return res.status(400).json({ error: 'Name must be under 100 characters.' });

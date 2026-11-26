@@ -9,7 +9,6 @@ import Floaties from './components/Ambience/Floaties';
 import ScrollProgress from './components/ScrollProgress';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import PageTransition from './components/PageTransition/PageTransition';
-import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import OfflineBanner from './components/OfflineBanner';
@@ -48,46 +47,45 @@ function App() {
 
   const [serverWaking, setServerWaking] = React.useState(false);
 
-  // Ping backend on load to wake it up and show banner if it's sleeping
+  // Ping backend root health check on load to wake it up and show banner if sleeping
   React.useEffect(() => {
-    let timeout;
-    const pingServer = async () => {
-      // If server takes more than 2.5 seconds to respond, it's likely sleeping (cold start)
-      timeout = setTimeout(() => {
-        setServerWaking(true);
-      }, 2500);
-      
-      try {
-        await fetch(`${API_BASE_URL}/`); // The root health check endpoint
+    const rootUrl = API_BASE_URL.replace(/\/api$/, '') + '/';
+    const timeout = setTimeout(() => {
+      setServerWaking(true);
+    }, 2500);
+
+    fetch(rootUrl)
+      .catch(() => {})
+      .finally(() => {
         clearTimeout(timeout);
         setServerWaking(false);
-      } catch (e) {
-        clearTimeout(timeout);
-        setServerWaking(false);
-      }
-    };
-    pingServer();
+      });
+
+    return () => clearTimeout(timeout);
   }, []);
 
-  const [showSplash, setShowSplash] = React.useState(false);
+  const [showSplash, setShowSplash] = React.useState(() => !sessionStorage.getItem('hasSeenSplash'));
 
   React.useEffect(() => {
-    const hasSeenSplash = sessionStorage.getItem('hasSeenSplash');
-    if (!hasSeenSplash) {
-      setShowSplash(true);
+    if (showSplash) {
       const timer = setTimeout(() => {
         setShowSplash(false);
         sessionStorage.setItem('hasSeenSplash', 'true');
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [showSplash]);
 
   return (
     <div className="app-container">
       <AnimatePresence>
         {showSplash && <SplashScreen key="splash" />}
       </AnimatePresence>
+      {serverWaking && (
+        <div role="status" style={{ background: '#111', color: '#ccff00', textAlign: 'center', padding: '6px 12px', fontSize: '0.85rem' }}>
+          Waking up server… this may take a few seconds on first load.
+        </div>
+      )}
       <div className="mesh-bg" />
       <ScrollProgress />
       <Floaties />

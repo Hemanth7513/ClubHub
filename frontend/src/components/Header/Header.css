@@ -118,6 +118,38 @@
   transition: all 0.2s;
 }
 
+.user-profile.is-admin {
+  background: var(--border-dark);
+  color: var(--bg-primary);
+}
+
+.admin-shield-icon {
+  color: var(--accent-yellow);
+  flex-shrink: 0;
+}
+
+.role-badge-admin {
+  background: var(--accent-pink);
+  color: #ffffff;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+.dropdown-role-header {
+  padding: 0.45rem 1rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  border-bottom: 1.5px solid rgba(26, 26, 26, 0.1);
+}
+
 .user-name {
   font-weight: 700;
   font-size: 0.85rem;

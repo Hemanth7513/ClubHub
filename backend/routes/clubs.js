@@ -4,10 +4,7 @@ const supabase = require('../supabase');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validateClubInput } = require('../middleware/validationMiddleware');
 const NodeGeocoder = require('node-geocoder');
-const NodeCache = require('node-cache');
-
-// Cache for 2 minutes (120 seconds)
-const myCache = new NodeCache({ stdTTL: 120 });
+const { clubsCache: myCache } = require('../utils/cache');
 
 const geocoder = NodeGeocoder({
   provider: 'openstreetmap'

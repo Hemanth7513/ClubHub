@@ -3,6 +3,7 @@ const router = express.Router();
 const supabase = require('../supabase');
 const { requireRole } = require('../middleware/authMiddleware');
 const { securityLog, SECURITY_EVENTS } = require('../utils/logger');
+const { clubsCache, eventsCache } = require('../utils/cache');
 
 // Check 9 (RBAC): All admin routes protected server-side via requireRole('admin').
 // A hidden button in the UI is NOT security — the server enforces it here.
@@ -60,6 +61,8 @@ router.delete('/clubs/:id', ...adminOnly, async (req, res) => {
         securityLog(SECURITY_EVENTS.ADMIN_ACTION, { userId: req.user.id, action: 'delete_club', resource: req.params.id }, req);
         const { error } = await supabase.from('clubs').delete().eq('id', req.params.id);
         if (error) throw error;
+        clubsCache.flushAll();
+        eventsCache.flushAll();
         res.json({ message: 'Club permanently removed.' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete club' });
@@ -79,6 +82,7 @@ router.put('/clubs/:id/category', ...adminOnly, async (req, res) => {
             .select()
             .single();
         if (error) throw error;
+        clubsCache.flushAll();
         res.json({ message: 'Club category updated.', club: data });
     } catch (err) {
         res.status(500).json({ error: 'Failed to update club category' });
@@ -96,6 +100,7 @@ router.put('/clubs/:id/verify', ...adminOnly, async (req, res) => {
             .select()
             .single();
         if (error) throw error;
+        clubsCache.flushAll();
         res.json({ message: 'Club verification updated.', club: data });
     } catch (err) {
         res.status(500).json({ error: 'Failed to update club verification' });
@@ -120,6 +125,7 @@ router.delete('/events/:id', ...adminOnly, async (req, res) => {
         securityLog(SECURITY_EVENTS.ADMIN_ACTION, { userId: req.user.id, action: 'delete_event', resource: req.params.id }, req);
         const { error } = await supabase.from('events').delete().eq('id', req.params.id);
         if (error) throw error;
+        eventsCache.flushAll();
         res.json({ message: 'Event permanently removed.' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete event' });
